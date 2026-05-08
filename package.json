@@ -42,7 +42,7 @@
     "pub:major": "npm version major && pnpm run pub",
     "format": "prettier . --write",
     "lint": "eslint . --config eslint.config.mjs",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "repository": {
     "type": "git",
