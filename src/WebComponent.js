@@ -208,14 +208,13 @@ export class WebComponent extends HTMLElement {
       try {
         const styleObj = new CSSStyleSheet()
         styleObj.replaceSync(this.constructor.styles)
-        console.log(this.constructor.styles, this.constructor.props)
         this.#host.adoptedStyleSheets = [
           ...this.#host.adoptedStyleSheets,
           styleObj,
         ]
       } catch (e) {
         console.error(
-          'ERR: Constructable stylesheets are only supported in shadow roots',
+          'ERR: Constructable stylesheets are only supported in shadow roots. Use `static shadowRootInit` https://webcomponent.io/shadow-dom/',
           e
         )
       }
