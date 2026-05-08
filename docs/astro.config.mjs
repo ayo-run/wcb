@@ -10,11 +10,23 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'WCB (alpha)',
-      social: {
-        npm: 'https://www.npmjs.com/package/web-component-base',
-        sourcehut: 'https://sr.ht/~ayoayco/wcb/',
-        github: 'https://github.com/ayo-run/wcb/',
-      },
+      social: [
+        {
+          icon: 'npm',
+          label: 'NPM',
+          href: 'https://www.npmjs.com/package/web-component-base',
+        },
+        {
+          icon: 'sourcehut',
+          label: 'SourceHut',
+          href: 'https://sr.ht/~ayoayco/wcb/',
+        },
+        {
+          icon: 'github',
+          label: 'GitHub',
+          href: 'https://github.com/ayo-run/wcb/',
+        },
+      ],
       sidebar: [
         {
           label: 'Guides',
