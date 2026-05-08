@@ -13,7 +13,7 @@ export default defineConfig({
       social: {
         npm: 'https://www.npmjs.com/package/web-component-base',
         sourcehut: 'https://sr.ht/~ayoayco/wcb/',
-        github: 'https://github.com/ayoayco/wcb/',
+        github: 'https://github.com/ayo-run/wcb/',
       },
       sidebar: [
         {

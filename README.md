@@ -23,7 +23,7 @@ The result is a reactive UI on property changes.
 
 There are many ways to get in touch:
 
-1. Open a [GitHub issue](https://github.com/ayoayco/wcb/issues/new) or [discussion](https://github.com/ayoayco/wcb/discussions)
+1. Open a [GitHub issue](https://github.com/ayo-run/wcb/issues/new) or [discussion](https://github.com/ayo-run/wcb/discussions)
 1. Submit a ticket via [SourceHut todo](https://todo.sr.ht/~ayoayco/wcb)
 1. Email me: [hi@ayo.run](mailto:hi@ayo.run)
 
