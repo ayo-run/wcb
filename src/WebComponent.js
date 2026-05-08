@@ -13,7 +13,7 @@ import {
 
 /**
  * A minimal base class to reduce the complexity of creating reactive custom elements
- * @see https://WebComponent.io
+ * @see https://webcomponent.io
  */
 export class WebComponent extends HTMLElement {
   #host
@@ -34,7 +34,7 @@ export class WebComponent extends HTMLElement {
   /**
    * Read-only string property that represents how the component will be rendered
    * @returns {string | any}
-   * @see https://www.npmjs.com/package/web-component-base#template-vs-render
+   * @see https://webcomponent.io/template-vs-render/
    */
   get template() {
     return ''
@@ -48,8 +48,7 @@ export class WebComponent extends HTMLElement {
 
   /**
    * Read-only property containing camelCase counterparts of observed attributes.
-   * @see https://www.npmjs.com/package/web-component-base#prop-access
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/dataset
+   * @see https://webcomponent.io/prop-access/
    * @type {PropStringMap}
    */
   get props() {
