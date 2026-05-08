@@ -2,7 +2,8 @@
   "compilerOptions": {
     "target": "ES2022",
     "allowJs": true,
-    "outDir": "dist",
+    "outDir": "./dist",
+    "rootDir": "./src",
     "declaration": true,
     "emitDeclarationOnly": true
   },
