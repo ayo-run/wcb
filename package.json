@@ -44,7 +44,10 @@
     "lint": "eslint . --config eslint.config.mjs",
     "prepare": "husky install"
   },
-  "repository": "https://github.com/ayoayco/web-component-base",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ayoayco/web-component-base.git"
+  },
   "homepage": "https://WebComponent.io",
   "keywords": [
     "web components",
