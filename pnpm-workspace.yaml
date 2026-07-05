@@ -1,3 +1,5 @@
 packages:
   # include packages in subfolders (e.g. apps/ and packages/)
   - 'docs/'
+allowBuilds:
+  netlify-cli: false
