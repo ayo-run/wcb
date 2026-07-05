@@ -13,6 +13,8 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['html', 'text'],
       include: ['src'],
+      // barrel files only re-export; they carry no logic to cover
+      exclude: ['**/index.js'],
     },
   },
 })
