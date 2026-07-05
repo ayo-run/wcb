@@ -1,0 +1,49 @@
+name: Nightly E2E
+
+# The full cross-browser e2e matrix (Chromium + Firefox + WebKit) is heavy to
+# set up (browser downloads + system deps), so it runs once a day instead of on
+# every push/PR. Push/PR CI keeps a fast Chromium-only e2e gate (test.yml).
+on:
+  schedule:
+    # 06:00 UTC daily
+    - cron: '0 6 * * *'
+  workflow_dispatch: # allow manual runs from the Actions tab
+
+permissions:
+  contents: read
+
+jobs:
+  e2e-all:
+    name: E2E (Chromium + Firefox + WebKit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Firefox/WebKit need system deps that `--with-deps` installs via apt.
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium firefox webkit
+      - run: pnpm test:e2e:all
+
+  size:
+    name: Size limit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # `pnpm size-limit` builds `dist/` (tsc + esbuild) and checks each entry
+      # against the byte budgets declared in package.json `size-limit`.
+      - run: pnpm size-limit

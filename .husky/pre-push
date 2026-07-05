@@ -1,4 +1,0 @@
-# Heavier gate before code leaves the machine: browser e2e (Chromium only —
-# Firefox/WebKit + their system deps are exercised in CI) and the size budget.
-pnpm test:e2e
-pnpm size-limit

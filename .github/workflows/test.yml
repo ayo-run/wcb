@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   unit:
-    name: Unit (happy-dom)
+    name: Unit
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -31,7 +31,7 @@ jobs:
       - run: pnpm test
 
   e2e:
-    name: E2E (Chromium + Firefox + WebKit)
+    name: E2E
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -43,25 +43,8 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      # Downloads the browser binaries and their OS libraries (Firefox/WebKit
-      # need system deps that `--with-deps` installs via apt on the runner).
-      - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps chromium firefox webkit
-      - run: pnpm test:e2e:all
-
-  size:
-    name: Size limit
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 11
-      - uses: actions/setup-node@v6
-        with:
-          node-version-file: .nvmrc
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      # `pnpm size-limit` builds `dist/` (tsc + esbuild) and checks each entry
-      # against the byte budgets declared in package.json `size-limit`.
-      - run: pnpm size-limit
+      # Chromium only on push/PR — the full Firefox/WebKit matrix runs nightly
+      # (.github/workflows/nightly.yml).
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:e2e

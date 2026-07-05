@@ -1,5 +1,8 @@
-# Lean: lint + format staged files, then the fast unit suite.
-# Heavier checks (browser e2e, size-limit) run on pre-push; the full
-# cross-browser matrix runs in CI.
+# Everything runs at commit time. This repo auto-pushes to multiple remotes
+# (github, forgejo, sourcehut — see post-commit), so a pre-push hook would
+# re-run these once per remote; keeping them here runs them once per commit.
+# The full cross-browser e2e matrix still runs nightly in CI. Order: cheap → expensive.
 pnpm exec lint-staged
 pnpm test
+pnpm test:e2e
+pnpm size-limit

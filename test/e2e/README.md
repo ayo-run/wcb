@@ -18,12 +18,24 @@ pnpm test:e2e:webkit    # WebKit (the engine behind Safari)
 pnpm test:e2e:all       # Chromium + Firefox + WebKit
 
 pnpm test               # fast unit suite (happy-dom), unchanged
-pnpm test:all           # unit + default e2e
+pnpm test:all           # unit + full e2e (all 3 engines)
 ```
 
 `pnpm test:e2e` stays on Chromium so it works everywhere with minimal setup; use
-`test:e2e:all` (or a CI matrix) for the full cross-browser run. Each script just
-sets the `E2E_BROWSERS` env var (comma-separated), which the config reads.
+`test:e2e:all` for the full cross-browser run. Each script just sets the
+`E2E_BROWSERS` env var (comma-separated), which the config reads.
+
+### Where each runs
+
+| Stage                         | e2e scope                     |
+| ----------------------------- | ----------------------------- |
+| pre-commit                    | none (unit only)              |
+| pre-push                      | `test:e2e` (Chromium)         |
+| CI on push to `main` / PRs    | `test:e2e` (Chromium)         |
+| CI nightly (`nightly.yml`)    | `test:e2e:all` (all 3 engines) |
+
+The full Firefox/WebKit matrix is heavy to provision, so it runs once a day
+(and on-demand via **workflow_dispatch**) rather than on every push/PR.
 
 Config lives in `vitest.e2e.config.mjs` (Vitest browser mode + the
 `@vitest/browser-playwright` provider), kept separate from `vitest.config.mjs`
@@ -38,8 +50,8 @@ npx playwright install-deps                       # Linux only: system libraries
 
 Firefox and especially WebKit need extra OS libraries on Linux (`libwoff1`,
 etc.); `playwright install-deps` requires root. Without them those engines fail
-to launch — which is why the default target is Chromium and CI installs the deps
-before running `test:e2e:all`.
+to launch — which is why the default target is Chromium, and only the nightly
+workflow installs the deps before running `test:e2e:all`.
 
 ## Coverage
 
