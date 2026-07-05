@@ -38,12 +38,7 @@ There are many ways to get in touch:
 
 ## Size change log
 
-A running record of how each correctness/feature change affects the `WebComponent` base class bundle, measured as min + brotli via [size-limit](https://github.com/ai/size-limit). Baseline before the Phase 0 correctness work: **1.19 kB** (limit 1.2 kB).
-
-| Change                                                           | Size (min+brotli)  | Limit         | Reason & benefit                                                                                                                                                                                                                                                                                                                                                 |
-| ---------------------------------------------------------------- | ------------------ | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Move default-attribute reflection out of the constructor         | ~1.19 kB (≈0)      | 1.2 kB        | **Custom Elements Spec compliance.** Constructors may not mutate attributes, so `document.createElement` on a class with `static props` threw `NotSupportedError` in real browsers. Defaults now reflect on first connect, and markup/SSR-provided attributes win. Pure code movement — no net size cost.                                                        |
-| Safe prop cloning (functions/instances) + define-time validation | 1.31 kB (+0.12 kB) | 1.2 → 1.35 kB | **No more `DataCloneError`.** `structuredClone` of a function/class-instance default crashed construction. Defaults are now cloned per key (plain data deep-copied so instances don't share object/array state; non-cloneable values kept by reference), and a one-time warning names any default whose type can't reflect to an attribute. Limit raised to fit. |
+See [`size-change-log.md`](./size-change-log.md) for a running record of how each correctness/feature change affects the `WebComponent` base class bundle size, with the reason and benefit of each.
 
 ---
 

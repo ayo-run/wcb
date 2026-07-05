@@ -81,6 +81,13 @@ export class WebComponent extends HTMLElement {
   static shadowRootInit
 
   /**
+   * When `true`, a declared-type violation on a prop write throws a
+   * `TypeError` instead of logging via `console.error` and skipping.
+   * @type {boolean}
+   */
+  static strictProps
+
+  /**
    * Read-only property containing camelCase counterparts of observed attributes.
    * @see https://webcomponent.io/prop-access/
    * @type {PropStringMap}
@@ -164,22 +171,19 @@ export class WebComponent extends HTMLElement {
 
     return {
       set(obj, prop, value) {
-        const oldValue = obj[prop]
+        // Types come from `static props` defaults only; undeclared props are
+        // untyped. A declared-type violation is logged and skipped rather
+        // than thrown, so a stray write can't halt render()/onChanges().
+        // Opt into `static strictProps = true` to restore throwing.
+        const declared = typeMap[prop]
 
-        if (!(prop in typeMap)) {
-          typeMap[prop] = typeof value
-        }
-
-        if (typeMap[prop] !== typeof value) {
-          throw TypeError(
-            `Cannot assign ${typeof value} to ${
-              typeMap[prop]
-            } property (setting '${prop}' of ${meta.constructor.name})`
-          )
-        } else if (oldValue !== value) {
+        if (declared && declared !== typeof value && value != null) {
+          const msg = `${meta.constructor.name}: cannot assign ${typeof value} to ${declared} prop "${prop}"`
+          if (meta.constructor.strictProps) throw TypeError(msg)
+          console.error(msg)
+        } else if (obj[prop] !== value) {
           obj[prop] = value
-          const kebab = getKebabCase(prop)
-          setter(kebab, serialize(value))
+          setter(getKebabCase(prop), serialize(value))
         }
 
         return true

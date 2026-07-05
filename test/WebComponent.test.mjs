@@ -366,3 +366,86 @@ describe('safe prop cloning + define-time validation', () => {
     expect(b.props.list).toEqual([1, 2])
   })
 })
+
+/**
+ * Prop types are derived from `static props` defaults only. A declared-type
+ * violation is logged and skipped (never thrown), so a stray write can't
+ * escape `attributeChangedCallback` and silently halt rendering. Undeclared
+ * props are untyped and never lock a type on first write.
+ */
+describe('prop type handling (derive from defaults, log not throw)', () => {
+  it('logs and skips a declared-type violation without throwing', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    class Typed extends WebComponent {
+      static props = { label: 'hi' }
+    }
+    window.customElements.define('typed-label', Typed)
+    const el = document.createElement('typed-label')
+    document.body.appendChild(el)
+
+    expect(() => {
+      el.props.label = 5
+    }).not.toThrow()
+    expect(error).toHaveBeenCalledOnce()
+    expect(error.mock.calls[0][0]).toContain('label')
+    // value unchanged after the rejected write
+    expect(el.props.label).toBe('hi')
+
+    // a subsequent same-type write still succeeds and reflects the attribute
+    el.props.label = 'ok'
+    expect(el.props.label).toBe('ok')
+    expect(el.getAttribute('label')).toBe('ok')
+
+    error.mockRestore()
+  })
+
+  it('does not lock or throw on an undeclared prop written with mixed types', () => {
+    class Untyped extends WebComponent {
+      static props = { name: 'x' }
+    }
+    window.customElements.define('untyped-extra', Untyped)
+    const el = document.createElement('untyped-extra')
+    document.body.appendChild(el)
+
+    expect(() => {
+      el.props.extra = 'first'
+      el.props.extra = 2
+      el.props.extra = true
+    }).not.toThrow()
+    expect(el.props.extra).toBe(true)
+  })
+
+  it('throws on a declared-type violation when static strictProps is true', () => {
+    class Strict extends WebComponent {
+      static props = { label: 'hi' }
+      static strictProps = true
+    }
+    window.customElements.define('strict-label', Strict)
+    const el = document.createElement('strict-label')
+    document.body.appendChild(el)
+
+    expect(() => {
+      el.props.label = 5
+    }).toThrow(TypeError)
+    // value stays intact after the rejected write
+    expect(el.props.label).toBe('hi')
+  })
+
+  it('renders through the previously-poisoning empty-then-string sequence', () => {
+    class Poisonable extends WebComponent {
+      static props = { myName: 'World' }
+      get template() {
+        return `<h1>Hello ${this.props.myName}</h1>`
+      }
+    }
+    window.customElements.define('poison-seq', Poisonable)
+    const el = document.createElement('poison-seq')
+    document.body.appendChild(el)
+
+    expect(() => {
+      el.setAttribute('my-name', '')
+      el.setAttribute('my-name', 'Ayo')
+    }).not.toThrow()
+    expect(el.querySelector('h1').textContent).toBe('Hello Ayo')
+  })
+})
