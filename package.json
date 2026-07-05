@@ -30,8 +30,12 @@
     "dev": "pnpm -F demo dev",
     "test": "vitest --run",
     "test:watch": "vitest",
-    "test:e2e": "vitest --run --config vitest.e2e.config.mjs",
-    "test:all": "pnpm test && pnpm test:e2e",
+    "test:e2e": "E2E_BROWSERS=chromium vitest --run --config vitest.e2e.config.mjs",
+    "test:e2e:chromium": "E2E_BROWSERS=chromium vitest --run --config vitest.e2e.config.mjs",
+    "test:e2e:firefox": "E2E_BROWSERS=firefox vitest --run --config vitest.e2e.config.mjs",
+    "test:e2e:webkit": "E2E_BROWSERS=webkit vitest --run --config vitest.e2e.config.mjs",
+    "test:e2e:all": "vitest --run --config vitest.e2e.config.mjs",
+    "test:all": "pnpm test && pnpm test:e2e:all",
     "demo": "pnpm -F demo dev",
     "demo:build": "pnpm -F demo build",
     "docs": "pnpm -F docs start",
@@ -43,6 +47,13 @@
     "format": "prettier . --write",
     "lint": "eslint . --config eslint.config.mjs",
     "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{js,mjs,cjs}": [
+      "eslint --config eslint.config.mjs --fix",
+      "prettier --write"
+    ],
+    "*.{json,css,html,md,yml,yaml}": "prettier --write"
   },
   "repository": {
     "type": "git",
@@ -73,6 +84,7 @@
     "globals": "^17.1.0",
     "happy-dom": "^20.3.7",
     "husky": "^9.1.7",
+    "lint-staged": "^17.0.8",
     "netlify-cli": "^23.13.5",
     "playwright": "^1.61.1",
     "prettier": "^3.8.1",

@@ -1,24 +1,45 @@
 # End-to-end example tests
 
-These specs load each `demo/examples/*` component into a **real browser** (Chromium
-via Playwright) and drive it the way a user would. They exist because the v5
-correctness work targets behaviors that happy-dom cannot reproduce — custom
-element upgrade ordering, the constructor-attribute rule, empty-string/removed
-attributes, and adopted stylesheets — so the unit suite alone can pass while a
-real browser misbehaves.
+These specs load each `demo/examples/*` component into a **real browser**
+(Chromium, Firefox, and WebKit via Playwright) and drive it the way a user
+would. They exist because the v5 correctness work targets behaviors that
+happy-dom cannot reproduce — custom element upgrade ordering, the
+constructor-attribute rule, empty-string/removed attributes, and adopted
+stylesheets — so the unit suite alone can pass while a real browser misbehaves.
+Running across engines also catches cross-browser differences.
 
 ## Running
 
 ```sh
-pnpm test:e2e     # browser specs only (this folder)
-pnpm test         # fast unit suite (happy-dom), unchanged
-pnpm test:all     # both
+pnpm test:e2e           # default: Chromium only (fast, universal)
+pnpm test:e2e:chromium  # Chromium
+pnpm test:e2e:firefox   # Firefox
+pnpm test:e2e:webkit    # WebKit (the engine behind Safari)
+pnpm test:e2e:all       # Chromium + Firefox + WebKit
+
+pnpm test               # fast unit suite (happy-dom), unchanged
+pnpm test:all           # unit + default e2e
 ```
 
+`pnpm test:e2e` stays on Chromium so it works everywhere with minimal setup; use
+`test:e2e:all` (or a CI matrix) for the full cross-browser run. Each script just
+sets the `E2E_BROWSERS` env var (comma-separated), which the config reads.
+
 Config lives in `vitest.e2e.config.mjs` (Vitest browser mode + the
-`@vitest/browser-playwright` provider). It is kept separate from
-`vitest.config.mjs` so `pnpm test` stays fast and needs no browser. The
-Chromium binary is installed with `npx playwright install chromium`.
+`@vitest/browser-playwright` provider), kept separate from `vitest.config.mjs`
+so `pnpm test` stays fast and needs no browser.
+
+### Browser setup
+
+```sh
+npx playwright install chromium firefox webkit   # download the browsers
+npx playwright install-deps                       # Linux only: system libraries
+```
+
+Firefox and especially WebKit need extra OS libraries on Linux (`libwoff1`,
+etc.); `playwright install-deps` requires root. Without them those engines fail
+to launch — which is why the default target is Chromium and CI installs the deps
+before running `test:e2e:all`.
 
 ## Coverage
 

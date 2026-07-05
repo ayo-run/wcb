@@ -1,4 +1,5 @@
-npm run lint --cache
-npm run test:all
-npm run build
-npx size-limit
+# Lean: lint + format staged files, then the fast unit suite.
+# Heavier checks (browser e2e, size-limit) run on pre-push; the full
+# cross-browser matrix runs in CI.
+pnpm exec lint-staged
+pnpm test

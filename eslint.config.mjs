@@ -12,6 +12,12 @@ export default [
       'no-unused-vars': 'warn',
     },
   },
+  // Config, build, and script files run in Node — give them Node globals
+  // (e.g. `process`) on top of the browser defaults.
+  {
+    files: ['**/*.config.{js,mjs,cjs}', 'scripts/**/*.{js,mjs}'],
+    languageOptions: { globals: globals.node },
+  },
   {
     ignores: ['site/*', '**/dist/*'],
   },
