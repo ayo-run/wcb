@@ -84,6 +84,7 @@ jobs:
       - run: pnpm build
 
       - name: Scope package name for GitHub Packages
+        scope: @ayo-run
         run: npm pkg set name="web-component-base"
 
       - name: Publish
