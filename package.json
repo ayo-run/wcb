@@ -71,6 +71,7 @@
     "netlify-cli": "^23.13.5",
     "prettier": "^3.8.1",
     "release-it": "^19.2.4",
+    "simple-git": "^3.36.0",
     "simple-server": "^1.1.1",
     "size-limit": "^12.0.0",
     "typescript": "^5.9.3",
