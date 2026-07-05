@@ -565,3 +565,76 @@ describe('onChanges property vs attribute', () => {
     expect(last.currentValue).toBe('Ayo')
   })
 })
+
+/**
+ * Upgrade ordering: the platform can fire attributeChangedCallback for
+ * authored attributes BEFORE connectedCallback. Attribute-driven
+ * render()/onChanges() are buffered so onInit always runs first, while the
+ * prop value itself is applied immediately (props stays current in onInit).
+ */
+describe('attribute callback buffering (upgrade ordering)', () => {
+  it('runs onInit before the first render/onChanges for a pre-connect attribute', () => {
+    const order = []
+    let nameInOnInit
+    class Upgraded extends WebComponent {
+      static props = { myName: 'World' }
+      onInit() {
+        order.push('onInit')
+        nameInOnInit = this.props.myName
+      }
+      onChanges() {
+        order.push('onChanges')
+      }
+      render() {
+        order.push('render')
+        super.render()
+      }
+      get template() {
+        return `<h1>Hello ${this.props.myName}</h1>`
+      }
+    }
+    window.customElements.define('upgrade-order', Upgraded)
+
+    // approximate upgrade: set the attribute before the element connects
+    const el = document.createElement('upgrade-order')
+    el.setAttribute('my-name', 'Ayo')
+    // buffered: no render/onChanges have fired yet
+    expect(order).toEqual([])
+
+    document.body.appendChild(el)
+
+    // onInit ran before the first render; onChanges was NOT replayed
+    expect(order[0]).toBe('onInit')
+    expect(order.indexOf('onInit')).toBeLessThan(order.indexOf('render'))
+    expect(order).not.toContain('onChanges')
+    // props already reflects the authored attribute inside onInit
+    expect(nameInOnInit).toBe('Ayo')
+    expect(el.querySelector('h1').textContent).toBe('Hello Ayo')
+  })
+
+  it('fires render and onChanges normally for post-connect attribute changes', () => {
+    const order = []
+    class PostConnect extends WebComponent {
+      static props = { myName: 'World' }
+      onChanges() {
+        order.push('onChanges')
+      }
+      render() {
+        order.push('render')
+        super.render()
+      }
+      get template() {
+        return `<h1>Hello ${this.props.myName}</h1>`
+      }
+    }
+    window.customElements.define('post-connect', PostConnect)
+    const el = document.createElement('post-connect')
+    document.body.appendChild(el)
+
+    order.length = 0
+    el.setAttribute('my-name', 'Zoe')
+    expect(order).toContain('render')
+    expect(order).toContain('onChanges')
+    expect(el.querySelector('h1').textContent).toBe('Hello Zoe')
+  })
+})

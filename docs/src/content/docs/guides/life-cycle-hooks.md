@@ -110,3 +110,20 @@ onChanges({ property /* 'myName' */, attribute /* 'my-name' */, previousValue, c
 
 If you previously read `changes.property` for the attribute name, switch to `changes.attribute`.
 :::
+
+## Upgrade ordering & the buffering guarantee
+
+Per the Custom Elements spec, when an element is upgraded with attributes already present in the markup (e.g. `<my-el my-name="Zoe">`), the browser fires `attributeChangedCallback` **before** `connectedCallback`. Taken literally, that means `render()` and `onChanges()` could run before `onInit()` — so any setup you do in `onInit` (event wiring, reading external state) would not have happened yet on that first render. Test environments like happy-dom/jsdom don't reproduce this ordering, so components can pass in tests and then misbehave in a real browser.
+
+`WebComponent` removes this footgun. Attribute changes that arrive **before** the element is connected are buffered:
+
+- the **prop value is applied immediately**, so `this.props` is already correct inside `onInit()`;
+- the **`render()` and `onChanges()` side effects are deferred** until after `onInit()` runs.
+
+On connect, the order is always:
+
+1. `onInit()` — `this.props` already reflects any authored attributes
+2. a single `render()` — reflects all buffered props in one pass
+3. `afterViewInit()`
+
+**`onChanges()` never fires before `onInit()`.** Pre-connect attribute changes are **not** replayed through `onChanges()` — the first `render()` already reflects them, so `onChanges()` is reserved for genuine post-connect changes. After the element is connected, attribute changes behave normally: each one triggers `render()` and `onChanges()` immediately.

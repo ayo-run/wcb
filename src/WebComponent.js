@@ -54,6 +54,7 @@ export class WebComponent extends HTMLElement {
   #props
   #typeMap = {}
   #reflected = false
+  #connected = false
 
   /**
    * Blueprint for the Proxy props
@@ -139,6 +140,10 @@ export class WebComponent extends HTMLElement {
   connectedCallback() {
     this.#reflectDefaults()
     this.onInit()
+    // Attribute-driven render/onChanges are buffered until here, so onInit
+    // always runs before the first render — even when the platform fires
+    // attributeChangedCallback before connect for authored attributes.
+    this.#connected = true
     this.render()
     this.afterViewInit()
   }
@@ -170,7 +175,11 @@ export class WebComponent extends HTMLElement {
     }
 
     // write through the proxy; item 25 makes this log-not-throw by default
+    // (prop value is always applied so `props` stays current)
     this.props[property] = next
+
+    // defer the render/onChanges side effects until after onInit
+    if (!this.#connected) return
     this.render()
     this.onChanges({ property, attribute, previousValue, currentValue })
   }
