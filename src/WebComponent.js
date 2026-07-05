@@ -115,6 +115,7 @@ export class WebComponent extends HTMLElement {
    * Triggered when an attribute value changes
    * @typedef {{
    *  property: string,
+   *  name: string,
    *  previousValue: any,
    *  currentValue: any
    * }} Changes
@@ -148,22 +149,31 @@ export class WebComponent extends HTMLElement {
   }
 
   attributeChangedCallback(property, previousValue, currentValue) {
-    const camelCaps = getCamelCase(property)
+    if (previousValue === currentValue) return
 
-    if (previousValue !== currentValue) {
-      this[property] = currentValue === '' || currentValue
-      this[camelCaps] = this[property]
-
-      this.#handleUpdateProp(camelCaps, this[property])
-
-      this.render()
-      this.onChanges({ property, previousValue, currentValue })
+    const key = getCamelCase(property)
+    const type = this.#typeMap[key]
+    let next
+    if (currentValue === null) {
+      // removal resets to the declared default (or undefined if none)
+      next = this.constructor.props?.[key]
+    } else if (type && type !== 'string') {
+      // typed props deserialize; a malformed value falls back to the raw
+      // string so render()/onChanges() are never skipped
+      try {
+        next = deserialize(currentValue, type)
+      } catch {
+        next = currentValue
+      }
+    } else {
+      // strings (and untyped props) stay as-is; '' stays ''
+      next = currentValue
     }
-  }
 
-  #handleUpdateProp(key, stringifiedValue) {
-    const restored = deserialize(stringifiedValue, this.#typeMap[key])
-    if (restored !== this.props[key]) this.props[key] = restored
+    // write through the proxy; item 25 makes this log-not-throw by default
+    this.props[key] = next
+    this.render()
+    this.onChanges({ property, name: key, previousValue, currentValue })
   }
 
   #handler(setter, meta) {

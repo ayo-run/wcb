@@ -449,3 +449,92 @@ describe('prop type handling (derive from defaults, log not throw)', () => {
     expect(el.querySelector('h1').textContent).toBe('Hello Ayo')
   })
 })
+
+/**
+ * Attribute value & removal handling in attributeChangedCallback: empty
+ * string stays a string (not coerced to `true`), removal resets to the
+ * declared default, malformed typed values don't skip render, and prop
+ * names that collide with native element properties (e.g. `title`) are no
+ * longer written to the instance.
+ */
+describe('attribute value & removal handling', () => {
+  it('keeps an empty-string attribute as "" (not coerced to true)', () => {
+    const changes = []
+    class Emptyable extends WebComponent {
+      static props = { label: 'hi' }
+      onChanges(c) {
+        changes.push(c)
+      }
+    }
+    window.customElements.define('attr-emptyable', Emptyable)
+    const el = document.createElement('attr-emptyable')
+    document.body.appendChild(el)
+
+    el.setAttribute('label', '')
+    expect(el.props.label).toBe('')
+    // regression: must NOT echo back as "true"
+    expect(el.getAttribute('label')).toBe('')
+    expect(changes.at(-1)).toMatchObject({ name: 'label', currentValue: '' })
+  })
+
+  it('resets a prop to its static default when the attribute is removed', () => {
+    const changes = []
+    class Removable extends WebComponent {
+      static props = { myName: 'World' }
+      onChanges(c) {
+        changes.push(c)
+      }
+    }
+    window.customElements.define('attr-removable', Removable)
+    const el = document.createElement('attr-removable')
+    document.body.appendChild(el)
+
+    el.setAttribute('my-name', 'Ayo')
+    expect(el.props.myName).toBe('Ayo')
+
+    expect(() => el.removeAttribute('my-name')).not.toThrow()
+    expect(el.props.myName).toBe('World')
+    // onChanges fired for the removal with currentValue null
+    expect(changes.some((c) => c.currentValue === null)).toBe(true)
+  })
+
+  it('does not skip render when a typed attribute value is malformed', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const changes = []
+    class Counter extends WebComponent {
+      static props = { count: 0 }
+      onChanges(c) {
+        changes.push(c)
+      }
+    }
+    window.customElements.define('attr-counter', Counter)
+    const el = document.createElement('attr-counter')
+    document.body.appendChild(el)
+
+    // valid value round-trips through the number type
+    el.setAttribute('count', '5')
+    expect(el.props.count).toBe(5)
+
+    // malformed value must not throw and must still fire onChanges/render
+    expect(() => el.setAttribute('count', 'abc')).not.toThrow()
+    expect(changes.at(-1)).toMatchObject({ name: 'count', currentValue: 'abc' })
+
+    error.mockRestore()
+  })
+
+  it('does not touch the native property for a prop named "title"', () => {
+    class Titled extends WebComponent {
+      static props = { title: 'original' }
+    }
+    window.customElements.define('attr-titled', Titled)
+    const el = document.createElement('attr-titled')
+    document.body.appendChild(el)
+
+    el.setAttribute('title', 'changed')
+    expect(el.props.title).toBe('changed')
+    // the callback no longer writes `this.title = true`; the native property
+    // reflects the real string value, not a boolean-coerced "true"
+    expect(el.title).not.toBe('true')
+    expect(el.getAttribute('title')).toBe('changed')
+  })
+})
