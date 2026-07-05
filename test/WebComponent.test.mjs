@@ -265,7 +265,7 @@ describe('reactive props (documented contract)', () => {
     expect(el.props.count).toBe(5)
   })
 
-  it('fires onChanges with property/previousValue/currentValue', () => {
+  it('fires onChanges with property/attribute/previousValue/currentValue', () => {
     const changes = []
     class WithChanges extends WebComponent {
       static props = { myName: 'World' }
@@ -276,7 +276,8 @@ describe('reactive props (documented contract)', () => {
     const el = mount(WithChanges)
     el.setAttribute('my-name', 'Ayo')
     expect(changes.at(-1)).toMatchObject({
-      property: 'my-name',
+      property: 'myName',
+      attribute: 'my-name',
       currentValue: 'Ayo',
     })
   })
@@ -474,7 +475,7 @@ describe('attribute value & removal handling', () => {
     expect(el.props.label).toBe('')
     // regression: must NOT echo back as "true"
     expect(el.getAttribute('label')).toBe('')
-    expect(changes.at(-1)).toMatchObject({ name: 'label', currentValue: '' })
+    expect(changes.at(-1)).toMatchObject({ property: 'label', currentValue: '' })
   })
 
   it('resets a prop to its static default when the attribute is removed', () => {
@@ -517,7 +518,7 @@ describe('attribute value & removal handling', () => {
 
     // malformed value must not throw and must still fire onChanges/render
     expect(() => el.setAttribute('count', 'abc')).not.toThrow()
-    expect(changes.at(-1)).toMatchObject({ name: 'count', currentValue: 'abc' })
+    expect(changes.at(-1)).toMatchObject({ property: 'count', currentValue: 'abc' })
 
     error.mockRestore()
   })
@@ -536,5 +537,31 @@ describe('attribute value & removal handling', () => {
     // reflects the real string value, not a boolean-coerced "true"
     expect(el.title).not.toBe('true')
     expect(el.getAttribute('title')).toBe('changed')
+  })
+})
+
+/**
+ * onChanges distinguishes `property` (camelCase prop key, matching `props`
+ * access) from `attribute` (kebab-case attribute name), so handlers can index
+ * `props` without re-deriving the key.
+ */
+describe('onChanges property vs attribute', () => {
+  it('exposes camelCase property and kebab attribute for a multi-word prop', () => {
+    const changes = []
+    class MultiWord extends WebComponent {
+      static props = { myName: 'World' }
+      onChanges(c) {
+        changes.push(c)
+      }
+    }
+    window.customElements.define('changes-multiword', MultiWord)
+    const el = document.createElement('changes-multiword')
+    document.body.appendChild(el)
+
+    el.setAttribute('my-name', 'Ayo')
+    const last = changes.at(-1)
+    expect(last.property).toBe('myName') // camelCase prop key
+    expect(last.attribute).toBe('my-name') // kebab attribute name
+    expect(last.currentValue).toBe('Ayo')
   })
 })
