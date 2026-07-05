@@ -210,57 +210,62 @@ describe('shadow DOM', () => {
  * Reactive-prop contract as documented on the docs site
  * (guides/usage, guides/prop-access, guides/life-cycle-hooks).
  *
- * These are marked `it.fails` because the current implementation cannot
- * construct any component that declares `static props`: the constructor
- * reflects each default with `setAttribute`, which synchronously fires
- * `attributeChangedCallback` -> `#handleUpdateProp` before the `#props`
- * proxy is assigned, throwing a TypeError. This is the Phase-0 correctness
- * work called out at the top of the README (no attribute writes in the
- * constructor; empty-string / removed-attribute handling). When those
- * fixes land, flip these back to `it` — vitest will flag each one that
- * starts passing.
+ * Default props are no longer reflected onto attributes in the constructor
+ * (the custom-elements spec forbids attribute mutation there, and it fired
+ * `attributeChangedCallback` before the `#props` proxy existed). Reflection
+ * now happens on first connect via `#reflectDefaults()`, skipping any
+ * attribute already provided by markup/SSR/user.
  */
-describe('reactive props (documented contract, pending Phase 0 fixes)', () => {
+describe('reactive props (documented contract)', () => {
   class HelloWorld extends WebComponent {
     static props = { myName: 'World', count: 0, active: false, user: { a: 1 } }
     get template() {
       return `<h1>Hello ${this.props.myName}</h1>`
     }
   }
+  // A class may only be registered under one tag, so register once and
+  // create a fresh, connected instance per test.
+  const tag = 'reactive-hello-world'
+  window.customElements.define(tag, HelloWorld)
+  const connected = () => {
+    const el = document.createElement(tag)
+    document.body.appendChild(el)
+    return el
+  }
 
-  it.fails('reflects static props defaults onto attributes', () => {
-    const el = mount(HelloWorld)
+  it('reflects static props defaults onto attributes', () => {
+    const el = connected()
     expect(el.getAttribute('my-name')).toBe('World')
   })
 
-  it.fails('exposes camelCase props with their declared types', () => {
-    const el = mount(HelloWorld)
+  it('exposes camelCase props with their declared types', () => {
+    const el = connected()
     expect(el.props.myName).toBe('World')
     expect(el.props.count).toBe(0)
     expect(el.props.active).toBe(false)
     expect(el.props.user).toEqual({ a: 1 })
   })
 
-  it.fails('re-renders and updates props when an attribute changes', () => {
-    const el = mount(HelloWorld)
+  it('re-renders and updates props when an attribute changes', () => {
+    const el = connected()
     el.setAttribute('my-name', 'Ayo')
     expect(el.props.myName).toBe('Ayo')
     expect(el.querySelector('h1').textContent).toBe('Hello Ayo')
   })
 
-  it.fails('reflects prop writes back to the attribute (props === setAttribute)', () => {
-    const el = mount(HelloWorld)
+  it('reflects prop writes back to the attribute (props === setAttribute)', () => {
+    const el = connected()
     el.props.myName = 'Ayo'
     expect(el.getAttribute('my-name')).toBe('Ayo')
   })
 
-  it.fails('preserves the declared type when updating a number prop', () => {
-    const el = mount(HelloWorld)
+  it('preserves the declared type when updating a number prop', () => {
+    const el = connected()
     el.setAttribute('count', '5')
     expect(el.props.count).toBe(5)
   })
 
-  it.fails('fires onChanges with property/previousValue/currentValue', () => {
+  it('fires onChanges with property/previousValue/currentValue', () => {
     const changes = []
     class WithChanges extends WebComponent {
       static props = { myName: 'World' }
@@ -274,5 +279,49 @@ describe('reactive props (documented contract, pending Phase 0 fixes)', () => {
       property: 'my-name',
       currentValue: 'Ayo',
     })
+  })
+})
+
+/**
+ * Spec conformance: no attribute mutation in the constructor. Defaults are
+ * reflected on connect, and pre-existing attributes (markup/SSR/user) win.
+ */
+describe('default reflection (no setAttribute in constructor)', () => {
+  class Defaulted extends WebComponent {
+    static props = { myName: 'World', count: 0 }
+    get template() {
+      return `<h1>Hello ${this.props.myName}</h1>`
+    }
+  }
+  const tag = 'reflect-defaulted'
+  window.customElements.define(tag, Defaulted)
+
+  it('createElement does not throw and defers defaults until connect', () => {
+    const el = document.createElement(tag)
+    // no attributes reflected before connect (spec-legal constructor)
+    expect(el.getAttribute('my-name')).toBeNull()
+
+    document.body.appendChild(el)
+    // defaults appear as serialized attributes only after connect
+    expect(el.getAttribute('my-name')).toBe('World')
+    expect(el.getAttribute('count')).toBe('0')
+  })
+
+  it('does not overwrite a markup-provided attribute with a default', () => {
+    const el = document.createElement(tag)
+    el.setAttribute('my-name', 'Zoe')
+    document.body.appendChild(el)
+    expect(el.props.myName).toBe('Zoe')
+    expect(el.getAttribute('my-name')).toBe('Zoe')
+  })
+
+  it('does not re-clobber a prop changed while connected on re-connect', () => {
+    const el = document.createElement(tag)
+    document.body.appendChild(el)
+    el.props.myName = 'Ayo'
+    el.remove()
+    document.body.appendChild(el)
+    expect(el.props.myName).toBe('Ayo')
+    expect(el.getAttribute('my-name')).toBe('Ayo')
   })
 })

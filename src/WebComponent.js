@@ -20,6 +20,7 @@ export class WebComponent extends HTMLElement {
   #prevDOM
   #props
   #typeMap = {}
+  #reflected = false
 
   /**
    * Blueprint for the Proxy props
@@ -96,6 +97,7 @@ export class WebComponent extends HTMLElement {
   }
 
   connectedCallback() {
+    this.#reflectDefaults()
     this.onInit()
     this.render()
     this.afterViewInit()
@@ -158,9 +160,7 @@ export class WebComponent extends HTMLElement {
   #initializeProps() {
     let initialProps = structuredClone(this.constructor.props) ?? {}
     Object.keys(initialProps).forEach((camelCase) => {
-      const value = initialProps[camelCase]
-      this.#typeMap[camelCase] = typeof value
-      this.setAttribute(getKebabCase(camelCase), serialize(value))
+      this.#typeMap[camelCase] = typeof initialProps[camelCase]
     })
     if (!this.#props) {
       this.#props = new Proxy(
@@ -168,6 +168,21 @@ export class WebComponent extends HTMLElement {
         this.#handler((key, value) => this.setAttribute(key, value), this)
       )
     }
+  }
+
+  /**
+   * Reflects default prop values onto attributes on first connect.
+   * Runs outside the constructor (spec forbids attribute mutation there)
+   * and skips any attribute already set by markup/SSR/user so those win.
+   */
+  #reflectDefaults() {
+    if (this.#reflected) return
+    Object.keys(this.#props).forEach((camelCase) => {
+      const kebab = getKebabCase(camelCase)
+      if (!this.hasAttribute(kebab))
+        this.setAttribute(kebab, serialize(this.#props[camelCase]))
+    })
+    this.#reflected = true
   }
   #initializeHost() {
     this.#host = this
