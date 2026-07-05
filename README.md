@@ -1,5 +1,8 @@
 # Web Component Base
 
+> [!Note]
+> **What's next: correctness fixes.** Thanks to feedback from teams building on WCB, our immediate focus is a set of state-corruption fixes: no attribute writes in the constructor, correct handling of empty-string and removed attributes (so `render()`/`onChanges` are never silently skipped), removing the props proxy's first-write type lock, and safe cloning of `static props` defaults. Detailed issues will follow.
+
 [![Package information: NPM version](https://img.shields.io/npm/v/web-component-base)](https://www.npmjs.com/package/web-component-base)
 [![Package information: NPM license](https://img.shields.io/npm/l/web-component-base)](https://www.npmjs.com/package/web-component-base)
 [![Package information: NPM downloads](https://img.shields.io/npm/dt/web-component-base)](https://www.npmjs.com/package/web-component-base)
