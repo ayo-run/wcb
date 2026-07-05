@@ -25,6 +25,4 @@ await git.branch(['-D', 'release'])
 
 // TODO: handle multiple remotes with a data structure
 console.log('Push tags')
-await git.push(['--tags'])
 await git.push(['--tags', remote])
-await git.push(['--tags', 'sh'])
