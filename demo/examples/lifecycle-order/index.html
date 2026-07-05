@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lifecycle order & buffering</title>
+    <script type="module" src="./index.js"></script>
+    <script>try{document.documentElement.dataset.theme=localStorage.getItem('wcb-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')}catch(e){}</script>
+    <link rel="stylesheet" href="../../shell.css" />
+    <script type="module" src="../../shell.js"></script>
+  </head>
+  <body>
+    <h1>onInit runs before the first render</h1>
+
+    <h2>With an authored attribute</h2>
+    <p>
+      <code>&lt;lifecycle-order label="authored"&gt;</code> — note that
+      <code>onInit</code> already sees <code>"authored"</code>, the single
+      <code>render</code> runs after it, and the pre-connect change is not
+      replayed through <code>onChanges</code>.
+    </p>
+    <lifecycle-order id="authored" label="authored"></lifecycle-order>
+
+    <h2>Without an authored attribute (uses the default)</h2>
+    <lifecycle-order id="default"></lifecycle-order>
+  </body>
+</html>

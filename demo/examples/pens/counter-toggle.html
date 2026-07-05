@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Single-file pen (CDN)</title>
+    <script type="module">
+      import {
+        WebComponent,
+        html,
+      } from 'https://esm.sh/web-component-base@latest'
+
+      export class Counter extends WebComponent {
+        static props = {
+          count: 0,
+        }
+        get template() {
+          return html`<button onClick=${() => ++this.props.count}>
+            ${this.props.count}
+          </button>`
+        }
+      }
+
+      class Toggle extends WebComponent {
+        static props = {
+          toggle: false,
+        }
+
+        clickFn = () => (this.props.toggle = !this.props.toggle)
+
+        get template() {
+          return html`<button onclick=${this.clickFn}>
+            ${this.props.toggle ? 'On' : 'Off'}
+          </button>`
+        }
+      }
+
+      customElements.define('my-counter', Counter)
+      customElements.define('my-toggle', Toggle)
+    </script>
+    <script>try{document.documentElement.dataset.theme=localStorage.getItem('wcb-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')}catch(e){}</script>
+    <link rel="stylesheet" href="../../shell.css" />
+    <script type="module" src="../../shell.js"></script>
+  </head>
+  <body>
+    <div>
+      Counter:
+      <my-counter />
+    </div>
+    <div>
+      Toggle:
+      <my-toggle />
+    </div>
+  </body>
+</html>

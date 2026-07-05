@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Attribute lifecycle</title>
+    <script type="module" src="./index.js"></script>
+    <script>try{document.documentElement.dataset.theme=localStorage.getItem('wcb-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')}catch(e){}</script>
+    <link rel="stylesheet" href="../../shell.css" />
+    <script type="module" src="../../shell.js"></script>
+  </head>
+  <body>
+    <h1>Attribute lifecycle: empty string, removal, markup wins</h1>
+
+    <h2>Default (no authored attribute)</h2>
+    <p>Shows the declared default; try the buttons.</p>
+    <attr-demo id="from-default"></attr-demo>
+
+    <h2>Authored attribute wins over the default</h2>
+    <p>
+      <code>&lt;attr-demo label="from markup"&gt;</code> — the default is not
+      applied because the attribute is already present.
+    </p>
+    <attr-demo id="from-markup" label="from markup"></attr-demo>
+  </body>
+</html>

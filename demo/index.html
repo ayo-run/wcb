@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>web-component-base — examples</title>
+    <script>
+      try {
+        document.documentElement.dataset.theme =
+          localStorage.getItem('wcb-theme') ||
+          (matchMedia('(prefers-color-scheme: dark)').matches
+            ? 'dark'
+            : 'light')
+      } catch (e) {}
+    </script>
+    <link rel="stylesheet" href="./shell.css" />
+    <script type="module" src="./shell.js"></script>
+  </head>
+  <body>
+    <header class="home-header">
+      <h1><code>web-component-base</code> examples</h1>
+      <p>
+        A live gallery of the demos using web components. Each
+        card opens a standalone example page.
+      </p>
+    </header>
+
+    <h2 class="section-label">v5 behavior demos</h2>
+    <div class="grid">
+      <a class="card" href="./examples/on-changes/index.html">
+        <div class="name">onChanges payload</div>
+        <div class="desc">
+          camelCase <code>property</code> vs kebab <code>attribute</code> (v5
+          breaking change).
+        </div>
+      </a>
+      <a class="card" href="./examples/strict-props/index.html">
+        <div class="name">Prop type enforcement</div>
+        <div class="desc">
+          Default log-and-skip vs <code>static strictProps</code> throwing.
+        </div>
+      </a>
+      <a class="card" href="./examples/attribute-lifecycle/index.html">
+        <div class="name">Attribute lifecycle</div>
+        <div class="desc">
+          Empty string stays <code>''</code>, removal resets to default, markup
+          wins.
+        </div>
+      </a>
+      <a class="card" href="./examples/lifecycle-order/index.html">
+        <div class="name">Lifecycle order</div>
+        <div class="desc">
+          <code>onInit</code> runs before the first render (buffering
+          guarantee).
+        </div>
+      </a>
+    </div>
+
+    <h2 class="section-label">Core examples</h2>
+    <div class="grid">
+      <a class="card" href="./examples/demo/index.html">
+        <div class="name">Kitchen sink</div>
+        <div class="desc">
+          Counter, toggle, hello-world, boolean props, onDestroy.
+        </div>
+      </a>
+      <a class="card" href="./examples/type-restore/index.html">
+        <div class="name">Typed props</div>
+        <div class="desc">number, boolean, string, and object round-trips.</div>
+      </a>
+      <a class="card" href="./examples/props-blueprint/index.html">
+        <div class="name">Props blueprint</div>
+        <div class="desc">
+          Non-zero defaults and camelCase&harr;kebab mapping.
+        </div>
+      </a>
+      <a class="card" href="./examples/templating/index.html">
+        <div class="name">Templating</div>
+        <div class="desc">
+          Lists, links, style attributes — plus a lit-html variant.
+        </div>
+      </a>
+      <a class="card" href="./examples/style-objects/index.html">
+        <div class="name">Style objects</div>
+        <div class="desc">Computed, conditional inline styles.</div>
+      </a>
+      <a class="card" href="./examples/use-shadow/index.html">
+        <div class="name">Shadow DOM</div>
+        <div class="desc">Opt in with <code>static shadowRootInit</code>.</div>
+      </a>
+      <a class="card" href="./examples/constructed-styles/index.html">
+        <div class="name">Constructable styles</div>
+        <div class="desc">
+          <code>static styles</code> via adopted stylesheets.
+        </div>
+      </a>
+      <a class="card" href="./examples/just-parts/index.html">
+        <div class="name">Just the parts</div>
+        <div class="desc">
+          <code>html</code> + <code>createElement</code> on a vanilla element.
+        </div>
+      </a>
+      <a class="card" href="./examples/pens/counter-toggle.html">
+        <div class="name">Single-file pen<span class="tag">CDN</span></div>
+        <div class="desc">
+          One self-contained HTML file importing from a CDN.
+        </div>
+      </a>
+    </div>
+
+    <footer>
+      Run with <code>pnpm --filter demo dev</code>. Source lives in
+      <code>demo/examples/</code>. See the
+      <a href="https://webcomponent.io">documentation</a>.
+    </footer>
+  </body>
+</html>

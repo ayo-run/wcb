@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Typed props</title>
+  <script type="module" src="./Counter.mjs"></script>
+  <script type="module" src="./Toggle.mjs"></script>
+  <script type="module" src="./HelloWorld.mjs"></script>
+  <script type="module" src="./Object.mjs"></script>
+    <script>try{document.documentElement.dataset.theme=localStorage.getItem('wcb-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')}catch(e){}</script>
+    <link rel="stylesheet" href="../../shell.css" />
+    <script type="module" src="../../shell.js"></script>
+</head>
+
+<body>
+  <div>Counter: <my-counter></my-counter></div>
+  <div>Toggle: <my-toggle></my-toggle></div>
+  <div>String: <my-hello-world></my-hello-world></div>
+  <div>
+    <my-object></my-object>
+    <p id="display-panel"></p>
+  </div>
+  <script type="module">
+    /**
+     * TODO: fix using custom events
+     */
+
+    // import { attachEffect } from 'web-component-base'
+    // const myObjectEl = document.querySelector('my-object')
+    // const objectProp = myObjectEl.props.object
+    // const displayPanelEl = document.querySelector('#display-panel')
+    // displayPanelEl.textContent = JSON.stringify(objectProp)
+    // attachEffect(objectProp, (object) => {
+    //   displayPanelEl.textContent = JSON.stringify(object)
+    // })
+    // console.log(JSON.stringify(object))
+  </script>
+</body>
+
+</html>

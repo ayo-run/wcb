@@ -1,0 +1,383 @@
+/*
+ * Single shared stylesheet for the demo app shell.
+ * Linked by the landing page and every example page so the whole showcase
+ * shares one set of design tokens and component styles.
+ */
+
+/* Dark is the default (and the no-JS fallback). The theme toggle overrides it
+   by setting `data-theme` on <html>; when unset, the OS preference wins. */
+:root {
+  --bg: #0b0d12;
+  --card: #151922;
+  --card-hover: #1c2230;
+  --surface: #10141c;
+  --border: #2a3140;
+  --text: #e6e9ef;
+  --muted: #97a0b0;
+  --accent: #7c9cff;
+  --tag: #263042;
+  --radius: 12px;
+  color-scheme: dark;
+}
+
+/* Light tokens, shared by the OS preference (no explicit choice) and the
+   explicit `data-theme="light"` override. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --bg: #f6f7f9;
+    --card: #ffffff;
+    --card-hover: #ffffff;
+    --surface: #ffffff;
+    --border: #e2e5ea;
+    --text: #1a1d24;
+    --muted: #5b6472;
+    --accent: #3355dd;
+    --tag: #eef1f7;
+    color-scheme: light;
+  }
+}
+:root[data-theme='light'] {
+  --bg: #f6f7f9;
+  --card: #ffffff;
+  --card-hover: #ffffff;
+  --surface: #ffffff;
+  --border: #e2e5ea;
+  --text: #1a1d24;
+  --muted: #5b6472;
+  --accent: #3355dd;
+  --tag: #eef1f7;
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Full-bleed background on <html>, centered content column on <body>. */
+html {
+  background: var(--bg);
+  color-scheme: light dark;
+}
+body {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 4rem;
+  color: var(--text);
+  font:
+    16px/1.6 system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+}
+
+/* ---------- shared app header (injected on example pages) ---------- */
+app-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-bottom: 0.9rem;
+  margin-bottom: 1.75rem;
+  border-bottom: 1px solid var(--border);
+}
+app-header .brand {
+  font-weight: 700;
+  color: var(--accent);
+  text-decoration: none;
+}
+app-header .crumb {
+  color: var(--muted);
+}
+app-header .spacer {
+  flex: 1;
+}
+app-header .back {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+app-header .back:hover {
+  color: var(--accent);
+}
+
+/* ---------- theme toggle (in the nav / landing header) ---------- */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--muted);
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    border-color 0.15s,
+    background 0.15s;
+}
+.theme-toggle:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.theme-toggle svg {
+  display: block;
+}
+
+/* ---------- typography ---------- */
+h1 {
+  font-size: 1.6rem;
+  line-height: 1.25;
+  margin: 0 0 0.5rem;
+}
+h2 {
+  font-size: 1.05rem;
+  margin: 2rem 0 0.75rem;
+}
+p {
+  margin: 0 0 1rem;
+  max-width: 62ch;
+}
+.lede {
+  color: var(--muted);
+}
+a {
+  color: var(--accent);
+}
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  padding: 0.1em 0.35em;
+  border-radius: 5px;
+}
+hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1.75rem 0;
+}
+
+/* ---------- interactive bits used across the examples ---------- */
+button {
+  font: inherit;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.45rem 0.85rem;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+button:hover {
+  border-color: var(--accent);
+  background: var(--card-hover);
+}
+input,
+textarea {
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.4rem 0.55rem;
+}
+label {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-right: 0.4rem;
+}
+form {
+  display: grid;
+  gap: 0.5rem;
+  max-width: 24rem;
+}
+
+dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.35rem 1rem;
+  align-items: baseline;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.15rem;
+  max-width: 34rem;
+}
+dt {
+  color: var(--muted);
+}
+dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+ol.lifecycle-log {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.9rem 0.9rem 0.9rem 2.4rem;
+  max-width: 34rem;
+}
+ol.lifecycle-log li {
+  margin: 0.15rem 0;
+  font-family: ui-monospace, monospace;
+  font-size: 0.9rem;
+}
+
+/* Give custom-element hosts a bit of breathing room in the column. */
+change-logger,
+attr-demo,
+lenient-counter,
+strict-counter,
+lifecycle-order,
+my-object,
+my-quote {
+  display: block;
+  margin: 0.75rem 0;
+}
+
+/* ---------- source preview (shown on every example page) ---------- */
+.source {
+  margin-top: 2.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+.source-title {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin: 0 0 1rem;
+}
+details.source-file {
+  /* `--code-bg` is set from Shiki's theme background once highlighting loads,
+     so the whole block matches the code area (falls back to the card color). */
+  background: var(--code-bg, var(--card));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 0 0 0.75rem;
+  overflow: hidden;
+}
+details.source-file > summary {
+  cursor: pointer;
+  padding: 0.6rem 0.9rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+  color: var(--accent);
+  user-select: none;
+}
+details.source-file[open] > summary {
+  border-bottom: 1px solid var(--border);
+}
+/* Box styles shared by the plain fallback and Shiki's <pre class="shiki">.
+   Both are transparent so the single block background (above) shows through —
+   one uniform color across the filename bar and the code, with no seams. */
+details.source-file pre {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  tab-size: 2;
+  background: transparent !important;
+}
+details.source-file pre.source-plain {
+  color: var(--text);
+}
+details.source-file pre.source-plain code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  font-size: inherit;
+}
+/* Shiki dual-theme: light token colors are inline; flip to the dark theme when
+   the effective theme is dark. The source preview only renders with JS, which
+   always sets a concrete `data-theme`, so key the flip off that attribute
+   (background is handled by the block, not per span). */
+:root[data-theme='dark'] details.source-file {
+  background: var(--code-bg-dark, var(--card));
+}
+:root[data-theme='dark'] details.source-file .shiki span {
+  color: var(--shiki-dark) !important;
+}
+
+/* ---------- landing page ---------- */
+.home-header {
+  position: relative;
+}
+.home-header .theme-toggle {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+.home-header p {
+  color: var(--muted);
+  max-width: 46rem;
+}
+.home-header h1 {
+  font-size: 2rem;
+}
+.home-header h1 code {
+  font-size: 1.5rem;
+  color: var(--accent);
+  background: none;
+  padding: 0;
+}
+.section-label {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin: 2.5rem 0 1rem;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 0.9rem;
+}
+a.card {
+  display: block;
+  padding: 1.1rem 1.15rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: inherit;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    transform 0.15s;
+}
+a.card:hover {
+  background: var(--card-hover);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+a.card .name {
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+a.card .desc {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--tag);
+  border-radius: 999px;
+  padding: 0.1rem 0.5rem;
+  margin-left: 0.4rem;
+  vertical-align: middle;
+}
+footer {
+  margin-top: 3rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}

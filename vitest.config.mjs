@@ -7,6 +7,8 @@ export default defineConfig({
       '**/node_modules/**',
       '**/dist/**',
       './temp/**',
+      // e2e specs run in a real browser via vitest.e2e.config.mjs
+      'test/e2e/**',
     ],
     coverage: {
       enabled: true,

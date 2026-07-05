@@ -16,8 +16,12 @@ This file provides guidance to AI coding agents when working with code in this r
 - `pnpm build` — `tsc` emits `.d.ts` types, then `copy:source` uses esbuild to minify/bundle `src/*.js` + `src/utils/*` into `dist/` as ESM. **`dist/` is what gets published; `src/` is shipped as the readable source.**
 - `pnpm size-limit` — enforces the byte budgets declared in `package.json` `size-limit` (e.g. `WebComponent.js` ≤ 1.2 KB). Keep additions tiny; this gate is a core project value.
 - `pnpm docs` — run the Astro docs site (`docs/` workspace) locally.
+- `pnpm demo` — run the Vite examples showcase (`demo/` workspace) locally; `pnpm demo:build` builds it.
+- `pnpm test:e2e` — run the browser e2e specs (`test/e2e/`) in Chromium via Vitest browser mode; `pnpm test:all` runs unit + e2e.
 
-pnpm is mandatory (a `preinstall` `only-allow pnpm` guard enforces it). This is a pnpm workspace; the only sub-package is `docs/`.
+pnpm is mandatory (a `preinstall` `only-allow pnpm` guard enforces it). This is a pnpm workspace with two sub-packages: `docs/` (Astro docs site) and `demo/` (Vite examples showcase, which consumes the root `web-component-base` package as a `workspace:*` dependency). The runnable example sources live in `demo/examples/` and import the package by name (`web-component-base`), not via relative `src/` paths.
+
+The demo shares one app shell: `demo/shell.css` (design tokens + component styles, linked by the landing page and every example) and `demo/shell.js` (defines `<app-header>` — itself a `WebComponent` — and `prepend`s it to each example page; `prepend` never reparents the example's own elements, so their lifecycle is untouched). Every example page links both. Keep new examples consistent by adding `<link rel="stylesheet" href="../../shell.css" />` and `<script type="module" src="../../shell.js"></script>`.
 
 ## Architecture
 

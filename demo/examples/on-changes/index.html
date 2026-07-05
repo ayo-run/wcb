@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>onChanges: property vs attribute</title>
+    <script type="module" src="./index.js"></script>
+    <script>try{document.documentElement.dataset.theme=localStorage.getItem('wcb-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')}catch(e){}</script>
+    <link rel="stylesheet" href="../../shell.css" />
+    <script type="module" src="../../shell.js"></script>
+  </head>
+  <body>
+    <h1>onChanges: property (camelCase) vs attribute (kebab-case)</h1>
+    <p>
+      Click <em>Rename</em> to change the <code>my-name</code> attribute and
+      watch the <code>onChanges</code> payload below.
+    </p>
+    <change-logger></change-logger>
+  </body>
+</html>
