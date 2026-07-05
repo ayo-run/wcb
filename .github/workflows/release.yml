@@ -84,7 +84,6 @@ jobs:
       - run: pnpm build
 
       - name: Scope package name for GitHub Packages
-        scope: @ayo-run
         run: npm pkg set name="web-component-base"
 
       - name: Publish
@@ -96,6 +95,6 @@ jobs:
             TAG="latest"
           fi
           echo "Publishing $VERSION to dist-tag '$TAG'"
-          npm publish --tag "$TAG"
+          npm publish --access public --tag "$TAG"
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
