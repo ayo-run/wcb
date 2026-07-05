@@ -78,14 +78,13 @@ jobs:
         with:
           node-version-file: .nvmrc
           registry-url: 'https://npm.pkg.github.com'
-          scope: '@ayo-run'
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
 
       - name: Scope package name for GitHub Packages
-        run: npm pkg set name="@ayo-run/web-component-base"
+        run: npm pkg set name="web-component-base"
 
       - name: Publish
         run: |
