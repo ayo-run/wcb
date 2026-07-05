@@ -11,6 +11,39 @@ import {
   deserialize,
 } from './utils/index.js'
 
+/** Component classes whose defaults have been validated (once per class). */
+const validated = new WeakSet()
+
+/**
+ * Returns a fresh defaults object for a component: plain data is deep-copied
+ * per key so instances never share object/array defaults, while non-cloneable
+ * values (functions, class instances) are kept by reference instead of
+ * throwing `DataCloneError`. On the first call per class it also warns (once)
+ * about types that can't reflect to an attribute — those belong in
+ * handlers/refs, not reflected props.
+ * @param {typeof WebComponent} ctor the component constructor
+ * @returns {object} a fresh defaults object
+ */
+function cloneDefaults(ctor) {
+  const check = !validated.has(ctor)
+  if (check) validated.add(ctor)
+  const out = {}
+  for (const key in ctor.props) {
+    const value = ctor.props[key]
+    const type = typeof value
+    if (check && (type === 'function' || type === 'symbol'))
+      console.warn(
+        `${ctor.name}.${key}: ${type} default not reflectable; use handlers/refs.`
+      )
+    try {
+      out[key] = structuredClone(value)
+    } catch {
+      out[key] = value
+    }
+  }
+  return out
+}
+
 /**
  * A minimal base class to reduce the complexity of creating reactive custom elements
  * @see https://webcomponent.io
@@ -158,7 +191,7 @@ export class WebComponent extends HTMLElement {
   }
 
   #initializeProps() {
-    let initialProps = structuredClone(this.constructor.props) ?? {}
+    let initialProps = cloneDefaults(this.constructor)
     Object.keys(initialProps).forEach((camelCase) => {
       this.#typeMap[camelCase] = typeof initialProps[camelCase]
     })

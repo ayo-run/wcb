@@ -325,3 +325,44 @@ describe('default reflection (no setAttribute in constructor)', () => {
     expect(el.getAttribute('my-name')).toBe('Ayo')
   })
 })
+
+/**
+ * Non-cloneable defaults (functions, class instances) must not crash the
+ * constructor via structuredClone's DataCloneError; they are kept by
+ * reference and flagged once with a readable warning.
+ */
+describe('safe prop cloning + define-time validation', () => {
+  it('constructs with a function default (kept by ref) and warns once per class', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    class WithFn extends WebComponent {
+      static props = { fn: () => 42 }
+    }
+    const tag = 'clone-with-fn'
+    window.customElements.define(tag, WithFn)
+
+    const a = document.createElement(tag)
+    const b = document.createElement(tag)
+    // function survives by reference and is callable on both instances
+    expect(a.props.fn()).toBe(42)
+    expect(b.props.fn()).toBe(42)
+    // memoized per class: constructing many instances warns at most once
+    expect(warn).toHaveBeenCalledOnce()
+    expect(warn.mock.calls[0][0]).toContain('WithFn.fn')
+
+    warn.mockRestore()
+  })
+
+  it('deep-copies object/array defaults so instances do not share them', () => {
+    class WithList extends WebComponent {
+      static props = { list: [1, 2] }
+    }
+    const tag = 'clone-with-list'
+    window.customElements.define(tag, WithList)
+
+    const a = document.createElement(tag)
+    const b = document.createElement(tag)
+    a.props.list.push(3)
+    expect(a.props.list).toEqual([1, 2, 3])
+    expect(b.props.list).toEqual([1, 2])
+  })
+})
