@@ -1,6 +1,6 @@
 {
   "name": "web-component-base",
-  "version": "5.0.1-beta.5",
+  "version": "5.0.1-beta.6",
   "description": "A zero-dependency & tiny JS base class for creating reactive custom elements easily",
   "type": "module",
   "exports": {
