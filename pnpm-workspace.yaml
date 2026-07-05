@@ -3,4 +3,8 @@ packages:
   - 'docs/'
   - 'demo/'
 allowBuilds:
+  '@parcel/watcher': false
+  esbuild: false
   netlify-cli: false
+  sharp: false
+  unix-dgram: false
