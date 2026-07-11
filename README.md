@@ -10,7 +10,7 @@
 
 🤷‍♂️ zero-dependency, 🤏 tiny JS base class for creating reactive [custom elements](https://developer.mozilla.org/en-US/docs/Web/API/Web_Components/Using_custom_elements) easily ✨
 
-This is the base class primarily used for web components in Ayo's projects, primarily [cozy-games](https://git.ayo.run/ayo/cozy-games), [mcfly](https://git.ayo.run/ayo/mcfly/), his [personal site](https://ayo.ayco.io), his [blog](https://ayos.blog), and [others](https://git.ayo.run/ayo).
+This is the base class used for web components in Ayo's projects, primarily [cozy-games](https://git.ayo.run/ayo/cozy-games), [mcfly](https://git.ayo.run/ayo/mcfly/), his [personal site](https://ayo.ayco.io), his [blog](https://ayos.blog), and [others](https://git.ayo.run/ayo).
 
 Read more about it on the [docs](https://webcomponent.io) or [view a demo on CodePen](https://codepen.io/ayoayco-the-styleful/pen/ZEwoNOz?editors=1010).
 
