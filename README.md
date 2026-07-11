@@ -10,17 +10,16 @@
 
 🤷‍♂️ zero-dependency, 🤏 tiny JS base class for creating reactive [custom elements](https://developer.mozilla.org/en-US/docs/Web/API/Web_Components/Using_custom_elements) easily ✨
 
+This is the base class primarily used for web components in Ayo's projects, primarily [cozy-games](https://git.ayo.run/ayo/cozy-games), [mcfly](https://git.ayo.run/ayo/mcfly/), his [personal site](https://ayo.ayco.io), his [blog](https://ayos.blog), and [others](https://git.ayo.run/ayo).
+
+Read more about it on the [docs](https://webcomponent.io) or [view a demo on CodePen](https://codepen.io/ayoayco-the-styleful/pen/ZEwoNOz?editors=1010).
+
 ![counter example code snippet](https://git.sr.ht/~ayoayco/wcb/blob/main/assets/IMG_0682.png)
 
 When you extend the `WebComponent` class for your component, you only have to define the `template` and `properties`. Any change in any property value will automatically cause just the component UI to render.
 
 The result is a reactive UI on property changes.
 
-## Links
-
-- [Documentation](https://webcomponent.io)
-- [Read a blog explaining the reactivity](https://ayos.blog/reactive-custom-elements-with-html-dataset/)
-- [View demo on CodePen](https://codepen.io/ayoayco-the-styleful/pen/ZEwoNOz?editors=1010)
 
 ## Want to get in touch?
 
