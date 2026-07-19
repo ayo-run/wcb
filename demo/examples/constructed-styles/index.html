@@ -10,6 +10,22 @@
     <script type="module" src="../../shell.js"></script>
   </head>
   <body>
+    <h1>Constructable styles</h1>
+    <p>
+      <code>static styles</code> is adopted into the shadow root as a
+      constructable stylesheet. It takes a single string, or an array adopted in
+      order.
+    </p>
+
+    <h2>A single string</h2>
     <styled-elements type="warn" condition></styled-elements>
+
+    <h2>An array of sheets</h2>
+    <p>
+      Shared tokens, then a ready-made <code>CSSStyleSheet</code>, then local
+      styles — so a design system composes a base sheet with per-component CSS
+      instead of inlining the base in every component.
+    </p>
+    <composed-styles></composed-styles>
   </body>
 </html>

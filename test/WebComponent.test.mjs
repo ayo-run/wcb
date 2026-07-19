@@ -182,6 +182,72 @@ describe('styling', () => {
     const el = mount(ShadowStyled)
     expect(el.shadowRoot.adoptedStyleSheets).toHaveLength(1)
   })
+
+  it('adopts an array of styles in declaration order', () => {
+    class MultiStyled extends WebComponent {
+      static shadowRootInit = { mode: 'open' }
+      static styles = [`p { color: red; }`, `p { padding: 1em; }`]
+      get template() {
+        return html`<p>hi</p>`
+      }
+    }
+    const el = mount(MultiStyled)
+    const sheets = el.shadowRoot.adoptedStyleSheets
+    expect(sheets).toHaveLength(2)
+    expect(sheets[0].cssRules[0].style.color).toBe('red')
+    expect(sheets[1].cssRules[0].style.padding).toBe('1em')
+  })
+
+  it('passes CSSStyleSheet entries through, mixed with strings', () => {
+    const shared = new CSSStyleSheet()
+    shared.replaceSync(`p { color: blue; }`)
+
+    class MixedStyled extends WebComponent {
+      static shadowRootInit = { mode: 'open' }
+      static styles = [shared, `p { padding: 2em; }`]
+      get template() {
+        return html`<p>hi</p>`
+      }
+    }
+    const el = mount(MixedStyled)
+    const sheets = el.shadowRoot.adoptedStyleSheets
+    expect(sheets).toHaveLength(2)
+    // the existing instance is adopted as-is, not re-created
+    expect(sheets[0]).toBe(shared)
+    expect(sheets[1].cssRules[0].style.padding).toBe('2em')
+  })
+
+  it('accepts a lone CSSStyleSheet', () => {
+    const sheet = new CSSStyleSheet()
+    sheet.replaceSync(`p { color: green; }`)
+
+    class SheetStyled extends WebComponent {
+      static shadowRootInit = { mode: 'open' }
+      static styles = sheet
+      get template() {
+        return html`<p>hi</p>`
+      }
+    }
+    const el = mount(SheetStyled)
+    expect(el.shadowRoot.adoptedStyleSheets).toEqual([sheet])
+  })
+
+  it('logs the shadow-root guidance instead of throwing in light DOM', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    class LightStyled extends WebComponent {
+      static styles = [`p { color: red; }`]
+      get template() {
+        return html`<p>hi</p>`
+      }
+    }
+    expect(() => mount(LightStyled)).not.toThrow()
+    expect(error).toHaveBeenCalledWith(
+      expect.stringContaining('shadow roots'),
+      expect.anything()
+    )
+    error.mockRestore()
+  })
 })
 
 describe('shadow DOM', () => {

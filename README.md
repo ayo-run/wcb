@@ -12,63 +12,16 @@
 
 This is the base class used for web components in Ayo's projects, primarily [cozy-games](https://git.ayo.run/ayo/cozy-games), [mcfly](https://git.ayo.run/ayo/mcfly/), his [personal site](https://ayo.ayco.io), his [blog](https://ayos.blog), and [others](https://git.ayo.run/ayo).
 
-Read more about it on the [docs](https://webcomponent.io) or [view a demo on CodePen](https://codepen.io/ayoayco-the-styleful/pen/ZEwoNOz?editors=1010).
+Next actions:
+
+1. [Read the docs](https://webcomponent.io)
+2. [View a demo on CodePen](https://codepen.io/ayoayco-the-styleful/pen/ZEwoNOz?editors=1010).
 
 ![counter example code snippet](https://git.sr.ht/~ayoayco/wcb/blob/main/assets/IMG_0682.png)
 
 When you extend the `WebComponent` class for your component, you only have to define the `template` and `properties`. Any change in any property value will automatically cause just the component UI to render.
 
 The result is a reactive UI on property changes.
-
-
-## TypeScript: typed props
-
-`this.props` is untyped (`{ [name: string]: any }`) by default. Pass the shape of your defaults as a type argument to get compile-time types on declared props:
-
-```ts
-const props = { variant: 'primary', disabled: false }
-
-class CozyButton extends WebComponent<typeof props> {
-  static props = props
-
-  get template() {
-    this.props.variant // string
-    this.props.disabled // boolean
-    this.props.disabled = 'yes' // ❌ compile error
-    return html`<button class=${this.props.variant}></button>`
-  }
-}
-```
-
-The runtime is unchanged — this is types-only, and omitting the type argument keeps the previous behavior. See the [prop access guide](https://webcomponent.io/prop-access/) for details.
-
-## Storybook autodocs & controls
-
-Storybook infers autodocs and controls from a Custom Elements Manifest, but the stock analyzer reads `static props` as one opaque `object` and emits no attributes. `web-component-base/cem-plugin` teaches it the convention — dev-time only, so the core stays zero-dependency:
-
-```js
-// custom-elements-manifest.config.mjs
-import { wcbStaticProps } from 'web-component-base/cem-plugin'
-
-export default {
-  globs: ['src/**/*.js'],
-  outdir: '.',
-  plugins: [wcbStaticProps()],
-}
-```
-
-`npx cem analyze` then emits a typed attribute per prop — `variant` (string), `disabled` (boolean), `maxCount` → `max-count` (number) — named with wcb's own `getKebabCase` so they match `observedAttributes`, with wcb internals stripped. Point Storybook at the result:
-
-```js
-// .storybook/preview.js
-import { setCustomElementsManifest } from '@storybook/web-components-vite'
-import manifest from '../custom-elements.json'
-
-setCustomElementsManifest(manifest)
-export default { tags: ['autodocs'] }
-```
-
-A story only needs `component: 'cozy-button'` — no per-story `argTypes`. See the [full recipe](https://webcomponent.io/cem-plugin/), or the working setup in [`storybook/`](./storybook).
 
 ## Want to get in touch?
 

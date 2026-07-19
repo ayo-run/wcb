@@ -80,7 +80,12 @@ export class WebComponent extends HTMLElement {
    */
   static props
 
-  // TODO: support array of styles
+  /**
+   * CSS adopted into the shadow root as constructable stylesheet(s). An array
+   * is adopted in order, so shared/base sheets can be composed with
+   * per-component ones. Requires `static shadowRootInit`.
+   * @type {string | CSSStyleSheet | Array<string | CSSStyleSheet>}
+   */
   static styles
 
   /**
@@ -290,13 +295,19 @@ export class WebComponent extends HTMLElement {
   }
 
   #applyStyles() {
-    if (this.constructor.styles !== undefined)
+    const styles = this.constructor.styles
+    if (styles !== undefined)
       try {
-        const styleObj = new CSSStyleSheet()
-        styleObj.replaceSync(this.constructor.styles)
+        // one sheet or many, in declaration order — a design system can put a
+        // shared tokens sheet first and component styles after it
         this.#host.adoptedStyleSheets = [
           ...this.#host.adoptedStyleSheets,
-          styleObj,
+          ...[styles].flat().map((s) => {
+            if (typeof s != 'string') return s
+            const sheet = new CSSStyleSheet()
+            sheet.replaceSync(s)
+            return sheet
+          }),
         ]
       } catch (e) {
         console.error(
