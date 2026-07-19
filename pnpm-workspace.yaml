@@ -4,8 +4,9 @@ packages:
   - 'demo/'
   - 'storybook/'
 allowBuilds:
-  esbuild: true # insurance for core build
   '@parcel/watcher': false
+  esbuild: true # insurance for core build
   netlify-cli: false
+  rs-module-lexer: false
   sharp: false
   unix-dgram: false
