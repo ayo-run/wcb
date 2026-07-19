@@ -17,18 +17,9 @@ export function createElement(tree) {
      * handle props
      */
     if (tree.props) {
-      Object.entries(tree.props).forEach(([prop, value]) => {
-        const domProp = prop.toLowerCase()
-        if (domProp === 'style' && typeof value === 'object' && !!value) {
-          applyStyles(el, value)
-        } else if (prop in el) {
-          el[prop] = value
-        } else if (domProp in el) {
-          el[domProp] = value
-        } else {
-          el.setAttribute(prop, serialize(value))
-        }
-      })
+      Object.entries(tree.props).forEach(([prop, value]) =>
+        applyProp(el, prop, value)
+      )
     }
     /**
      * handle children
@@ -40,6 +31,29 @@ export function createElement(tree) {
       }
     })
     return el
+  }
+}
+
+/**
+ * Applies one vnode prop to an element: a `style` object is applied rule by
+ * rule, a name the element owns as a DOM property is assigned (so event
+ * handlers and non-string values keep their type), anything else becomes a
+ * serialized attribute. Shared with the reconciler so a patched element gets
+ * props by exactly the same rule as a freshly created one.
+ * @param {Element} el the element to apply the prop to
+ * @param {string} prop the prop name as written in the vnode
+ * @param {any} value the prop value
+ */
+export function applyProp(el, prop, value) {
+  const domProp = prop.toLowerCase()
+  if (domProp === 'style' && typeof value === 'object' && !!value) {
+    applyStyles(el, value)
+  } else if (prop in el) {
+    el[prop] = value
+  } else if (domProp in el) {
+    el[domProp] = value
+  } else {
+    el.setAttribute(prop, serialize(value))
   }
 }
 

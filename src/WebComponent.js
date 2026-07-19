@@ -9,6 +9,7 @@ import {
   getCamelCase,
   serialize,
   deserialize,
+  patchChildren,
 } from './utils/index.js'
 
 /** Component classes whose defaults have been validated (once per class). */
@@ -274,20 +275,25 @@ export class WebComponent extends HTMLElement {
     } else if (typeof this.template === 'object') {
       const tree = this.template
 
-      // TODO: smart diffing
       if (JSON.stringify(this.#prevDOM) !== JSON.stringify(tree)) {
         this.#applyStyles()
 
-        /**
-         * create element
-         * - resolve prop values
-         * - attach event listeners
-         */
-        const el = createElement(tree)
+        if (this.#prevDOM === undefined) {
+          /**
+           * first render: create element
+           * - resolve prop values
+           * - attach event listeners
+           */
+          const el = createElement(tree)
 
-        if (el) {
-          if (Array.isArray(el)) this.#host.replaceChildren(...el)
-          else this.#host.replaceChildren(el)
+          if (el) {
+            if (Array.isArray(el)) this.#host.replaceChildren(...el)
+            else this.#host.replaceChildren(el)
+          }
+        } else {
+          // re-render: reconcile in place so focus, caret/selection, an
+          // uncommitted <input> value, :hover and running transitions survive
+          patchChildren(this.#host, this.#prevDOM, tree)
         }
         this.#prevDOM = tree
       }

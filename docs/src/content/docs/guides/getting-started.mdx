@@ -18,12 +18,8 @@ Note that there's a trade off between productivity & lightweight-ness here, and 
 
 Treat it as a **stable alpha** product. Though the public APIs are stable, most examples are only useful for simple atomic use-cases due to remaining work needed on the internals.
 
-<Aside type="caution" title="Important">
-For building advanced interactions, there is an in-progress work on smart diffing to prevent component children being wiped on interaction.
-</Aside>
-
-<Aside type="tip">
-If you have some complex needs, we recommend using the `WebComponent` base class with a more mature rendering approach like `lit-html`, and here's a demo for that: [View on CodePen](https://codepen.io/ayoayco-the-styleful/pen/ZEwNJBR?editors=1010).
+<Aside type="tip" title="Rendering">
+As of v5.2, the re-rendering of an `html` template patches the existing DOM in place to PRESERVE focus, caret/selection, an uncommitted `<input>` value, and running CSS transitions during an interaction. Patching is index-based and non-keyed: list items are matched by position, so preserved state follows the position rather than the item when a list reorders. A `key` prop for identity-based matching is not implemented.
 </Aside>
 
 ## Installation

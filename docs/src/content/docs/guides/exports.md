@@ -30,6 +30,9 @@ import {
   getCamelCase,
   getKebabCase,
   createElement,
+  applyProp,
+  patchNode,
+  patchChildren,
 } from 'web-component-base/utils'
 
 // or separate files

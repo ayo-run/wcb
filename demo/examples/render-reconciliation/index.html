@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Render reconciliation</title>
+    <script type="module" src="./index.js"></script>
+    <script>try{document.documentElement.dataset.theme=localStorage.getItem('wcb-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')}catch(e){}</script>
+    <link rel="stylesheet" href="../../shell.css" />
+    <script type="module" src="../../shell.js"></script>
+    <style>
+      .hint {
+        opacity: 0.75;
+        font-size: 0.9em;
+      }
+      .seg-group {
+        display: flex;
+        gap: 0.25em;
+      }
+      .seg.selected {
+        outline: 2px solid currentColor;
+        font-weight: 700;
+      }
+      #list li {
+        display: flex;
+        gap: 0.75em;
+        align-items: center;
+        margin-bottom: 0.4em;
+      }
+      .row-label {
+        min-width: 6em;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Render reconciliation</h1>
+    <p class="lede">
+      Re-renders of an <code>html</code> template patch the existing DOM in
+      place instead of rebuilding it, so transient DOM state on the rendered
+      nodes survives. Each section below demonstrates one part of that.
+    </p>
+
+    <h2>1. Focus, caret and uncommitted value survive</h2>
+    <p>
+      A controlled field: every keystroke writes back to a prop and re-renders
+      the component, yet the <code>&lt;input&gt;</code> is the same element
+      throughout.
+    </p>
+    <controlled-input></controlled-input>
+
+    <h2>2. Attribute-only changes patch in place</h2>
+    <p>
+      Selecting a tab changes only <code>aria-selected</code> and
+      <code>class</code>. Reach a tab with the keyboard, press Enter, and focus
+      stays on it — no node was replaced.
+    </p>
+    <segmented-control></segmented-control>
+
+    <h2>3. Running CSS transitions are not restarted</h2>
+    <p>
+      The box animates for 2s while the component re-renders ten times. Its
+      vnode is unchanged, so the element is left untouched and the transition
+      runs to completion.
+    </p>
+    <transition-safe></transition-safe>
+
+    <h2>4. Removed props and attributes are undone</h2>
+    <p>
+      Props that disappear from the new tree are actively reset on the reused
+      element — a dropped <code>disabled</code>, <code>data-*</code> attribute
+      and inline <code>style</code> rules all go away.
+    </p>
+    <prop-removal></prop-removal>
+
+    <h2>5. Lists — and the non-keyed limitation</h2>
+    <p>
+      Appending and removing reuses the surviving rows. Reordering, however, is
+      matched <em>by position</em>: the rendered result is correct, but
+      preserved state stays with the slot rather than following the item.
+    </p>
+    <item-list></item-list>
+  </body>
+</html>

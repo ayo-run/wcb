@@ -109,7 +109,7 @@
   "size-limit": [
     {
       "path": "./dist/WebComponent.js",
-      "limit": "1.4 KB"
+      "limit": "1.85 KB"
     },
     {
       "path": "./dist/html.js",
@@ -118,6 +118,10 @@
     {
       "path": "./dist/utils/create-element.js",
       "limit": "0.5 KB"
+    },
+    {
+      "path": "./dist/utils/patch.js",
+      "limit": "0.8 KB"
     },
     {
       "path": "./dist/utils/deserialize.js",

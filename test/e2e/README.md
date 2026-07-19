@@ -71,6 +71,7 @@ One spec per example folder:
 | `use-shadow`          | rendering into an open shadow root                                         |
 | `constructed-styles`  | `static styles` via `adoptedStyleSheets` in the shadow root               |
 | `templating`          | interpolated lists / links via the built-in `html`                        |
+| `render-reconciliation` | in-place patching — focus/caret/uncommitted value, attribute-only updates, uninterrupted transitions, prop+style removal, list grow/shrink, and the non-keyed reorder limitation |
 
 ## Intentionally not covered
 

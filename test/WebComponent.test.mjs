@@ -147,6 +147,32 @@ describe('render()', () => {
     expect(el.querySelector('span').textContent).toBe('5')
   })
 
+  it('patches a prop-triggered re-render in place, keeping focus and caret', () => {
+    class Patched extends WebComponent {
+      static props = { label: 'before' }
+      get template() {
+        return html`
+          <label>${this.props.label}</label>
+          <input type="text" />
+        `
+      }
+    }
+    const el = mount(Patched)
+    const input = el.querySelector('input')
+    input.focus()
+    input.value = 'uncommitted'
+    input.setSelectionRange(3, 3)
+
+    el.props.label = 'after'
+
+    expect(el.querySelector('label').textContent).toBe('after')
+    // same element instance — not rebuilt
+    expect(el.querySelector('input')).toBe(input)
+    expect(input.value).toBe('uncommitted')
+    expect(document.activeElement).toBe(input)
+    expect(input.selectionStart).toBe(3)
+  })
+
   it('can be overridden to use a custom rendering approach', () => {
     class Custom extends WebComponent {
       render() {

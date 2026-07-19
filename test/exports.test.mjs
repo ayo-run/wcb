@@ -35,6 +35,9 @@ describe('utils exports', () => {
       'getCamelCase',
       'getKebabCase',
       'createElement',
+      'applyProp',
+      'patchNode',
+      'patchChildren',
     ]) {
       expect(typeof utils[name], name).toBe('function')
     }
