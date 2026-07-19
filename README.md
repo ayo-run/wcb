@@ -42,6 +42,34 @@ class CozyButton extends WebComponent<typeof props> {
 
 The runtime is unchanged — this is types-only, and omitting the type argument keeps the previous behavior. See the [prop access guide](https://webcomponent.io/prop-access/) for details.
 
+## Storybook autodocs & controls
+
+Storybook infers autodocs and controls from a Custom Elements Manifest, but the stock analyzer reads `static props` as one opaque `object` and emits no attributes. `web-component-base/cem-plugin` teaches it the convention — dev-time only, so the core stays zero-dependency:
+
+```js
+// custom-elements-manifest.config.mjs
+import { wcbStaticProps } from 'web-component-base/cem-plugin'
+
+export default {
+  globs: ['src/**/*.js'],
+  outdir: '.',
+  plugins: [wcbStaticProps()],
+}
+```
+
+`npx cem analyze` then emits a typed attribute per prop — `variant` (string), `disabled` (boolean), `maxCount` → `max-count` (number) — named with wcb's own `getKebabCase` so they match `observedAttributes`, with wcb internals stripped. Point Storybook at the result:
+
+```js
+// .storybook/preview.js
+import { setCustomElementsManifest } from '@storybook/web-components-vite'
+import manifest from '../custom-elements.json'
+
+setCustomElementsManifest(manifest)
+export default { tags: ['autodocs'] }
+```
+
+A story only needs `component: 'cozy-button'` — no per-story `argTypes`. See the [full recipe](https://webcomponent.io/cem-plugin/), or the working setup in [`storybook/`](./storybook).
+
 ## Want to get in touch?
 
 There are many ways to get in touch:

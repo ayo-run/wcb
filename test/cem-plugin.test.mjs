@@ -1,0 +1,187 @@
+import { createRequire } from 'node:module'
+import { describe, expect, it } from 'vitest'
+import { create } from '@custom-elements-manifest/analyzer/src/create.js'
+import { wcbStaticProps } from '../src/cem-plugin.js'
+import { getKebabCase } from '../src/utils/index.js'
+
+// The analyzer resolves its own `typescript`, which may be a different version
+// than ours. `SyntaxKind` values shift between releases, so a source file built
+// by a different instance is invisible to the analyzer's node checks — build it
+// with the exact instance the analyzer uses.
+const require = createRequire(import.meta.url)
+const ts = require(
+  createRequire(
+    require.resolve('@custom-elements-manifest/analyzer/src/create.js')
+  ).resolve('typescript')
+)
+
+/**
+ * Runs the real analyzer over a source string with the plugin installed and
+ * returns the resulting classDoc — the same path `cem analyze` takes.
+ * @param {string} source component source to analyze
+ * @param {string} [className] class to return the doc for
+ * @returns {any} the classDoc from the generated manifest
+ */
+function analyze(source, className = 'CozyButton') {
+  const manifest = create({
+    modules: [
+      ts.createSourceFile(
+        'my-element.js',
+        source,
+        ts.ScriptTarget.ES2015,
+        true
+      ),
+    ],
+    plugins: [wcbStaticProps()],
+    context: { dev: false, thirdPartyCEMs: [] },
+  })
+  return manifest.modules[0].declarations.find((d) => d.name === className)
+}
+
+const COZY_BUTTON = `
+import { WebComponent, html } from 'web-component-base'
+
+export class CozyButton extends WebComponent {
+  static props = {
+    variant: 'primary',
+    disabled: false,
+    maxCount: 3,
+    config: { size: 'md' },
+    items: [],
+  }
+  static shadowRootInit = { mode: 'open' }
+  static styles = ':host { display: block }'
+  static strictProps = true
+
+  get template() {
+    return html\`<button>\${this.props.variant}</button>\`
+  }
+}
+customElements.define('cozy-button', CozyButton)
+`
+
+describe('cem-plugin: wcbStaticProps', () => {
+  const doc = analyze(COZY_BUTTON)
+  const attrNamed = (name) => doc.attributes.find((a) => a.name === name)
+  const fieldNamed = (name) => doc.members.find((m) => m.name === name)
+
+  it('emits one attribute per declared prop', () => {
+    expect(doc.attributes.map((a) => a.name).sort()).toEqual([
+      'config',
+      'disabled',
+      'items',
+      'max-count',
+      'variant',
+    ])
+  })
+
+  it('infers the type from the default literal', () => {
+    expect(attrNamed('variant').type).toEqual({ text: 'string' })
+    expect(attrNamed('disabled').type).toEqual({ text: 'boolean' })
+    expect(attrNamed('max-count').type).toEqual({ text: 'number' })
+    expect(attrNamed('config').type).toEqual({ text: 'object' })
+    expect(attrNamed('items').type).toEqual({ text: 'object' })
+  })
+
+  it('records the default and the camelCase field it maps to', () => {
+    expect(attrNamed('variant')).toMatchObject({
+      fieldName: 'variant',
+      default: "'primary'",
+    })
+    expect(attrNamed('max-count').fieldName).toBe('maxCount')
+  })
+
+  it('names attributes with wcb getKebabCase, matching observedAttributes', () => {
+    for (const attribute of doc.attributes)
+      expect(attribute.name).toBe(getKebabCase(attribute.fieldName))
+  })
+
+  it('emits a matching public field per prop', () => {
+    expect(fieldNamed('variant')).toMatchObject({
+      kind: 'field',
+      privacy: 'public',
+      type: { text: 'string' },
+      attribute: 'variant',
+    })
+    expect(fieldNamed('maxCount').attribute).toBe('max-count')
+  })
+
+  it('strips wcb internals from the public surface', () => {
+    const names = doc.members.map((m) => m.name)
+    for (const internal of [
+      'props',
+      'shadowRootInit',
+      'styles',
+      'strictProps',
+      'observedAttributes',
+      'template',
+    ])
+      expect(names, internal).not.toContain(internal)
+  })
+
+  it('keeps the component authors own members', () => {
+    const withMethod = analyze(`
+      import { WebComponent } from 'web-component-base'
+      export class CozyButton extends WebComponent {
+        static props = { variant: 'primary' }
+        focusFirst() {}
+      }
+    `)
+    expect(withMethod.members.map((m) => m.name)).toContain('focusFirst')
+  })
+
+  it('strips internals from a wcb component that declares no props', () => {
+    const doc = analyze(`
+      import { WebComponent } from 'web-component-base'
+      export class CozyButton extends WebComponent {
+        static styles = ':host{}'
+        get template() { return '' }
+      }
+    `)
+    // the analyzer drops arrays it finds empty, so stripping every member
+    // leaves no `members` key at all
+    expect((doc.members ?? []).map((m) => m.name)).not.toContain('styles')
+    expect(doc.attributes ?? []).toEqual([])
+  })
+
+  // The typed-props pattern hoists the defaults into a const so the class can
+  // write `extends WebComponent<typeof props>` — a class can't reference its
+  // own static in its heritage clause. `static props` is then an identifier,
+  // not an object literal.
+  it('resolves static props hoisted into a module-level const', () => {
+    const doc = analyze(`
+      import { WebComponent } from 'web-component-base'
+      const buttonProps = { variant: 'primary', maxCount: 2 }
+      export class CozyButton extends WebComponent {
+        static props = buttonProps
+      }
+    `)
+    expect(doc.attributes.map((a) => a.name).sort()).toEqual([
+      'max-count',
+      'variant',
+    ])
+    expect(doc.attributes.find((a) => a.name === 'max-count').type).toEqual({
+      text: 'number',
+    })
+  })
+
+  it('resolves static props declared with `as const`', () => {
+    const doc = analyze(`
+      import { WebComponent } from 'web-component-base'
+      const buttonProps = { disabled: false } as const
+      export class CozyButton extends WebComponent {
+        static props = buttonProps
+      }
+    `)
+    expect(doc.attributes.map((a) => a.name)).toEqual(['disabled'])
+  })
+
+  it('leaves non-wcb classes untouched', () => {
+    const doc = analyze(
+      `export class Plain extends HTMLElement { static props = 1 }`,
+      'Plain'
+    )
+    expect(doc.attributes).toBeUndefined()
+    expect(doc.members.map((m) => m.name)).toContain('props')
+  })
+})

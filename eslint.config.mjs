@@ -18,7 +18,15 @@ export default [
     files: ['**/*.config.{js,mjs,cjs}', 'scripts/**/*.{js,mjs}'],
     languageOptions: { globals: globals.node },
   },
+  // The Storybook config files and the CEM analyzer config run in Node.
   {
-    ignores: ['site/*', '**/dist/*'],
+    files: [
+      'storybook/.storybook/*.js',
+      '**/custom-elements-manifest.config.mjs',
+    ],
+    languageOptions: { globals: globals.node },
+  },
+  {
+    ignores: ['site/*', '**/dist/*', 'storybook/storybook-static/*'],
   },
 ]

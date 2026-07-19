@@ -13,6 +13,20 @@ describe('main exports', () => {
   })
 })
 
+describe('cem-plugin entry', () => {
+  it('is reachable from its own subpath', async () => {
+    const mod = await import('../src/cem-plugin.js')
+    expect(typeof mod.wcbStaticProps).toBe('function')
+    expect(mod.wcbStaticProps().name).toBe('wcb-static-props')
+  })
+
+  it('is not reachable from the package root', () => {
+    // dev-only tooling must never be pulled into the browser bundle or the
+    // size-limit budget
+    expect(Object.keys(main)).not.toContain('wcbStaticProps')
+  })
+})
+
 describe('utils exports', () => {
   it('exposes every documented utility', () => {
     for (const name of [

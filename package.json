@@ -8,6 +8,10 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./cem-plugin": {
+      "types": "./dist/cem-plugin.d.ts",
+      "import": "./dist/cem-plugin.js"
+    },
     "./*": {
       "types": "./dist/*.d.ts",
       "import": "./dist/*.js"
@@ -43,6 +47,8 @@
     "demo": "pnpm -F demo dev",
     "demo:build": "pnpm -F demo build",
     "docs": "pnpm -F docs start",
+    "storybook": "pnpm run build && pnpm -F storybook dev",
+    "storybook:build": "pnpm run build && pnpm -F storybook build",
     "build": "pnpm run clean && tsc && pnpm run copy:source",
     "size-limit": "pnpm run build && size-limit",
     "clean": "rm -rf dist",
@@ -76,6 +82,7 @@
     "url": "https://github.com/ayo-run/wcb/issues"
   },
   "devDependencies": {
+    "@custom-elements-manifest/analyzer": "^0.11.0",
     "@eslint/js": "^9.39.2",
     "@size-limit/preset-small-lib": "^12.0.0",
     "@vitest/browser": "4.0.18",

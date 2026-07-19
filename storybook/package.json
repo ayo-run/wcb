@@ -1,0 +1,25 @@
+{
+  "name": "storybook",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "description": "Storybook testing ground for wcb components + the CEM analyzer plugin",
+  "scripts": {
+    "analyze": "cem analyze",
+    "dev": "pnpm run analyze && storybook dev -p 6006 --no-open",
+    "build": "pnpm run analyze && storybook build"
+  },
+  "dependencies": {
+    "web-component-base": "workspace:*"
+  },
+  "devDependencies": {
+    "@custom-elements-manifest/analyzer": "^0.11.0",
+    "@storybook/addon-docs": "^9.1.15",
+    "@storybook/web-components-vite": "^9.1.15",
+    "cem-plugin-vs-code-custom-data-generator": "^1.4.2",
+    "lit": "^3.3.1",
+    "storybook": "^9.1.15",
+    "vite": "^7.3.1"
+  },
+  "customElements": "custom-elements.json"
+}

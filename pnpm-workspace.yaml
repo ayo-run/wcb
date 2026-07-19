@@ -2,6 +2,7 @@ packages:
   # include packages in subfolders (e.g. apps/ and packages/)
   - 'docs/'
   - 'demo/'
+  - 'storybook/'
 allowBuilds:
   esbuild: true # insurance for core build
   '@parcel/watcher': false

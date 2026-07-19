@@ -1,0 +1,202 @@
+---
+title: CEM Analyzer Plugin
+slug: cem-plugin
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+A CEM (`custom-elements.json`) is a standard description of the elements a
+package defines — their tags, attributes, properties, events and slots — so
+tooling can read your components without executing them. Read more at
+[custom-elements-manifest.open-wc.org](https://custom-elements-manifest.open-wc.org/)
+for the analyzer and its plugin API, or the [schema and
+specification](https://github.com/webcomponents/custom-elements-manifest) for
+the file format itself.
+
+We provide a CEM Analyzer Plugin `web-component-base/cem-plugin` which allows using the `@custom-elements-manifest/analyzer` by handling wcb's `static props` object. In this guide we show how to use this plugin and the benefits for using it with [Storybook](#storybook) and [code editors](#code-editors).
+
+## Install
+
+```sh
+npm i -D @custom-elements-manifest/analyzer
+```
+
+## Configure
+
+```js
+// custom-elements-manifest.config.mjs
+import { wcbStaticProps } from 'web-component-base/cem-plugin'
+
+export default {
+  globs: ['src/**/*.js'],
+  outdir: '.',
+  plugins: [wcbStaticProps()],
+}
+```
+
+Then run the analyzer:
+
+```sh
+npx cem analyze
+```
+
+<Aside type="caution" title="LOOK OUT! `cem analyze` fails by hanging, not by erroring">
+  Run it **from the directory holding your config and a `package.json`**. Two
+  things make it appear to do nothing, neither of which prints an error:
+
+- **No config found** — it falls back to a default glob of
+  `**/*.{js,ts,tsx}`, which does _not_ exclude `node_modules`. In a real
+  project that is tens of thousands of files through the TypeScript parser.
+- **No `package.json` in the directory** — it hangs outright.
+
+With globs scoped to your source it should finish in well under a second.
+
+</Aside>
+
+## What it produces
+
+Given a component:
+
+```js
+const props = { variant: 'primary', disabled: false, maxCount: 3 }
+
+export class CozyButton extends WebComponent {
+  static props = props
+  static shadowRootInit = { mode: 'open' }
+  static styles = ':host { display: inline-block }'
+  get template() {
+    return html`<button>${this.props.variant}</button>`
+  }
+}
+customElements.define('cozy-button', CozyButton)
+```
+
+`custom-elements.json` gains a typed attribute and a matching public field per prop:
+
+| attribute   | type      | field      | default     |
+| ----------- | --------- | ---------- | ----------- |
+| `variant`   | `string`  | `variant`  | `'primary'` |
+| `disabled`  | `boolean` | `disabled` | `false`     |
+| `max-count` | `number`  | `maxCount` | `3`         |
+
+...and `props`, `shadowRootInit`, `styles`, `strictProps`, `observedAttributes` and `template` are stripped from the public surface.
+
+Two details worth knowing:
+
+- **Types come from the default literal** — `true`/`false` → `boolean`, numeric → `number`, object/array → `object`, everything else → `string`.
+- **Attribute names come from wcb's own `getKebabCase`**, the same function `observedAttributes` uses, so manifest names can't drift from what the component actually observes.
+
+The defaults may be written inline or hoisted into a module-level `const` — the latter is required by the [typed props](/prop-access/#typed-props-in-typescript) pattern, and the plugin resolves it either way.
+
+## Storybook
+
+Storybook's web-components renderer builds **autodocs and controls** from a [Custom Elements Manifest](https://github.com/webcomponents/custom-elements-manifest).
+
+## Wire it into Storybook
+
+```js
+// .storybook/preview.js
+import { setCustomElementsManifest } from '@storybook/web-components-vite'
+import manifest from '../custom-elements.json'
+
+setCustomElementsManifest(manifest)
+
+export default { tags: ['autodocs'] }
+```
+
+Bind a story to the tag name and Storybook infers the rest — a text field for `variant`, a toggle for `disabled`, a number input for `maxCount`:
+
+```js
+// cozy-button.stories.js
+import { html } from 'lit'
+import '../src/cozy-button.js'
+
+export default {
+  title: 'Cozy/Button',
+  component: 'cozy-button', // ← no argTypes needed
+  render: ({ variant, disabled }) => html`
+    <cozy-button variant=${variant} disabled=${disabled}></cozy-button>
+  `,
+}
+
+export const Default = { args: { variant: 'primary', disabled: false } }
+```
+
+<Aside type="tip">
+  Regenerate the manifest before starting Storybook (`cem analyze && storybook
+  dev`) — `custom-elements.json` is a build artifact, so it is usually
+  gitignored and rebuilt on demand.
+</Aside>
+
+This repo runs exactly this setup against the demo components in `storybook/` — see it there for a working reference.
+
+## Code editors
+
+Once `custom-elements.json` exists, editors can offer tag-name and attribute autocomplete for your components — driven by the same `static props` the plugin reads, so the hints can't drift from the code.
+
+<Aside type="caution">
+  VS Code does **not** read `custom-elements.json` natively. Nothing happens
+  just because the file exists — you need one of the two routes below.
+</Aside>
+
+First, point tooling at the manifest from your `package.json`. This is the field every option here uses to discover it:
+
+```json
+{
+  "customElements": "custom-elements.json"
+}
+```
+
+### Route 1 — native VS Code, no extension
+
+VS Code's built-in HTML language service reads its own [custom data](https://github.com/microsoft/vscode-custom-data) format. A second analyzer plugin converts the manifest into it, so both files come out of one `cem analyze` run:
+
+```sh
+npm i -D cem-plugin-vs-code-custom-data-generator
+```
+
+```js
+// custom-elements-manifest.config.mjs
+import { wcbStaticProps } from 'web-component-base/cem-plugin'
+import { generateCustomData } from 'cem-plugin-vs-code-custom-data-generator'
+
+export default {
+  globs: ['src/**/*.js'],
+  outdir: '.',
+  plugins: [wcbStaticProps(), generateCustomData()],
+}
+```
+
+```json
+// .vscode/settings.json
+{
+  "html.customData": ["./vscode.html-custom-data.json"]
+}
+```
+
+<Aside type="caution">
+  `html.customData` paths resolve from the **workspace root**, not from the
+  settings file. If you run `cem analyze` in a subfolder, either point at
+  `./that-folder/vscode.html-custom-data.json` or give the generator its own
+  `outdir` — `generateCustomData({ outdir: '..' })` — so the file lands where
+  the setting expects it.
+</Aside>
+
+Restart VS Code and `<cozy-` completes in HTML files, with `variant` / `disabled` / `max-count` offered as attributes and their types and defaults on hover.
+
+**The catch:** `html.customData` only applies to `.html` files. wcb components author their markup in `html` tagged templates inside `.js` / `.ts`, and those do not go through the HTML language service. This route helps whoever writes plain HTML pages against your components — it will not light up inside your own templates.
+
+### Route 2 — a language server extension, for tagged templates
+
+To get the same completions **inside** tagged templates, you need an extension that understands them. The most current option is the [Custom Elements Manifest Language Server](https://marketplace.visualstudio.com/items?itemName=pwrs.cem-language-server-vscode) (`pwrs.cem-language-server-vscode`). It autocompletes tag names and attributes inside template literals in both JS and TS, adds hover documentation for attributes and defaults, and discovers the manifest through the `customElements` field above — no `.vscode/settings.json` needed.
+
+Two alternatives, both worth knowing the state of:
+
+- [`wc-toolkit/wc-language-server`](https://wc-toolkit.com/integrations/web-components-language-server/) — VS Code and JetBrains, also manifest-driven. Self-described as **alpha and experimental**.
+- `Matsuuu.custom-elements-language-server-project` — the one you'll find most often in older write-ups. It is alpha, and **its repository was archived in January 2026**, so prefer one of the two above.
+
+<Aside type="note">
+  This corner of the ecosystem moves quickly and every option is pre-1.0. Route
+  1 is the conservative choice — it is plain VS Code configuration with no
+  extension to go stale — at the cost of not covering tagged templates.
+</Aside>

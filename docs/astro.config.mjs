@@ -43,6 +43,7 @@ export default defineConfig({
             'styling',
             'just-parts',
             'life-cycle-hooks',
+            'cem-plugin',
             'library-size',
           ],
         },
