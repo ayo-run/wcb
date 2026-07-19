@@ -40,6 +40,36 @@ The `props` property of `WebComponent` works like `HTMLElement.dataset`, except 
 Another advantage over `HTMLElement.dataset` is that `WebComponent.props` can hold primitive types 'number', 'boolean', 'object' and 'string'.
 </Aside>
 
+### Typed props in TypeScript
+
+By default `this.props` is a permissive `{ [name: string]: any }` map. In TypeScript you can get compile-time types on your declared props by passing the shape of your defaults as a type argument to `WebComponent`. Declare the defaults in a `const` first so the class can refer to their type:
+
+```ts
+const props = {
+  variant: 'primary',
+  disabled: false,
+}
+
+class CozyButton extends WebComponent<typeof props> {
+  static props = props
+
+  get template() {
+    this.props.variant // string
+    this.props.disabled // boolean
+    this.props.notAProp // ❌ compile error: not declared
+
+    this.props.disabled = 'yes' // ❌ compile error: string is not boolean
+    return html`<button class=${this.props.variant}></button>`
+  }
+}
+```
+
+This is types-only — the runtime is unchanged, and `static strictProps` still guards writes that come in from attributes at runtime. Omitting the type argument keeps the previous untyped behavior.
+
+<Aside type="tip">
+Values in the defaults object widen as usual, so `variant: 'primary'` types as `string`. To narrow it to a union of allowed values, annotate the defaults: `const props = { variant: 'primary' as 'primary' | 'ghost' }`.
+</Aside>
+
 ### Alternatives
 
 The current alternatives are using what `HTMLElement` provides out-of-the-box, which are:

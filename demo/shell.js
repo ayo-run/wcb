@@ -41,6 +41,9 @@ const themeToggle = document.createElement('button')
 themeToggle.type = 'button'
 themeToggle.className = 'theme-toggle'
 
+/**
+ *
+ */
 function syncToggle() {
   const dark = effectiveTheme() === 'dark'
   themeToggle.innerHTML = dark ? SUN_ICON : MOON_ICON
@@ -87,7 +90,7 @@ syncToggle()
 // and in the hashed production build (unlike reading rewritten <script src>s).
 // ---------------------------------------------------------------------------
 
-const RAW_JS = import.meta.glob('./examples/**/*.{js,mjs}', {
+const RAW_JS = import.meta.glob('./examples/**/*.{js,mjs,ts}', {
   query: '?raw',
   import: 'default',
   eager: true,
@@ -103,6 +106,9 @@ const basename = (path) => path.split('/').pop()
 // Shiki highlighter, created once and lazily. Uses the JavaScript regex engine
 // so no WASM is fetched at runtime, and only the langs/themes we actually need.
 let highlighterPromise
+/**
+ *
+ */
 function getHighlighter() {
   if (!highlighterPromise) {
     highlighterPromise = (async () => {
@@ -111,8 +117,9 @@ function getHighlighter() {
           import('shiki/core'),
           import('shiki/engine/javascript'),
         ])
-      const [js, htmlLang, css, dark, light] = await Promise.all([
+      const [js, ts, htmlLang, css, dark, light] = await Promise.all([
         import('shiki/langs/javascript.mjs'),
+        import('shiki/langs/typescript.mjs'),
         import('shiki/langs/html.mjs'),
         import('shiki/langs/css.mjs'),
         import('shiki/themes/github-dark.mjs'),
@@ -120,7 +127,7 @@ function getHighlighter() {
       ])
       return createHighlighterCore({
         engine: createJavaScriptRegexEngine(),
-        langs: [js.default, htmlLang.default, css.default],
+        langs: [js.default, ts.default, htmlLang.default, css.default],
         themes: [dark.default, light.default],
       })
     })()
@@ -128,10 +135,18 @@ function getHighlighter() {
   return highlighterPromise
 }
 
-const langFor = (name) => (name.endsWith('.html') ? 'html' : 'javascript')
+const langFor = (name) => {
+  if (name.endsWith('.html')) return 'html'
+  if (name.endsWith('.ts')) return 'typescript'
+  return 'javascript'
+}
 
 // Single-file pens have no separate JS module — show their HTML instead, minus
 // the injected shell tags so only the actual example remains.
+/**
+ *
+ * @param html
+ */
 function stripShell(html) {
   return html
     .split('\n')
@@ -141,6 +156,10 @@ function stripShell(html) {
 }
 
 // ts-check strip comments
+/**
+ *
+ * @param js
+ */
 function stripTsCheck(js) {
   return js
     .split('\n')
@@ -149,6 +168,10 @@ function stripTsCheck(js) {
     .trim()
 }
 
+/**
+ *
+ * @param folder
+ */
 function sourcesForFolder(folder) {
   const prefix = `./examples/${folder}/`
   const jsKeys = Object.keys(RAW_JS)
@@ -166,6 +189,9 @@ function sourcesForFolder(folder) {
     .map((k) => ({ name: basename(k), code: stripShell(RAW_HTML[k]) }))
 }
 
+/**
+ *
+ */
 async function renderSourcePreview() {
   const match = location.pathname.match(/\/examples\/([^/]+)\//)
   if (!match) return

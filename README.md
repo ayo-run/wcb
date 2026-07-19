@@ -21,6 +21,27 @@ When you extend the `WebComponent` class for your component, you only have to de
 The result is a reactive UI on property changes.
 
 
+## TypeScript: typed props
+
+`this.props` is untyped (`{ [name: string]: any }`) by default. Pass the shape of your defaults as a type argument to get compile-time types on declared props:
+
+```ts
+const props = { variant: 'primary', disabled: false }
+
+class CozyButton extends WebComponent<typeof props> {
+  static props = props
+
+  get template() {
+    this.props.variant // string
+    this.props.disabled // boolean
+    this.props.disabled = 'yes' // ❌ compile error
+    return html`<button class=${this.props.variant}></button>`
+  }
+}
+```
+
+The runtime is unchanged — this is types-only, and omitting the type argument keeps the previous behavior. See the [prop access guide](https://webcomponent.io/prop-access/) for details.
+
 ## Want to get in touch?
 
 There are many ways to get in touch:

@@ -45,8 +45,24 @@ function cloneDefaults(ctor) {
 }
 
 /**
+ * Blueprint for the Proxy props
+ * @typedef {{[name: string]: any}} PropStringMap
+ */
+
+/**
  * A minimal base class to reduce the complexity of creating reactive custom elements
+ *
+ * Pass the shape of your `static props` as a type argument to get typed
+ * `this.props` access in TypeScript:
+ * ```ts
+ * const props = { variant: 'primary', disabled: false }
+ * class CozyButton extends WebComponent<typeof props> {
+ *   static props = props
+ * }
+ * ```
+ * @template {PropStringMap} [Props=PropStringMap]
  * @see https://webcomponent.io
+ * @see https://webcomponent.io/prop-access/
  */
 export class WebComponent extends HTMLElement {
   #host
@@ -57,8 +73,9 @@ export class WebComponent extends HTMLElement {
   #connected = false
 
   /**
-   * Blueprint for the Proxy props
-   * @typedef {{[name: string]: any}} PropStringMap
+   * Declared props and their defaults. The value types of this object drive
+   * both the runtime type guard and — when passed as the class type argument
+   * — the compile-time type of `this.props`.
    * @type {PropStringMap}
    */
   static props
@@ -91,7 +108,7 @@ export class WebComponent extends HTMLElement {
   /**
    * Read-only property containing camelCase counterparts of observed attributes.
    * @see https://webcomponent.io/prop-access/
-   * @type {PropStringMap}
+   * @returns {Props}
    */
   get props() {
     return this.#props

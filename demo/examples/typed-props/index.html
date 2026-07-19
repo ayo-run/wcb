@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Compile-time prop types</title>
+    <script type="module" src="./index.ts"></script>
+    <script>try{document.documentElement.dataset.theme=localStorage.getItem('wcb-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')}catch(e){}</script>
+    <link rel="stylesheet" href="../../shell.css" />
+    <script type="module" src="../../shell.js"></script>
+    <style>
+      .btn.primary { font-weight: 600; }
+      .btn.secondary { opacity: 0.85; }
+      .btn.ghost { background: transparent; }
+    </style>
+  </head>
+  <body>
+    <h1>Compile-time prop types</h1>
+    <p>
+      Pass the shape of your defaults as a type argument —
+      <code>extends WebComponent&lt;typeof props&gt;</code> — and
+      <code>this.props.*</code> is inferred from them instead of being
+      <code>any</code>.
+    </p>
+
+    <typed-button></typed-button>
+
+    <p>
+      The buttons above are ordinary reactive props; the point of this example
+      is what the <em>compiler</em> now sees. In
+      <code>index.ts</code> below, <code>this.props.variant</code> is
+      <code>string</code>, <code>this.props.disabled</code> is
+      <code>boolean</code>, and each line in <code>CompileErrors</code> is a
+      real type error kept honest by <code>@ts-expect-error</code>.
+    </p>
+
+    <hr />
+
+    <h2>Without the type argument</h2>
+    <p>
+      Omitting it keeps the previous behavior: every read is <code>any</code>,
+      so a typo like <code>this.props.varient</code> compiles fine.
+    </p>
+    <untyped-button></untyped-button>
+
+    <p>
+      <strong>Runtime is unchanged either way.</strong> Types are erased before
+      the browser sees this file — <code>static strictProps</code> is still what
+      guards values arriving from attributes at runtime.
+    </p>
+  </body>
+</html>

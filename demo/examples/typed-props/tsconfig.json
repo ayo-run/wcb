@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM"],
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    // typecheck against the emitted `.d.ts` — the same types a consumer gets.
+    // (Vite aliases this specifier to `src/` at runtime; see demo/vite.config.js)
+    "paths": {
+      "web-component-base": ["../../../dist/index.d.ts"]
+    }
+  },
+  "include": ["./index.ts"]
+}
