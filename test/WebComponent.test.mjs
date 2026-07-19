@@ -35,6 +35,11 @@ describe('WebComponent', () => {
  * and returns it. Remove it with `el.remove()` to trigger disconnect.
  */
 let tagSeq = 0
+/**
+ *
+ * @param Class
+ * @param attributes
+ */
 function mount(Class, attributes = {}) {
   const tag = `wc-test-${tagSeq++}`
   window.customElements.define(tag, Class)
@@ -265,6 +270,38 @@ describe('reactive props (documented contract)', () => {
     expect(el.props.count).toBe(5)
   })
 
+  it('turns a boolean prop on from a bare attribute (<el active>)', () => {
+    const el = connected()
+    // `<el active>` and `<el active="">` are the same to the DOM
+    el.setAttribute('active', '')
+    expect(el.props.active).toBe(true)
+  })
+
+  it('honors an explicit "true"/"false" boolean attribute value', () => {
+    const el = connected()
+    el.setAttribute('active', 'true')
+    expect(el.props.active).toBe(true)
+    el.setAttribute('active', 'false')
+    expect(el.props.active).toBe(false)
+  })
+
+  it('resets a boolean prop to its default when the attribute is removed', () => {
+    const el = connected()
+    el.setAttribute('active', '')
+    el.removeAttribute('active')
+    expect(el.props.active).toBe(false)
+  })
+
+  it('round-trips a boolean prop write through its reflected attribute', () => {
+    const el = connected()
+    el.props.active = true
+    expect(el.getAttribute('active')).toBe('true')
+    expect(el.props.active).toBe(true)
+    el.props.active = false
+    expect(el.getAttribute('active')).toBe('false')
+    expect(el.props.active).toBe(false)
+  })
+
   it('fires onChanges with property/attribute/previousValue/currentValue', () => {
     const changes = []
     class WithChanges extends WebComponent {
@@ -475,7 +512,10 @@ describe('attribute value & removal handling', () => {
     expect(el.props.label).toBe('')
     // regression: must NOT echo back as "true"
     expect(el.getAttribute('label')).toBe('')
-    expect(changes.at(-1)).toMatchObject({ property: 'label', currentValue: '' })
+    expect(changes.at(-1)).toMatchObject({
+      property: 'label',
+      currentValue: '',
+    })
   })
 
   it('resets a prop to its static default when the attribute is removed', () => {
@@ -518,7 +558,10 @@ describe('attribute value & removal handling', () => {
 
     // malformed value must not throw and must still fire onChanges/render
     expect(() => el.setAttribute('count', 'abc')).not.toThrow()
-    expect(changes.at(-1)).toMatchObject({ property: 'count', currentValue: 'abc' })
+    expect(changes.at(-1)).toMatchObject({
+      property: 'count',
+      currentValue: 'abc',
+    })
 
     error.mockRestore()
   })

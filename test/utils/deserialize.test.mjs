@@ -13,8 +13,14 @@ describe('deserialize', () => {
     expect(deserialize('false', 'boolean')).toBe(false)
   })
 
+  test('treats a bare/empty boolean attribute as true', () => {
+    expect(deserialize('', 'boolean')).toBe(true)
+  })
+
   test('parses object strings', () => {
-    expect(deserialize('{"hello":"world"}', 'object')).toEqual({ hello: 'world' })
+    expect(deserialize('{"hello":"world"}', 'object')).toEqual({
+      hello: 'world',
+    })
     expect(deserialize('[1,2,3]', 'object')).toEqual([1, 2, 3])
     expect(deserialize('null', 'object')).toBeNull()
   })
