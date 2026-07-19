@@ -1,7 +1,7 @@
 # Web Component Base
 
 > [!Note]
-> ** Quality of Life improvements shipped (v5.1)** — We now have typed props and a CEM Analyzer Plugin that makes developer exerience so much better with code editors and other tooling. Composing stylesheets and a fix for boolean properties behavior is included as well. See the [change log](https://github.com/ayo-run/wcb/releases/tag/v5.1.0) for more details. Next up: more improvements to Boolean props and **faster templates!**
+> **Quality of Life improvements shipped (v5.1)** — We now have typed props and a CEM Analyzer Plugin that makes developer exerience so much better with code editors and other tooling. Composing stylesheets and a fix for boolean properties behavior is included as well. See the [change log](https://github.com/ayo-run/wcb/releases/tag/v5.1.0) for more details. Next up: more improvements to Boolean props and **faster templates!**
 
 [![Package information: NPM version](https://img.shields.io/npm/v/web-component-base)](https://www.npmjs.com/package/web-component-base)
 [![Package information: NPM license](https://img.shields.io/npm/l/web-component-base)](https://www.npmjs.com/package/web-component-base)
