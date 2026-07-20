@@ -46,6 +46,8 @@ Another advantage over `HTMLElement.dataset` is that `WebComponent.props` can ho
 Boolean props follow the HTML boolean-attribute convention, exactly like native
 `disabled` and `required`: **presence means `true`, absence means `false`.**
 
+See it live: [Boolean props demo ↗](https://demo.webcomponent.io/examples/boolean-props/)
+
 ```js
 class FlagBox extends WebComponent {
   static props = { flag: false }
@@ -108,6 +110,8 @@ const props = { ariaChecked: 'false' as 'true' | 'false' }
 
 ### Custom attribute conversion
 
+See it live: [Custom attribute converters demo ↗](https://demo.webcomponent.io/examples/attribute-converters/)
+
 The rules above cover the common cases. When a prop needs its own
 serialization — a `Date`, a delimited list, an enumerated attribute where
 `"false"` is meaningful — override `toAttribute` and `fromAttribute`, and
@@ -165,6 +169,8 @@ toAttribute(name, value) {
 </Aside>
 
 ### Typed props in TypeScript
+
+See it live: [Compile-time prop types demo ↗](https://demo.webcomponent.io/examples/typed-props/) and [Typed props demo ↗](https://demo.webcomponent.io/examples/type-restore/)
 
 By default `this.props` is a permissive `{ [name: string]: any }` map. In TypeScript you can get compile-time types on your declared props by passing the shape of your defaults as a type argument to `WebComponent`. Declare the defaults in a `const` first so the class can refer to their type:
 

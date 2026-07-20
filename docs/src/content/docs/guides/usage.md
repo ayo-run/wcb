@@ -3,6 +3,8 @@ title: Usage
 slug: usage
 ---
 
+See it live: [Kitchen sink demo ↗](https://demo.webcomponent.io/examples/demo/) puts several features together, or [Single-file pen ↗](https://demo.webcomponent.io/examples/pens/counter-toggle.html) for the smallest possible setup.
+
 In your component class:
 
 ```js

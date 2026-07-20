@@ -5,7 +5,7 @@ slug: 'just-parts'
 
 You don't have to extend the whole base class to use some features. All internals are exposed and usable separately so you can practically build the behavior on your own classes.
 
-Here's an example of using the `html` tag template on a class that extends from vanilla `HTMLElement`... also [View on CodePen ↗](https://codepen.io/ayoayco-the-styleful/pen/bGzJQJg?editors=1010).
+Here's an example of using the `html` tag template on a class that extends from vanilla `HTMLElement`... also [View on CodePen ↗](https://codepen.io/ayoayco-the-styleful/pen/bGzJQJg?editors=1010), or see it live: [Just the parts demo ↗](https://demo.webcomponent.io/examples/just-parts/).
 
 ```js
 import { html } from 'https://unpkg.com/web-component-base/html'
