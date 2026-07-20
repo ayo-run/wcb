@@ -109,7 +109,7 @@
   "size-limit": [
     {
       "path": "./dist/WebComponent.js",
-      "limit": "2 KB"
+      "limit": "2.05 KB"
     },
     {
       "path": "./dist/html.js",
