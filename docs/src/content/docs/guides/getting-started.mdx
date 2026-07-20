@@ -3,24 +3,13 @@ title: Getting Started
 slug: getting-started
 ---
 
-import { Aside, Badge } from '@astrojs/starlight/components';
-
-**Web Component Base (WCB)** 
-<Badge text="alpha" variant="danger" /> is a zero-dependency, tiny JS base class for creating reactive [custom elements](https://developer.mozilla.org/en-US/docs/Web/API/Web_Components/Using_custom_elements) easily.
+**Web Component Base (WCB)** is a zero-dependency, tiny JS base class for creating reactive [custom elements](https://developer.mozilla.org/en-US/docs/Web/API/Web_Components/Using_custom_elements) easily.
 
 When you extend the WebComponent class for your custom element, you only have to define the template and properties. Any change in an observed property's value will automatically cause the component UI to render.
 
 The result is a reactive UI on property changes.
 
-Note that there's a trade off between productivity & lightweight-ness here, and the project aims to help in writing custom elements in the same way more mature and better maintained projects already do. Please look into popular options such as [Microsoft's FASTElement](https://fast.design/) & [Google's LitElement](https://lit.dev/) as well.
-
-## Project Status
-
-Treat it as a **stable alpha** product. Though the public APIs are stable, most examples are only useful for simple atomic use-cases due to remaining work needed on the internals.
-
-<Aside type="tip" title="Rendering">
-As of v5.2, the re-rendering of an `html` template patches the existing DOM in place to PRESERVE focus, caret/selection, an uncommitted `<input>` value, and running CSS transitions during an interaction. Patching is index-based and non-keyed: list items are matched by position, so preserved state follows the position rather than the item when a list reorders. A `key` prop for identity-based matching is not implemented.
-</Aside>
+You can see every feature running at [demo.webcomponent.io ↗](https://demo.webcomponent.io/) — a live gallery with the source alongside each demo. Individual demos are linked from the guide that covers them, and the full list is in [Examples](/examples/#live-demo-gallery).
 
 ## Installation
 

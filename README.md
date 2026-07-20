@@ -29,9 +29,10 @@ This is the base class used for web components in Ayo's projects, primarily [coz
 Next actions:
 
 1. [Read the docs](https://webcomponent.io)
-2. [View a demo on CodePen](https://codepen.io/ayoayco-the-styleful/pen/ZEwoNOz?editors=1010).
+2. [View demos with code examples](https://demo.webcomponent.io/)
+3. [Play with a demo on CodePen](https://codepen.io/ayo-run/pen/ZEwoNOz?editors=1010).
 
-![counter example code snippet](https://git.sr.ht/~ayoayco/wcb/blob/main/assets/IMG_0682.png)
+![counter example code snippet](https://git.ayo.run/ayo/wcb/raw/branch/main/assets/IMG_0682.png)
 
 When you extend the `WebComponent` class for your component, you only have to define the `template` and `properties`. Any change in any property value will automatically cause just the component UI to render.
 
@@ -39,7 +40,7 @@ The result is a reactive UI on property changes.
 
 When the `template` is an `html` tagged template (a vnode tree), a re-render **patches the existing DOM in place** instead of rebuilding it: elements of the same tag are reused, only changed props/attributes/text are touched, and leftover nodes are trimmed. Transient DOM state on the rendered nodes therefore survives a re-render — focus, caret/selection, an `<input>`'s uncommitted value, `:hover`, and running CSS transitions. A controlled text field can write every keystroke back to a prop without losing focus.
 
-Patching is **index-based and non-keyed**: list items are matched by position, not identity. The resulting DOM is always correct, but preserved state follows the *position* rather than the *item* — remove the first row of a list and the node that held row 1 is rewritten to hold row 2, so a caret, an uncommitted value, or a running transition stays where it was while the content shifts under it. Fixed-order lists and append/remove-at-the-end are unaffected; reorderable lists of focusable or animated items are the sharp edge. A `key` prop for identity-based matching is not implemented.
+Patching is **index-based and non-keyed**: list items are matched by position, not identity. The resulting DOM is always correct, but preserved state follows the _position_ rather than the _item_ — remove the first row of a list and the node that held row 1 is rewritten to hold row 2, so a caret, an uncommitted value, or a running transition stays where it was while the content shifts under it. Fixed-order lists and append/remove-at-the-end are unaffected; reorderable lists of focusable or animated items are the sharp edge. A `key` prop for identity-based matching is not implemented.
 
 ## Want to get in touch?
 

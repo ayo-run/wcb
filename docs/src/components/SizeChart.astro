@@ -1,0 +1,145 @@
+---
+// Hero visual: emphasis-form horizontal bar chart. WCB in the accent hue,
+// every other library in the de-emphasis gray. One series, so no legend —
+// each bar is direct-labeled with its name and value. Deliberately bare:
+// the full methodology and feature matrix live in /comparison/.
+const data = [
+  { name: 'vanilla', kb: 0.2 },
+  { name: 'web-component-base', kb: 2.6, accent: true },
+  { name: '@elenajs/core', kb: 3.3 },
+  { name: 'lit', kb: 5.3 },
+  { name: 'fast-element', kb: 12.2 },
+]
+const max = Math.max(...data.map((d) => d.kb))
+---
+
+<figure
+  class="viz-root"
+  aria-label="Bundle size of the same counter component per library, in kilobytes, minified and brotli-compressed. Vanilla 0.2, web-component-base 2.6, elenajs core 3.3, lit 5.3, fast-element 12.2."
+>
+  <div class="chart">
+    {
+      data.map((d) => (
+        <div class={`row${d.accent ? ' is-accent' : ''}`}>
+          <div class="name">{d.name}</div>
+          <div class="track">
+            <div class="bar" style={`width: ${(d.kb / max) * 100}%`} />
+          </div>
+          <div class="value">{d.kb} kB</div>
+        </div>
+      ))
+    }
+  </div>
+  <figcaption><a href="/comparison/">See comparison</a></figcaption>
+</figure>
+
+<style>
+  .viz-root {
+    /* light */
+    --surface: #fcfcfb;
+    --text-primary: #0b0b0b;
+    --text-secondary: #52514e;
+    --muted: #898781;
+    --baseline: #c3c2b7;
+    --accent: #2a78d6;
+    --context: #898781;
+    --ring: rgba(11, 11, 11, 0.1);
+
+    width: 100%;
+    margin: 0;
+    padding: 1.1rem 1.2rem 0.9rem;
+    background: var(--surface);
+    border: 1px solid var(--ring);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    text-align: start;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme='light'])) .viz-root {
+      --surface: #1a1a19;
+      --text-primary: #ffffff;
+      --text-secondary: #c3c2b7;
+      --baseline: #383835;
+      --accent: #3987e5;
+      --ring: rgba(255, 255, 255, 0.1);
+    }
+  }
+  :root[data-theme='dark'] .viz-root {
+    --surface: #1a1a19;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --baseline: #383835;
+    --accent: #3987e5;
+    --ring: rgba(255, 255, 255, 0.1);
+  }
+
+  .chart {
+    display: flex;
+    flex-direction: column;
+    /* 2px surface gap between adjacent bars */
+    gap: 2px;
+    border-left: 1px solid var(--baseline);
+    padding-left: 0.7rem;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: minmax(0, 9rem) minmax(0, 1fr) 3.4rem;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 2px 0;
+  }
+
+  .name {
+    font-size: 0.76rem;
+    line-height: 1.25;
+    color: var(--text-secondary);
+    overflow-wrap: anywhere;
+  }
+  .is-accent .name {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  .track {
+    min-width: 0;
+  }
+
+  .bar {
+    height: 13px;
+    min-width: 3px;
+    background: var(--context);
+    /* rounded data-end only; the baseline end stays square */
+    border-radius: 0 4px 4px 0;
+  }
+  .is-accent .bar {
+    background: var(--accent);
+  }
+
+  .value {
+    font-size: 0.76rem;
+    text-align: right;
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+  }
+  .is-accent .value {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  figcaption {
+    margin-top: 0.8rem;
+    padding-left: 0.7rem;
+    font-size: 0.72rem;
+  }
+  figcaption a {
+    color: var(--text-secondary);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  figcaption a:hover {
+    color: var(--text-primary);
+  }
+</style>

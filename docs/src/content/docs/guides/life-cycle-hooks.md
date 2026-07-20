@@ -5,6 +5,8 @@ slug: life-cycle-hooks
 
 Define behavior when certain events in the component's life cycle is triggered by providing hook methods
 
+See it live: [Lifecycle order demo ↗](https://demo.webcomponent.io/examples/lifecycle-order/) logs each hook as it fires, and [Attribute lifecycle demo ↗](https://demo.webcomponent.io/examples/attribute-lifecycle/) shows how attribute changes drive them.
+
 ### onInit()
 
 - Triggered when the component is connected to the DOM
@@ -80,6 +82,8 @@ class ClickableText extends WebComponent {
   - `previousValue` / `currentValue` — the values before and after the change
 
 Use `property` to read the value straight off `props` (`this.props[property]`); use `attribute` when you need the raw attribute name.
+
+See it live: [onChanges payload demo ↗](https://demo.webcomponent.io/examples/on-changes/)
 
 ```js
 import { WebComponent } from 'https://unpkg.com/web-component-base@latest/index.js'
