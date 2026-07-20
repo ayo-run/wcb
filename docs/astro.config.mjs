@@ -5,11 +5,12 @@ import starlight from '@astrojs/starlight'
 // https://astro.build/config
 export default defineConfig({
   redirects: {
-    '/guides/': '/guides/why',
+    '/guides/': '/getting-started',
+    '/api/': '/api/web-component',
   },
   integrations: [
     starlight({
-      title: 'WCB (alpha)',
+      title: 'WCB',
       social: [
         {
           icon: 'npm',
@@ -34,6 +35,7 @@ export default defineConfig({
             // Each item here is one entry in the navigation menu.
             'getting-started',
             'why',
+            'comparison',
             'exports',
             'usage',
             'examples',
@@ -47,13 +49,19 @@ export default defineConfig({
             'library-size',
           ],
         },
-        // {
-        //   label: 'Reference',
-        //   autogenerate: { directory: 'reference' },
-        // },
+        {
+          label: 'API Reference',
+          items: [
+            'api/web-component',
+            'api/html',
+            'api/utils',
+            'api/cem-plugin',
+          ],
+        },
       ],
       components: {
         Footer: './src/components/Attribution.astro',
+        Hero: './src/components/Hero.astro',
       },
       head: [
         {

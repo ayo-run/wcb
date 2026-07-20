@@ -14,7 +14,7 @@ It is highly recommended to use the second approach, as with it, browsers can as
 
 When using the built-in `html` function for tagged templates, a style object of type `Partial<CSSStyleDeclaration>` can be passed to any element's `style` attribute. This allows for calculated and conditional styles. Read more on style objects [on MDN](https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleDeclaration).
 
-Try it now with this [example on CodePen ↗](https://codepen.io/ayoayco-the-styleful/pen/bGzXjwQ?editors=1010)
+Try it now with this [example on CodePen ↗](https://codepen.io/ayoayco-the-styleful/pen/bGzXjwQ?editors=1010), or see it live: [Style objects demo ↗](https://demo.webcomponent.io/examples/style-objects/)
 
 ```js
 import { WebComponent } from 'https://unpkg.com/web-component-base@latest/index.js'
@@ -57,7 +57,7 @@ customElements.define('styled-elements', StyledElement)
 
 If you [use the Shadow DOM](/shadow-dom), you can add a `static styles` property which will be added to the `shadowRoot`'s [`adoptedStylesheets`](https://developer.mozilla.org/en-US/docs/Web/API/Document/adoptedStyleSheets). It accepts a string, a `CSSStyleSheet`, or an array of either.
 
-Try it now with this [example on CodePen ↗](https://codepen.io/ayoayco-the-styleful/pen/JojmeEe?editors=1010)
+Try it now with this [example on CodePen ↗](https://codepen.io/ayoayco-the-styleful/pen/JojmeEe?editors=1010), or see it live: [Constructable styles demo ↗](https://demo.webcomponent.io/examples/constructed-styles/)
 
 ```js
 class StyledElement extends WebComponent {
