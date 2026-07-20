@@ -354,24 +354,24 @@ export class WebComponent extends HTMLElement {
     if (this.constructor.shadowRootInit) {
       this.#host = this.attachShadow(this.constructor.shadowRootInit)
     }
+    // adoption appends, so it happens once per instance here rather than per
+    // render — otherwise every re-render (and every switch between template
+    // kinds) would stack another copy of each sheet
+    this.#applyStyles()
   }
 
   render() {
-    if (typeof this.template === 'string') {
-      this.innerHTML = this.template
-    } else if (typeof this.template === 'object') {
-      const tree = this.template
+    const template = this.template
 
-      if (JSON.stringify(this.#prevDOM) !== JSON.stringify(tree)) {
-        this.#applyStyles()
-
-        if (this.#prevDOM === undefined) {
+    if (template && typeof template === 'object') {
+      if (JSON.stringify(this.#prevDOM) !== JSON.stringify(template)) {
+        if (!this.#prevDOM) {
           /**
            * first render: create element
            * - resolve prop values
            * - attach event listeners
            */
-          const el = createElement(tree)
+          const el = createElement(template)
 
           if (el) {
             if (Array.isArray(el)) this.#host.replaceChildren(...el)
@@ -380,10 +380,20 @@ export class WebComponent extends HTMLElement {
         } else {
           // re-render: reconcile in place so focus, caret/selection, an
           // uncommitted <input> value, :hover and running transitions survive
-          patchChildren(this.#host, this.#prevDOM, tree)
+          patchChildren(this.#host, this.#prevDOM, template)
         }
-        this.#prevDOM = tree
+        this.#prevDOM = template
       }
+    } else {
+      // string templates render into #host like vnode ones do, so they
+      // respect the shadow root instead of writing over consumer-slotted
+      // light-DOM children. `html``` — the natural way to render nothing —
+      // yields undefined rather than a vnode, so it lands here too: both it
+      // and '' empty the rendered subtree. Dropping the vnode bookkeeping
+      // makes the next vnode render start fresh instead of patching against
+      // a tree that is no longer on screen.
+      this.#prevDOM = undefined
+      this.#host.innerHTML = template ?? ''
     }
   }
 

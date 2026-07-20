@@ -304,6 +304,108 @@ describe('shadow DOM', () => {
 })
 
 /**
+ * String and vnode templates render into the same target, so a string
+ * template on a shadow component lands in the shadow root instead of
+ * overwriting consumer-slotted light-DOM children.
+ */
+describe('string templates', () => {
+  it('renders a string template into the shadow root', () => {
+    class StringShadow extends WebComponent {
+      static shadowRootInit = { mode: 'open' }
+      get template() {
+        return '<p>in shadow</p>'
+      }
+    }
+    const el = mount(StringShadow)
+    expect(el.shadowRoot.querySelector('p')?.textContent).toBe('in shadow')
+    expect(el.querySelector('p')).toBeNull()
+  })
+
+  it('leaves slotted light-DOM children alone', () => {
+    class Slotting extends WebComponent {
+      static shadowRootInit = { mode: 'open' }
+      static props = { active: false }
+      get template() {
+        return this.props.active ? '<slot></slot>' : ''
+      }
+    }
+    const el = mount(Slotting)
+    el.appendChild(
+      Object.assign(document.createElement('span'), { textContent: 'mine' })
+    )
+
+    el.toggleAttribute('active', true)
+    el.toggleAttribute('active', false)
+
+    expect(el.querySelector('span')?.textContent).toBe('mine')
+  })
+
+  it('empties the rendered subtree for an empty template', () => {
+    class Conditional extends WebComponent {
+      static shadowRootInit = { mode: 'open' }
+      static props = { active: false }
+      get template() {
+        return this.props.active ? html`<div>piece</div>` : html``
+      }
+    }
+    const el = mount(Conditional, { active: '' })
+    expect(el.shadowRoot.querySelector('div')).not.toBeNull()
+
+    el.toggleAttribute('active', false)
+    expect(el.shadowRoot.querySelector('div')).toBeNull()
+    expect(el.shadowRoot.innerHTML).toBe('')
+  })
+
+  it('alternates element -> string -> element templates', () => {
+    class Alternating extends WebComponent {
+      static shadowRootInit = { mode: 'open' }
+      static props = { mode: 'element' }
+      get template() {
+        return this.props.mode === 'element'
+          ? html`<p>element</p>`
+          : '<em>string</em>'
+      }
+    }
+    const el = mount(Alternating)
+    expect(el.shadowRoot.querySelector('p')?.textContent).toBe('element')
+
+    el.setAttribute('mode', 'string')
+    expect(el.shadowRoot.querySelector('p')).toBeNull()
+    expect(el.shadowRoot.querySelector('em')?.textContent).toBe('string')
+
+    el.setAttribute('mode', 'element')
+    expect(el.shadowRoot.querySelector('em')).toBeNull()
+    expect(el.shadowRoot.querySelector('p')?.textContent).toBe('element')
+  })
+
+  it('still renders a string template into the light DOM by default', () => {
+    class StringLight extends WebComponent {
+      get template() {
+        return '<p>in light</p>'
+      }
+    }
+    const el = mount(StringLight)
+    expect(el.shadowRoot).toBeNull()
+    expect(el.querySelector('p')?.textContent).toBe('in light')
+  })
+
+  it('adopts styles once across repeated renders', () => {
+    class Restyled extends WebComponent {
+      static shadowRootInit = { mode: 'open' }
+      static styles = `p { color: red; }`
+      static props = { label: 'a' }
+      get template() {
+        return html`<p>${this.props.label}</p>`
+      }
+    }
+    const el = mount(Restyled)
+    el.setAttribute('label', 'b')
+    el.setAttribute('label', 'c')
+    expect(el.shadowRoot.adoptedStyleSheets).toHaveLength(1)
+  })
+})
+
+/**
  * Reactive-prop contract as documented on the docs site
  * (guides/usage, guides/prop-access, guides/life-cycle-hooks).
  *
