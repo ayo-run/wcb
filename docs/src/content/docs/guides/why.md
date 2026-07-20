@@ -3,7 +3,7 @@ title: 'Why would anyone use WCB?'
 slug: why
 ---
 
-The `WebComponent` base class gives a full component development experience at the lightest-weight possible: minimal code to boost productivity.
+The `WebComponent` base class gives a full component development experience at the lightest-weight possible: the minimum code to boost productivity.
 
 The following are the main reasons WCB exist.
 
