@@ -107,6 +107,64 @@ const props = { ariaChecked: 'false' as 'true' | 'false' }
   on `false`, not back on the declared default.
 </Aside>
 
+### Custom attribute conversion
+
+The rules above cover the common cases. When a prop needs its own
+serialization — a `Date`, a delimited list, an enumerated attribute where
+`"false"` is meaningful — override `toAttribute` and `fromAttribute`, and
+delegate everything else to `super`:
+
+```js
+class EventCard extends WebComponent {
+  static props = { when: new Date(0), title: '' }
+
+  toAttribute(name, value) {
+    if (name === 'when') return value.toISOString().slice(0, 10)
+    return super.toAttribute(name, value)
+  }
+
+  fromAttribute(name, value) {
+    if (name === 'when') return new Date(`${value}T00:00:00Z`)
+    return super.fromAttribute(name, value)
+  }
+}
+```
+
+```html
+<event-card when="2026-07-20"></event-card>
+<!-- props.when is a Date -->
+```
+
+Both take the **camelCase prop key**, matching your `static props` declaration
+and `onChanges`'s `property` — not the kebab-case attribute name.
+
+`toAttribute` returning **`null` removes the attribute**. That is exactly how a
+`false` boolean becomes an absent attribute, and it is available to any prop:
+
+```js
+toAttribute(name, value) {
+  // an empty string means "no attribute at all" for this prop
+  return value === '' ? null : super.toAttribute(name, value)
+}
+```
+
+<Aside type="note" title="Reflection does not round-trip">
+  When a prop write reflects to its attribute, wcb does **not** parse the
+  attribute back through `fromAttribute` — the prop you assigned is already the
+  source of truth. So `toAttribute` may be lossy without corrupting the prop: in
+  the example above `props.when` keeps its full timestamp even though the
+  attribute carries only the date. `render()` and `onChanges` still fire as
+  normal. `fromAttribute` is called for attributes written from *outside* the
+  component (markup, `setAttribute`, `toggleAttribute`).
+</Aside>
+
+<Aside type="caution" title="The declared type still applies">
+  A prop's runtime type comes from the `typeof` of its default, and the props
+  proxy rejects writes that violate it. A `Date`-valued prop therefore needs an
+  actual `Date` default (`new Date(0)`), not `''` — otherwise the prop is typed
+  `string` and your parsed `Date` is refused.
+</Aside>
+
 ### Typed props in TypeScript
 
 By default `this.props` is a permissive `{ [name: string]: any }` map. In TypeScript you can get compile-time types on your declared props by passing the shape of your defaults as a type argument to `WebComponent`. Declare the defaults in a `const` first so the class can refer to their type:

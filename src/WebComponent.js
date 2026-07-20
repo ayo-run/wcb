@@ -79,6 +79,7 @@ export class WebComponent extends HTMLElement {
   #typeMap = {}
   #reflected = false
   #connected = false
+  #reflecting
 
   /**
    * Declared props and their defaults. The value types of this object drive
@@ -153,6 +154,64 @@ export class WebComponent extends HTMLElement {
    */
   onChanges(changes) {}
 
+  /**
+   * Converts a prop value into the attribute value that reflects it. Override
+   * to customize serialization for a prop; call `super.toAttribute(...)` for
+   * the ones you don't handle.
+   *
+   * Returning **`null` removes the attribute** — that is how a `false` boolean
+   * becomes an absent attribute, and it works for any prop.
+   * @param {string} name camelCase prop key, matching `static props`
+   * @param {any} value the prop value being reflected
+   * @returns {string | null} the attribute value, or `null` to remove it
+   */
+  toAttribute(name, value) {
+    // declared type wins, so a boolean prop set to null/undefined still
+    // removes its attribute; undeclared props fall back to the value's type
+    return (this.#typeMap[name] ?? typeof value) === 'boolean'
+      ? value
+        ? ''
+        : null
+      : serialize(value)
+  }
+
+  /**
+   * Converts an attribute value into the prop value it represents — the
+   * inverse of `toAttribute`. Override to customize parsing for a prop; call
+   * `super.fromAttribute(...)` for the ones you don't handle.
+   *
+   * Only called for attributes that are *present*: removal is handled by the
+   * declared-default reset (and, for boolean props, always yields `false`).
+   * @param {string} name camelCase prop key, matching `static props`
+   * @param {string} value the attribute value, never `null`
+   * @returns {any} the value to store on `this.props[name]`
+   */
+  fromAttribute(name, value) {
+    const type = this.#typeMap[name]
+    if (type === 'boolean') {
+      // a literal "true"/"false" written to a boolean attribute is almost
+      // always the pre-v6 `setAttribute(name, String(bool))` idiom — which now
+      // silently means true. Make the inversion loud instead of silent.
+      if (/^(true|false)$/.test(value)) {
+        const attr = getKebabCase(name)
+        console.warn(
+          `${attr}="${value}" is true; use toggleAttribute("${attr}", ${value}).`
+        )
+      }
+      return true
+    }
+    if (type && type !== 'string')
+      // typed props deserialize; a malformed value falls back to the raw
+      // string so render()/onChanges() are never skipped
+      try {
+        return deserialize(value, type)
+      } catch {
+        return value
+      }
+    // strings (and untyped props) stay as-is; '' stays ''
+    return value
+  }
+
   constructor() {
     super()
     this.#initializeProps()
@@ -186,36 +245,25 @@ export class WebComponent extends HTMLElement {
     if (previousValue === currentValue) return
 
     const property = getCamelCase(attribute)
-    const type = this.#typeMap[property]
-    let next
-    if (currentValue === null) {
-      // boolean props follow HTML: absence *is* false, never the declared
-      // default. Other props reset to the declared default (or undefined).
-      next = type === 'boolean' ? false : this.constructor.props?.[property]
-    } else if (type === 'boolean' && /^(true|false)$/.test(currentValue)) {
-      // a literal "true"/"false" written to a boolean attribute is almost
-      // always the pre-v6 `setAttribute(name, String(bool))` idiom — which now
-      // silently means true. Make the inversion loud instead of silent.
-      console.warn(
-        `${attribute}="${currentValue}" is true; use toggleAttribute("${attribute}", ${currentValue}).`
-      )
-      next = true
-    } else if (type && type !== 'string') {
-      // typed props deserialize; a malformed value falls back to the raw
-      // string so render()/onChanges() are never skipped
-      try {
-        next = deserialize(currentValue, type)
-      } catch {
-        next = currentValue
-      }
-    } else {
-      // strings (and untyped props) stay as-is; '' stays ''
-      next = currentValue
-    }
+    // when this change *is* our own reflection of a prop write, the prop is
+    // already the source of truth: parsing the attribute back would undo a
+    // `toAttribute` that removes the attribute (the default-reset below would
+    // clobber the value) and would round-trip lossy conversions through their
+    // string form. Still fall through to render/onChanges.
+    if (this.#reflecting !== attribute) {
+      const next =
+        currentValue === null
+          ? // boolean props follow HTML: absence *is* false, never the declared
+            // default. Other props reset to the declared default (or undefined).
+            this.#typeMap[property] === 'boolean'
+            ? false
+            : this.constructor.props?.[property]
+          : this.fromAttribute(property, currentValue)
 
-    // write through the proxy; item 25 makes this log-not-throw by default
-    // (prop value is always applied so `props` stays current)
-    this.props[property] = next
+      // write through the proxy; item 25 makes this log-not-throw by default
+      // (prop value is always applied so `props` stays current)
+      this.props[property] = next
+    }
 
     // defer the render/onChanges side effects until after onInit
     if (!this.#connected) return
@@ -265,20 +313,27 @@ export class WebComponent extends HTMLElement {
   }
 
   /**
-   * Reflects one prop value onto its attribute. Boolean-typed props follow the
-   * HTML convention — `true` is a bare attribute, `false` removes it — so host
-   * code can use `toggleAttribute()` and `:host([flag])` CSS matches only when
-   * the prop is actually true. Everything else reflects as a serialized value.
+   * Reflects one prop value onto its attribute via `toAttribute`, where a
+   * `null` return means the attribute is removed. That is what makes a `false`
+   * boolean an *absent* attribute, so host code can use `toggleAttribute()`
+   * and `:host([flag])` matches only when the prop is actually true.
    * @param {string} camelCase the prop key
    * @param {any} value the value to reflect
    */
   #reflect(camelCase, value) {
     const kebab = getKebabCase(camelCase)
-    // declared type wins, so a boolean prop set to null/undefined still
-    // removes its attribute; undeclared props fall back to the value's type
-    if ((this.#typeMap[camelCase] ?? typeof value) === 'boolean')
-      this.toggleAttribute(kebab, !!value)
-    else this.setAttribute(kebab, serialize(value))
+    const attr = this.toAttribute(camelCase, value)
+    // tracked per attribute name, not as a plain flag: the platform can run
+    // another attribute's callback inside this one's reaction window, and a
+    // shared flag would swallow that unrelated parse
+    const previous = this.#reflecting
+    this.#reflecting = kebab
+    try {
+      if (attr === null) this.removeAttribute(kebab)
+      else this.setAttribute(kebab, attr)
+    } finally {
+      this.#reflecting = previous
+    }
   }
 
   /**

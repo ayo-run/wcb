@@ -833,3 +833,150 @@ describe('attribute callback buffering (upgrade ordering)', () => {
     expect(el.querySelector('h1').textContent).toBe('Hello Zoe')
   })
 })
+
+/**
+ * `toAttribute` / `fromAttribute` are the seam for props whose reflection or
+ * parsing doesn't fit the built-in rules. Overriding one prop must not disturb
+ * the others, which keep the default behavior via `super`.
+ */
+describe('custom attribute converters (toAttribute / fromAttribute)', () => {
+  class WithConverters extends WebComponent {
+    // the declared type comes from the default's `typeof`, so a Date-valued
+    // prop must declare a Date default or the proxy's type guard rejects it
+    static props = {
+      when: new Date('2026-01-01T00:00:00Z'),
+      label: 'hi',
+      flag: false,
+    }
+
+    toAttribute(name, value) {
+      // a Date reflects as an ISO date string
+      if (name === 'when' && value instanceof Date)
+        return value.toISOString().slice(0, 10)
+      return super.toAttribute(name, value)
+    }
+
+    fromAttribute(name, value) {
+      if (name === 'when') return new Date(`${value}T00:00:00Z`)
+      return super.fromAttribute(name, value)
+    }
+  }
+  const tag = 'with-converters'
+  window.customElements.define(tag, WithConverters)
+
+  const mountEl = (markup = `<${tag}></${tag}>`) => {
+    document.body.innerHTML = markup
+    return document.querySelector(tag)
+  }
+
+  it('uses fromAttribute to parse a custom attribute value', () => {
+    const el = mountEl(`<${tag} when="2026-07-20"></${tag}>`)
+    expect(el.props.when).toBeInstanceOf(Date)
+    expect(el.props.when.toISOString()).toBe('2026-07-20T00:00:00.000Z')
+  })
+
+  it('uses toAttribute to serialize a custom prop write', () => {
+    const el = mountEl()
+    el.props.when = new Date('2026-01-02T00:00:00Z')
+    expect(el.getAttribute('when')).toBe('2026-01-02')
+  })
+
+  it('keeps the exact prop value when toAttribute is lossy', () => {
+    const el = mountEl()
+    const exact = new Date('2026-01-02T13:45:30Z')
+    el.props.when = exact
+    // the attribute only carries the date part, but the prop is not
+    // round-tripped back through fromAttribute, so the time survives
+    expect(el.getAttribute('when')).toBe('2026-01-02')
+    expect(el.props.when).toBe(exact)
+    expect(el.props.when.toISOString()).toBe('2026-01-02T13:45:30.000Z')
+  })
+
+  it('still renders and fires onChanges for a reflected prop write', () => {
+    const changes = []
+    class Reactive extends WebComponent {
+      static props = { label: 'a' }
+      onChanges(c) {
+        changes.push(c)
+      }
+      get template() {
+        return `<span>${this.props.label}</span>`
+      }
+    }
+    const t = 'reflect-reactive'
+    window.customElements.define(t, Reactive)
+    document.body.innerHTML = `<${t}></${t}>`
+    const el = document.querySelector(t)
+
+    el.props.label = 'b'
+    // skipping the parse-back must not skip the reactivity
+    expect(el.querySelector('span').textContent).toBe('b')
+    expect(changes.at(-1)).toMatchObject({
+      property: 'label',
+      currentValue: 'b',
+    })
+  })
+
+  it('leaves props the override delegates to super alone', () => {
+    const el = mountEl()
+    el.props.label = 'changed'
+    expect(el.getAttribute('label')).toBe('changed')
+    // the boolean default still reflects as presence/absence
+    expect(el.hasAttribute('flag')).toBe(false)
+    el.props.flag = true
+    expect(el.getAttribute('flag')).toBe('')
+  })
+
+  it('removes the attribute when toAttribute returns null', () => {
+    class Removable extends WebComponent {
+      static props = { label: 'hi' }
+      toAttribute(name, value) {
+        // an empty string means "no attribute at all" for this prop
+        return value === '' ? null : super.toAttribute(name, value)
+      }
+    }
+    const t = 'removable-attr'
+    window.customElements.define(t, Removable)
+    document.body.innerHTML = `<${t}></${t}>`
+    const el = document.querySelector(t)
+
+    expect(el.getAttribute('label')).toBe('hi')
+    el.props.label = ''
+    expect(el.hasAttribute('label')).toBe(false)
+    expect(el.props.label).toBe('')
+  })
+
+  it('does not call fromAttribute for a removal (default reset wins)', () => {
+    const seen = []
+    class Tracked extends WebComponent {
+      static props = { label: 'default' }
+      fromAttribute(name, value) {
+        seen.push(value)
+        return super.fromAttribute(name, value)
+      }
+    }
+    const t = 'tracked-converter'
+    window.customElements.define(t, Tracked)
+    document.body.innerHTML = `<${t} label="set"></${t}>`
+    const el = document.querySelector(t)
+    expect(seen).toEqual(['set'])
+
+    el.removeAttribute('label')
+    // removal resets to the declared default without consulting the converter
+    expect(seen).toEqual(['set'])
+    expect(el.props.label).toBe('default')
+  })
+
+  it('defaults reflect through toAttribute at mount time', () => {
+    class DefaultConv extends WebComponent {
+      static props = { size: 2 }
+      toAttribute(name, value) {
+        return name === 'size' ? `${value}px` : super.toAttribute(name, value)
+      }
+    }
+    const t = 'default-converter'
+    window.customElements.define(t, DefaultConv)
+    document.body.innerHTML = `<${t}></${t}>`
+    expect(document.querySelector(t).getAttribute('size')).toBe('2px')
+  })
+})

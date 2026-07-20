@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Custom attribute converters</title>
+    <script type="module" src="./index.js"></script>
+    <script>try{document.documentElement.dataset.theme=localStorage.getItem('wcb-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')}catch(e){}</script>
+    <link rel="stylesheet" href="../../shell.css" />
+    <script type="module" src="../../shell.js"></script>
+    <style>
+      .hint {
+        opacity: 0.75;
+        font-size: 0.9em;
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5em;
+        align-items: center;
+      }
+      event-card {
+        display: block;
+        padding: 0.4em 1em;
+        border: 2px solid #8884;
+        border-radius: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Custom attribute converters</h1>
+    <p>
+      Override <code>toAttribute</code> and <code>fromAttribute</code> when a
+      prop needs its own serialization, and delegate the rest to
+      <code>super</code>. Both take the <strong>camelCase prop key</strong>,
+      matching your <code>static props</code> declaration.
+    </p>
+
+    <h2>A Date prop and an Array prop</h2>
+    <p>
+      <code>when</code> is a real <code>Date</code> and <code>tags</code> is a
+      real <code>Array</code> — reflected as an ISO date and a comma-separated
+      list. Each button reports the attributes the conversion produced.
+    </p>
+    <converter-demo></converter-demo>
+
+    <h2>Parsed from markup</h2>
+    <p>
+      Attributes written from outside the component are parsed through
+      <code>fromAttribute</code>, so these mount with a real
+      <code>Date</code> and a real <code>Array</code>:
+    </p>
+    <event-card when="2026-01-02" tags="alpha,beta" title="From markup"></event-card>
+
+    <h2>Why lossy conversion is safe</h2>
+    <p>
+      Reflection does <strong>not</strong> round-trip: when you assign a prop,
+      wcb reflects it but never parses the attribute back — the value you
+      assigned is already the source of truth. That is why
+      <code>when</code> can keep its full timestamp while the attribute carries
+      only the date. <code>render()</code> and <code>onChanges</code> still fire
+      as normal.
+    </p>
+  </body>
+</html>
