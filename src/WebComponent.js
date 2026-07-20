@@ -32,10 +32,17 @@ function cloneDefaults(ctor) {
   for (const key in ctor.props) {
     const value = ctor.props[key]
     const type = typeof value
-    if (check && (type === 'function' || type === 'symbol'))
-      console.warn(
-        `${ctor.name}.${key}: ${type} default not reflectable; use handlers/refs.`
-      )
+    // a true boolean default is discouraged: HTML has no true-default boolean
+    // attribute, so absence has to mean both "false" and "default", which only
+    // holds when they coincide. A way to work with this is to invert the name (`disabled`, not `enabled`) when you need a default.
+    if (check) {
+      const bad =
+        type === 'function' || type === 'symbol'
+          ? `${type} default not reflectable; use handlers/refs.`
+          : value === true &&
+            'boolean default should be false; invert the name.'
+      if (bad) console.warn(`${ctor.name}.${key}: ${bad}`)
+    }
     try {
       out[key] = structuredClone(value)
     } catch {
@@ -56,7 +63,7 @@ function cloneDefaults(ctor) {
  * Pass the shape of your `static props` as a type argument to get typed
  * `this.props` access in TypeScript:
  * ```ts
- * const props = { variant: 'primary', disabled: false }
+ * const props = { variant: 'primary', enabled: true }
  * class CozyButton extends WebComponent<typeof props> {
  *   static props = props
  * }
@@ -182,8 +189,17 @@ export class WebComponent extends HTMLElement {
     const type = this.#typeMap[property]
     let next
     if (currentValue === null) {
-      // removal resets to the declared default (or undefined if none)
-      next = this.constructor.props?.[property]
+      // boolean props follow HTML: absence *is* false, never the declared
+      // default. Other props reset to the declared default (or undefined).
+      next = type === 'boolean' ? false : this.constructor.props?.[property]
+    } else if (type === 'boolean' && /^(true|false)$/.test(currentValue)) {
+      // a literal "true"/"false" written to a boolean attribute is almost
+      // always the pre-v6 `setAttribute(name, String(bool))` idiom — which now
+      // silently means true. Make the inversion loud instead of silent.
+      console.warn(
+        `${attribute}="${currentValue}" is true; use toggleAttribute("${attribute}", ${currentValue}).`
+      )
+      next = true
     } else if (type && type !== 'string') {
       // typed props deserialize; a malformed value falls back to the raw
       // string so render()/onChanges() are never skipped
@@ -224,7 +240,7 @@ export class WebComponent extends HTMLElement {
           console.error(msg)
         } else if (obj[prop] !== value) {
           obj[prop] = value
-          setter(getKebabCase(prop), serialize(value))
+          setter(prop, value)
         }
 
         return true
@@ -243,9 +259,26 @@ export class WebComponent extends HTMLElement {
     if (!this.#props) {
       this.#props = new Proxy(
         initialProps,
-        this.#handler((key, value) => this.setAttribute(key, value), this)
+        this.#handler((key, value) => this.#reflect(key, value), this)
       )
     }
+  }
+
+  /**
+   * Reflects one prop value onto its attribute. Boolean-typed props follow the
+   * HTML convention — `true` is a bare attribute, `false` removes it — so host
+   * code can use `toggleAttribute()` and `:host([flag])` CSS matches only when
+   * the prop is actually true. Everything else reflects as a serialized value.
+   * @param {string} camelCase the prop key
+   * @param {any} value the value to reflect
+   */
+  #reflect(camelCase, value) {
+    const kebab = getKebabCase(camelCase)
+    // declared type wins, so a boolean prop set to null/undefined still
+    // removes its attribute; undeclared props fall back to the value's type
+    if ((this.#typeMap[camelCase] ?? typeof value) === 'boolean')
+      this.toggleAttribute(kebab, !!value)
+    else this.setAttribute(kebab, serialize(value))
   }
 
   /**
@@ -256,9 +289,8 @@ export class WebComponent extends HTMLElement {
   #reflectDefaults() {
     if (this.#reflected) return
     Object.keys(this.#props).forEach((camelCase) => {
-      const kebab = getKebabCase(camelCase)
-      if (!this.hasAttribute(kebab))
-        this.setAttribute(kebab, serialize(this.#props[camelCase]))
+      if (!this.hasAttribute(getKebabCase(camelCase)))
+        this.#reflect(camelCase, this.#props[camelCase])
     })
     this.#reflected = true
   }

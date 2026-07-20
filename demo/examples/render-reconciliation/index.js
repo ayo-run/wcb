@@ -131,10 +131,13 @@ customElements.define('transition-safe', TransitionSafe)
  * attribute is removed, and dropped `style` rules are cleared.
  */
 class PropRemoval extends WebComponent {
-  static props = { decorated: true }
+  // the demo starts decorated, but the boolean prop still defaults to `false`
+  // and carries the inverted name — absence has to mean both "false" and
+  // "default", which only works when they coincide
+  static props = { plain: false }
 
   get template() {
-    const on = this.props.decorated
+    const on = !this.props.plain
     // spread so the props are genuinely *absent* when off — that's the removal
     // path: present in the old vnode, gone from the new one
     const decoration = on
@@ -151,7 +154,7 @@ class PropRemoval extends WebComponent {
         <code>style</code> are present only while decorated — toggling removes
         them from the same element instead of building a new one.
       </p>
-      <button id="toggle" onclick=${() => (this.props.decorated = !on)}>
+      <button id="toggle" onclick=${() => (this.props.plain = on)}>
         ${on ? 'Remove props' : 'Add props'}
       </button>
     `

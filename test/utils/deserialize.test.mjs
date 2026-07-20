@@ -8,13 +8,12 @@ describe('deserialize', () => {
     expect(deserialize('-4.5', 'number')).toBe(-4.5)
   })
 
-  test('parses boolean strings', () => {
-    expect(deserialize('true', 'boolean')).toBe(true)
-    expect(deserialize('false', 'boolean')).toBe(false)
-  })
-
-  test('treats a bare/empty boolean attribute as true', () => {
+  test('treats any present boolean attribute value as true', () => {
+    // strict HTML semantics: presence wins, exactly like `disabled="false"`
     expect(deserialize('', 'boolean')).toBe(true)
+    expect(deserialize('true', 'boolean')).toBe(true)
+    expect(deserialize('false', 'boolean')).toBe(true)
+    expect(deserialize('anything', 'boolean')).toBe(true)
   })
 
   test('parses object strings', () => {
@@ -32,9 +31,10 @@ describe('deserialize', () => {
   })
 
   test('round-trips values through serialize', () => {
+    // booleans are excluded: they no longer reflect through `serialize` at
+    // all — `false` is an *absent* attribute, which never reaches deserialize
     const cases = [
       [3, 'number'],
-      [false, 'boolean'],
       [{ a: 1, b: [2, 3] }, 'object'],
       ['hello', 'string'],
     ]

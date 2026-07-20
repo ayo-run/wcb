@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Boolean props as bare attributes</title>
+    <script type="module" src="./index.js"></script>
+    <script>try{document.documentElement.dataset.theme=localStorage.getItem('wcb-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')}catch(e){}</script>
+    <link rel="stylesheet" href="../../shell.css" />
+    <script type="module" src="../../shell.js"></script>
+    <style>
+      .hint {
+        opacity: 0.75;
+        font-size: 0.9em;
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5em;
+        align-items: center;
+      }
+      .log code {
+        font-size: 0.95em;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Boolean props are bare attributes</h1>
+    <p>
+      A boolean prop follows the HTML convention in both directions:
+      <strong>presence means <code>true</code>, absence means
+      <code>false</code></strong>. Reflecting <code>true</code> sets the bare
+      attribute; reflecting <code>false</code> removes it. Nothing ever gets
+      stamped as <code>flag="false"</code>.
+    </p>
+
+    <h2>Driving the prop</h2>
+    <p>
+      Every button below reports the resulting prop value and the actual
+      attribute. The border lights up via
+      <code>:host([flag])</code> — a presence selector that now matches only
+      when the prop is genuinely true.
+    </p>
+    <boolean-demo></boolean-demo>
+
+    <h2>Presence in markup</h2>
+    <p>
+      All three of these mount with <code>props.flag === true</code>. The last
+      one is the surprise worth internalizing: any present value counts,
+      including the literal string <code>"false"</code>, exactly like
+      <code>&lt;input disabled="false"&gt;</code> is still disabled.
+    </p>
+    <div class="row">
+      <flag-box flag></flag-box>
+      <flag-box flag=""></flag-box>
+      <flag-box flag="false"></flag-box>
+    </div>
+
+    <h2>Absent means false</h2>
+    <p>
+      No attribute, no <code>[flag]</code> match, and
+      <code>props.flag === false</code>. Removing the attribute later also
+      lands on <code>false</code> rather than restoring a declared default —
+      which is why boolean props should default to <code>false</code> and use
+      an inverted name (<code>disabled</code>, not <code>enabled</code>) when
+      you want them on by default.
+    </p>
+    <flag-box></flag-box>
+  </body>
+</html>

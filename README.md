@@ -1,7 +1,21 @@
 # Web Component Base
 
-> [!Note]
-> **Quality of Life improvements shipped (v5.1)** — We now have typed props and a [CEM Analyzer Plugin](https://webcomponent.io/cem-plugin/) that makes developer exerience so much better with code editors and other tooling. Composing stylesheets and a fix for boolean properties behavior is included as well. See the [change log](https://github.com/ayo-run/wcb/releases/tag/v5.1.0) for more details. Next up: more improvements to Boolean props and **faster templates!**
+> [!Warning]
+> **Breaking change in v6 — boolean props are now bare attributes.** A boolean
+> prop follows the HTML convention in both directions: **presence means `true`,
+> absence means `false`**. `true` reflects as a bare attribute and `false`
+> removes it, so `toggleAttribute()` and `[attr]` CSS selectors finally work as
+> expected.
+>
+> **Any present value is `true`** — including the literal `flag="false"`, just
+> like native `disabled="false"` is still disabled. If you write boolean
+> attributes as `setAttribute(name, String(bool))`, that now always means
+> `true`; switch those call sites to `toggleAttribute(name, bool)`. wcb warns
+> in the console when it sees a boolean attribute written as `"true"`/`"false"`
+> so the change cannot fail silently. Attributes whose `"false"` is meaningful
+> (`aria-*`, `contenteditable`) should be declared as **string** props.
+>
+> See [Prop Access](https://webcomponent.io/prop-access/) for details.
 
 [![Package information: NPM version](https://img.shields.io/npm/v/web-component-base)](https://www.npmjs.com/package/web-component-base)
 [![Package information: NPM license](https://img.shields.io/npm/l/web-component-base)](https://www.npmjs.com/package/web-component-base)

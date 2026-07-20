@@ -5,10 +5,12 @@
  */
 export function deserialize(value, type) {
   switch (type) {
+    // strict HTML boolean-attribute semantics: *any* present value is true,
+    // including the literal string "false" (`<el flag>`, `flag=""`,
+    // `flag="false"` are all true). Absence means false and is handled by the
+    // caller, which never reaches here with a null value.
     case 'boolean':
-      // bare presence follows the HTML convention: `<el flag>` / `flag=""` is true.
-      if (value === '') return true
-    // falls through
+      return true
     case 'number':
     case 'object':
     case 'undefined':

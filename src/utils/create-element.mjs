@@ -52,6 +52,11 @@ export function applyProp(el, prop, value) {
     el[prop] = value
   } else if (domProp in el) {
     el[domProp] = value
+  } else if (typeof value === 'boolean') {
+    // no DOM property to take the value: fall back to the HTML boolean
+    // convention rather than stamping the string "false", which any
+    // boolean-attribute reader (including a nested WebComponent) reads as true
+    el.toggleAttribute(prop, value)
   } else {
     el.setAttribute(prop, serialize(value))
   }

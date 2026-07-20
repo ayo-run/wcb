@@ -41,6 +41,72 @@ Another advantage over `HTMLElement.dataset` is that `WebComponent.props` can ho
 
 </Aside>
 
+### Boolean props
+
+Boolean props follow the HTML boolean-attribute convention, exactly like native
+`disabled` and `required`: **presence means `true`, absence means `false`.**
+
+```js
+class FlagBox extends WebComponent {
+  static props = { flag: false }
+}
+```
+
+<!-- prettier-ignore -->
+```html
+<flag-box></flag-box>         <!-- props.flag === false -->
+<flag-box flag></flag-box>    <!-- props.flag === true  -->
+<flag-box flag=""></flag-box> <!-- props.flag === true  -->
+```
+
+Reflection works the same way in reverse — `true` sets the bare attribute,
+`false` removes it entirely:
+
+```js
+el.props.flag = true // <flag-box flag>
+el.props.flag = false // <flag-box>
+```
+
+Because `false` is an _absent_ attribute rather than `flag="false"`, the
+platform's own API and CSS presence selectors both behave as you'd expect:
+
+```js
+el.toggleAttribute('flag', true) // prop syncs, component re-renders
+```
+
+```css
+:host([flag]) {
+  /* matches only when the prop is actually true */
+}
+```
+
+<Aside type="caution" title="Any present value is true">
+  Just like native `disabled="false"` is still disabled, **`flag="false"` parses
+  as `true`** — presence wins, there is no special case for the literal string.
+  Writing `setAttribute('flag', String(someBool))` therefore always yields
+  `true`; use `toggleAttribute('flag', someBool)` instead. wcb logs a
+  `console.warn` when it sees a boolean attribute written as `"true"` or
+  `"false"` so this cannot fail silently.
+</Aside>
+
+Enumerated attributes like `contenteditable` and `aria-*` attributes are the
+exception — they are genuine strings where `"false"` is meaningful, so declare
+them as **string** props rather than booleans. Strings serialize literally and
+are never removed, so they need nothing special at runtime; in TypeScript you
+can narrow them to the values you accept:
+
+```ts
+const props = { ariaChecked: 'false' as 'true' | 'false' }
+```
+
+<Aside type="tip" title="Default boolean props to false">
+  HTML has no true-default boolean attribute: absence has to mean both "false"
+  and "default", which only works when they coincide. Model an on-by-default
+  flag with an inverted name (`disabled`, not `enabled`). wcb warns once per
+  class on a `true` default — and for such a prop, removing the attribute lands
+  on `false`, not back on the declared default.
+</Aside>
+
 ### Typed props in TypeScript
 
 By default `this.props` is a permissive `{ [name: string]: any }` map. In TypeScript you can get compile-time types on your declared props by passing the shape of your defaults as a type argument to `WebComponent`. Declare the defaults in a `const` first so the class can refer to their type:

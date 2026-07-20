@@ -40,6 +40,17 @@ Everything is in `src/` (entry point `src/index.js` re-exports `WebComponent` an
 
 - **`src/utils/`** — the serialization layer that bridges typed JS values and string attributes: `serialize`/`deserialize` (JSON round-trip for number/boolean/object, passthrough for strings), `get-camel-case`/`get-kebab-case` (attribute ⇄ prop name conversion), `create-element` (turns a vnode tree into real DOM nodes, resolving props to DOM properties/attributes and applying `style` objects — its `applyProp` is the single source of truth for the prop→DOM rule), and `patch` (index-based, non-keyed reconciler used by re-renders; it reuses same-tag elements, applies prop adds/changes/**removals** via `applyProp`, and trims trailing nodes). `src/utils/index.js` re-exports all of them.
 
+## Definition of done for a behavior change
+
+Any change to observable behavior ships as one unit — code alone is an incomplete change. Land all four together:
+
+1. **Tests** — unit specs in `test/` (or colocated `*.test.mjs`) covering the new contract *and* the old behavior it replaces. Add a `test/e2e/` spec whenever the behavior depends on something happy-dom cannot model faithfully — CSS selector matching, computed styles, custom-element upgrade timing.
+2. **Demo examples** — a runnable example under `demo/examples/` that demonstrates the behavior, linked from a card in `demo/index.html`. Update any existing example the change affects, including ones that now emit a console warning or model a discouraged pattern.
+3. **Documentation** — the guide under `docs/src/content/docs/guides/` that doubles as the behavioral spec. For a breaking change, also update the `README.md` banner with the migration consumers have to perform.
+4. **Size budget** — `pnpm size-limit` stays green. If an addition genuinely needs more headroom, raise the budget in `package.json` deliberately and say so in the change description; never let it drift silently.
+
+Verify with `pnpm test:all` (unit + types + e2e across all engines) before calling the change done.
+
 ## Testing notes
 
 - Environment is **happy-dom** (set in `vitest.config.mjs`), so real custom-element registration works. Any component under test must be registered with `customElements.define(...)` before instantiation, or the browser throws.

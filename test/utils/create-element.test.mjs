@@ -16,17 +16,44 @@ describe('createElement', () => {
   })
 
   it('assigns known DOM properties directly', () => {
-    const el = createElement({ type: 'div', props: { id: 'foo' }, children: [] })
+    const el = createElement({
+      type: 'div',
+      props: { id: 'foo' },
+      children: [],
+    })
     expect(el.id).toBe('foo')
   })
 
   it('falls back to setAttribute for unknown props', () => {
-    const el = createElement({ type: 'div', props: { 'data-x': 'y' }, children: [] })
+    const el = createElement({
+      type: 'div',
+      props: { 'data-x': 'y' },
+      children: [],
+    })
     expect(el.getAttribute('data-x')).toBe('y')
   })
 
+  it('applies an unknown boolean prop as a bare/absent attribute', () => {
+    // no DOM property to take the value, so it follows the HTML boolean
+    // convention — stamping "false" would read back as *true*
+    const on = createElement({
+      type: 'x-el',
+      props: { flag: true },
+      children: [],
+    })
+    expect(on.getAttribute('flag')).toBe('')
+    const off = createElement({
+      type: 'x-el',
+      props: { flag: false },
+      children: [],
+    })
+    expect(off.hasAttribute('flag')).toBe(false)
+  })
+
   it('applies style objects', () => {
-    const el = createElement(html`<div style=${{ color: 'red', padding: '1em' }}>x</div>`)
+    const el = createElement(
+      html`<div style=${{ color: 'red', padding: '1em' }}>x</div>`
+    )
     expect(el.style.color).toBe('red')
     expect(el.style.padding).toBe('1em')
   })
@@ -39,7 +66,12 @@ describe('createElement', () => {
   })
 
   it('appends nested element and text children', () => {
-    const el = createElement(html`<ul><li>a</li><li>b</li></ul>`)
+    const el = createElement(
+      html`<ul>
+        <li>a</li>
+        <li>b</li>
+      </ul>`
+    )
     expect(el.tagName).toBe('UL')
     expect(el.querySelectorAll('li')).toHaveLength(2)
     expect(el.textContent).toBe('ab')
@@ -55,7 +87,10 @@ describe('createElement', () => {
   })
 
   it('handles a multi-root html template as a fragment', () => {
-    const frag = createElement(html`<p>a</p><p>b</p>`)
+    const frag = createElement(
+      html`<p>a</p>
+        <p>b</p>`
+    )
     expect(frag.querySelectorAll('p')).toHaveLength(2)
   })
 })

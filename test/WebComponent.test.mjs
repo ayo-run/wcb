@@ -369,29 +369,53 @@ describe('reactive props (documented contract)', () => {
     expect(el.props.active).toBe(true)
   })
 
-  it('honors an explicit "true"/"false" boolean attribute value', () => {
+  it('treats any present value on a boolean attribute as true', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const el = connected()
     el.setAttribute('active', 'true')
     expect(el.props.active).toBe(true)
+    // presence wins — exactly like native `disabled="false"` is still disabled
     el.setAttribute('active', 'false')
-    expect(el.props.active).toBe(false)
+    expect(el.props.active).toBe(true)
+    warn.mockRestore()
   })
 
-  it('resets a boolean prop to its default when the attribute is removed', () => {
+  it('warns when a boolean attribute is written as a "true"/"false" string', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const el = connected()
+    el.setAttribute('active', 'false')
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('toggleAttribute("active", false)')
+    )
+    warn.mockRestore()
+  })
+
+  it('sets a boolean prop to false when the attribute is removed', () => {
     const el = connected()
     el.setAttribute('active', '')
     el.removeAttribute('active')
     expect(el.props.active).toBe(false)
   })
 
-  it('round-trips a boolean prop write through its reflected attribute', () => {
+  it('reflects a boolean prop write as a bare/absent attribute', () => {
     const el = connected()
     el.props.active = true
-    expect(el.getAttribute('active')).toBe('true')
+    expect(el.getAttribute('active')).toBe('')
     expect(el.props.active).toBe(true)
     el.props.active = false
-    expect(el.getAttribute('active')).toBe('false')
+    expect(el.hasAttribute('active')).toBe(false)
     expect(el.props.active).toBe(false)
+  })
+
+  it('round-trips a boolean prop through toggleAttribute()', () => {
+    const el = connected()
+    // the whole point of REQ-07: host code can use the platform API
+    el.toggleAttribute('active', true)
+    expect(el.props.active).toBe(true)
+    expect(el.getAttribute('active')).toBe('')
+    el.toggleAttribute('active', false)
+    expect(el.props.active).toBe(false)
+    expect(el.hasAttribute('active')).toBe(false)
   })
 
   it('fires onChanges with property/attribute/previousValue/currentValue', () => {
@@ -426,6 +450,11 @@ describe('default reflection (no setAttribute in constructor)', () => {
   const tag = 'reflect-defaulted'
   window.customElements.define(tag, Defaulted)
 
+  class TrueDefault extends WebComponent {
+    static props = { flag: true }
+  }
+  window.customElements.define('reflect-bool-true', TrueDefault)
+
   it('createElement does not throw and defers defaults until connect', () => {
     const el = document.createElement(tag)
     // no attributes reflected before connect (spec-legal constructor)
@@ -443,6 +472,37 @@ describe('default reflection (no setAttribute in constructor)', () => {
     document.body.appendChild(el)
     expect(el.props.myName).toBe('Zoe')
     expect(el.getAttribute('my-name')).toBe('Zoe')
+  })
+
+  it('reflects a false boolean default as no attribute at all', () => {
+    class BoolDefault extends WebComponent {
+      static props = { flag: false, myName: 'World' }
+    }
+    const t = 'reflect-bool-false'
+    window.customElements.define(t, BoolDefault)
+
+    const el = document.createElement(t)
+    document.body.appendChild(el)
+    // no `flag="false"` noise, and `[flag]` CSS correctly does not match
+    expect(el.hasAttribute('flag')).toBe(false)
+    expect(el.props.flag).toBe(false)
+    expect(el.matches('[flag]')).toBe(false)
+  })
+
+  it('reflects a true boolean default as a bare attribute', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const el = document.createElement('reflect-bool-true')
+    document.body.appendChild(el)
+    expect(el.getAttribute('flag')).toBe('')
+    expect(el.props.flag).toBe(true)
+    // a true default is discouraged: absence has to mean both false and
+    // default, so removing the attribute lands on false, not back on true
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('boolean default should be false')
+    )
+    el.removeAttribute('flag')
+    expect(el.props.flag).toBe(false)
+    warn.mockRestore()
   })
 
   it('does not re-clobber a prop changed while connected on re-connect', () => {
