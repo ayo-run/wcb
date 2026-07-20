@@ -15,7 +15,7 @@
 > so the change cannot fail silently. Attributes whose `"false"` is meaningful
 > (`aria-*`, `contenteditable`) should be declared as **string** props.
 >
-> See [Prop Access](https://webcomponent.io/prop-access/) for details.
+> See [Prop Access](https://webcomponent.io/prop-access/#boolean-props) for details.
 
 [![Package information: NPM version](https://img.shields.io/npm/v/web-component-base)](https://www.npmjs.com/package/web-component-base)
 [![Package information: NPM license](https://img.shields.io/npm/l/web-component-base)](https://www.npmjs.com/package/web-component-base)
