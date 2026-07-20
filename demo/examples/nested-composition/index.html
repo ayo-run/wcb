@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nested composition</title>
+    <script type="module" src="./index.js"></script>
+    <script>try{document.documentElement.dataset.theme=localStorage.getItem('wcb-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')}catch(e){}</script>
+    <link rel="stylesheet" href="../../shell.css" />
+    <script type="module" src="../../shell.js"></script>
+    <style>
+      .board {
+        border: 1px solid currentColor;
+        border-radius: 0.5em;
+        padding: 1em;
+        max-width: 32em;
+      }
+      .board header {
+        display: flex;
+        gap: 1em;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.75em;
+      }
+      .row {
+        display: flex;
+        gap: 0.75em;
+        align-items: center;
+        margin-bottom: 0.4em;
+      }
+      .row-name {
+        min-width: 5em;
+        opacity: 0.75;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Nested composition</h1>
+    <p class="lede">
+      A component within a component within a component. Each
+      <code>&lt;tick-counter&gt;</code> lives inside a
+      <code>&lt;counter-row&gt;</code>, which lives inside a
+      <code>&lt;counter-board&gt;</code> — three levels, all light DOM.
+    </p>
+
+    <ol>
+      <li>Click a few counters so their counts differ.</li>
+      <li>
+        Click <strong>Rename board</strong>. That changes only the board's
+        title and re-renders the <em>root</em> component.
+      </li>
+      <li>
+        The counts stay exactly as you left them. A nested component owns the
+        DOM it renders for itself; an ancestor re-render patches props down but
+        never trims the inner subtree.
+      </li>
+    </ol>
+
+    <counter-board></counter-board>
+  </body>
+</html>

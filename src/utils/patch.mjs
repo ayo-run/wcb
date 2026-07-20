@@ -145,6 +145,17 @@ export function patchNode(parent, dom, oldVnode, newVnode) {
   const previous =
     typeof oldVnode === 'object' && oldVnode !== null ? oldVnode : {}
   patchProps(dom, previous.props, newVnode.props)
+
+  // A nested custom element that renders its own light DOM owns that subtree:
+  // the parent's vnode never describes what the child rendered for itself, so
+  // reconciling those children here would trim them away and leave the child
+  // blank until it happens to re-render on its own. Patch the element's props
+  // (that is how data flows down) but leave its children to the child.
+  // A shadow-DOM component is exempt — its own content lives in the shadow
+  // root, invisible here, so any *light* children are genuine parent-authored
+  // slot content that the parent must keep reconciling.
+  if (dom.tagName.includes('-') && !dom.shadowRoot) return
+
   patchChildren(dom, previous.children, newVnode.children)
 }
 
