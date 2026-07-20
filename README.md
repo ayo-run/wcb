@@ -1,7 +1,7 @@
 # Web Component Base
 
-> [!Warning]
-> **Breaking change in v6 — boolean props are now bare attributes.** A boolean
+> [!Note]
+> **HTML boolean attributes semantics shipped in v6** - A boolean
 > prop follows the HTML convention in both directions: **presence means `true`,
 > absence means `false`**. `true` reflects as a bare attribute and `false`
 > removes it, so `toggleAttribute()` and `[attr]` CSS selectors finally work as
