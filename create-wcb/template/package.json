@@ -1,0 +1,42 @@
+{
+  "name": "wcb-button",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "A wcb-button web component",
+  "license": "MIT",
+  "homepage": "https://webcomponent.io",
+  "customElements": "custom-elements.json",
+  "module": "./dist/wcb-button.js",
+  "types": "./dist/wcb-button.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/wcb-button.d.ts",
+      "import": "./dist/wcb-button.js",
+      "require": "./dist/wcb-button.umd.cjs",
+      "default": "./dist/wcb-button.js"
+    }
+  },
+  "files": [
+    "dist",
+    "custom-elements.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "echo \"Warning: no test specified\"",
+    "dev": "vite",
+    "build": "vite build",
+    "build:lib": "vite build --config vite-lib.config.ts",
+    "analyze": "cem analyze",
+    "prepack": "npm run build:lib && npm run analyze"
+  },
+  "devDependencies": {
+    "@custom-elements-manifest/analyzer": "^0.11.0",
+    "@types/node": "^25.9.3",
+    "vite": "^8.1.5",
+    "vite-plugin-dts": "^5.0.3"
+  },
+  "peerDependencies": {
+    "web-component-base": "^6.1.1"
+  }
+}

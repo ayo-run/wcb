@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>wcb-button web component</title>
+
+    <!-- meta -->
+    <meta property="og:title" content="wcb-button web component" />
+    <meta property="og:description" content="A wcb-button web component" />
+    <meta name="description" content="A wcb-button web component" />
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    />
+    <script type="module" src="./src/wcb-button.ts"></script>
+    <style>
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        display: grid;
+        place-content: safe center;
+      }
+      main {
+        padding: 1em;
+      }
+      wcb-button {
+        font-family: 'Courier New', Courier, monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>&lt;wcb-button&gt;</h1>
+      <hr />
+    </header>
+    <main>
+      <section>
+        <p>A wcb-button web component</p>
+        <wcb-button label="Hello, Beautiful!"></wcb-button>
+      </section>
+      <section>
+        <p>
+          Generate <code>custom-elements.json</code> with
+          <code>npm run analyze</code> — more on the
+          <a href="https://webcomponent.io/cem-plugin/">CEM plugin guide</a>
+        </p>
+      </section>
+    </main>
+    <footer>
+      <hr />
+      <small>
+        Just keep building.<br />
+        A <a href="https://webcomponent.io">web-component-base</a> component.
+      </small>
+    </footer>
+  </body>
+</html>
