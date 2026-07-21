@@ -17,13 +17,13 @@ Numbers below are **measured** from the same minimal counter component (one reac
 | `@elenajs/core`           | 1.0.0   | 9.1 kB   | 3.7 kB  | 3.3 kB     |
 | `lit`                     | 3.3.3   | 15.3 kB  | 5.9 kB  | 5.3 kB     |
 | `@microsoft/fast-element` | 3.0.1   | 44.9 kB  | 13.7 kB | 12.2 kB    |
-| vanilla `HTMLElement`     | —       | —        | —       | ~0.2 kB    |
+| vanilla `HTMLElement`     | -       | -        | -       | ~0.2 kB    |
 
 For scale: even after all of the v5.2–v6.1 work, the WCB counter is **~21% smaller than Elena, ~51% smaller than Lit, and ~79% smaller than FAST**.
 
 ## Feature comparison
 
-What each library gives you beyond extending directly from `HTMLElement` — the boilerplate you no longer write by hand:
+What each library gives you beyond extending directly from `HTMLElement`, the boilerplate you no longer write by hand:
 
 | Capability                       | WCB 6.1                                                            | Lit 3.3                                                  | Elena 1.0                               | FAST 3.0                                         |
 | -------------------------------- | ------------------------------------------------------------------ | -------------------------------------------------------- | --------------------------------------- | ------------------------------------------------ |
@@ -42,11 +42,11 @@ What each library gives you beyond extending directly from `HTMLElement` — the
 | Backing / ecosystem              | solo maintainer, small surface                                     | Google, huge ecosystem                                   | new (2026), design-system focus         | Microsoft, powers Fluent UI                      |
 
 :::note[Why 11ty WebC isn't here]
-WebC is a compile-time tool: it resolves components during an Eleventy build and ships plain HTML with no client runtime. Every row above is about what a library does _in the browser at runtime_, so a side-by-side comparison would be measuring two different things. If your components are static at build time, WebC solves a different problem — and solves it well.
+WebC is a compile-time tool: it resolves components during an Eleventy build and ships plain HTML with no client runtime. Every row above is about what a library does _in the browser at runtime_, so a side-by-side comparison would be measuring two different things. If your components are static at build time, WebC solves a different problem, and solves it well.
 :::
 
-For what these numbers and capabilities add up to — and when they don't — see [Why would anyone use WCB?](/why/).
+For what these numbers and capabilities add up to (and when they don't) see [Why would anyone use WCB?](/why/).
 
 ---
 
-_WCB re-measured 2026-07-20 at v6.1.0; the other libraries measured 2026-07-19, with esbuild, Node zlib (gzip −9, brotli q11), at the pinned versions above. Methodology: identical counter component per library, bundled per library, compressed. Re-run them yourself — the benchmark is trivially reproducible with the versions pinned above._
+_WCB re-measured 2026-07-20 at v6.1.0; the other libraries measured 2026-07-19, with esbuild, Node zlib (gzip −9, brotli q11), at the pinned versions above. Methodology: identical counter component per library, bundled per library, compressed. Re-run them yourself. The benchmark is trivially reproducible with the versions pinned above._

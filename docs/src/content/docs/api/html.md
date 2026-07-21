@@ -48,7 +48,7 @@ html`<p class="a">hi</p>`
 Because the tree is a plain object it is comparable and serializable, which is
 what lets `render()` diff one render against the next.
 
-`` html`` `` returns `undefined` — this is the idiomatic way for a component to
+`` html`` `` returns `undefined`. This is the idiomatic way for a component to
 render nothing, and it empties the rendered subtree rather than leaving the
 previous render on screen.
 
@@ -60,7 +60,7 @@ Each entry in `props` is applied by [`applyProp`](/api/utils/#applypropel-prop-v
 in this order:
 
 1. a `style` object is applied rule by rule
-2. a name the element owns as a **DOM property** is assigned to that property —
+2. a name the element owns as a **DOM property** is assigned to that property,
    so event handlers (`onclick=${fn}`) and non-string values keep their type
 3. a boolean value with no matching DOM property is toggled as an HTML boolean
    attribute

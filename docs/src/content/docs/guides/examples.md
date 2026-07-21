@@ -6,7 +6,7 @@ slug: examples
 ## Live demo gallery
 
 Every example below runs as a standalone page at
-[demo.webcomponent.io ↗](https://demo.webcomponent.io/) — a live gallery with
+[demo.webcomponent.io ↗](https://demo.webcomponent.io/), a live gallery with
 the source alongside each demo.
 
 | Demo | Shows |

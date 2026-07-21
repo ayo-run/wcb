@@ -44,7 +44,7 @@ initializer and, for every key, records in the manifest:
 
 - the **member** under its camelCase name
 - the **attribute** under its kebab-case name, linked to that member
-- the **type** inferred from the default value — `boolean`, `number`, `object`
+- the **type** inferred from the default value: `boolean`, `number`, `object`
   or `string`
 - the **default value** as written
 

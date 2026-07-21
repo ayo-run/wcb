@@ -1,7 +1,7 @@
 ---
 title: WebComponent
 slug: api/web-component
-description: The WebComponent base class — static configuration, instance members, lifecycle hooks and attribute converters.
+description: The WebComponent base class: static configuration, instance members, lifecycle hooks and attribute converters.
 ---
 
 The base class every component extends. Import from the package root or its own
@@ -56,8 +56,8 @@ reported with `console.warn`:
 
 | Default            | Warning                                             |
 | ------------------ | --------------------------------------------------- |
-| a function or symbol | not reflectable — use handlers or refs instead     |
-| `true`             | boolean defaults should be `false` — invert the name |
+| a function or symbol | not reflectable: use handlers or refs instead     |
+| `true`             | boolean defaults should be `false`: invert the name |
 
 A `true` boolean default is discouraged because HTML has no true-by-default
 boolean attribute: absence would have to mean both "false" and "default". Name
@@ -80,7 +80,7 @@ per-component rules after it. Strings are compiled to a `CSSStyleSheet` once;
 existing `CSSStyleSheet` instances are adopted as-is and can be shared across
 components.
 
-Adoption happens **once per instance**, when the element is constructed — not
+Adoption happens **once per instance**, when the element is constructed, not
 per render.
 
 Requires [`shadowRootInit`](#static-shadowrootinit). Without a shadow root
@@ -92,7 +92,7 @@ See it live: [Constructable styles demo ↗](https://demo.webcomponent.io/exampl
 ### `static shadowRootInit`
 
 A [`ShadowRootInit`](https://developer.mozilla.org/en-US/docs/Web/API/Element/attachShadow#options)
-object. Its presence is what opts the component into shadow DOM — the shadow
+object. Its presence is what opts the component into shadow DOM. The shadow
 root is attached during construction and becomes the render target.
 
 ```js
@@ -143,9 +143,9 @@ Assigning the value it already holds does nothing.
 
 Read-only getter returning what the component renders. Two kinds are supported:
 
-- an [`html`](/api/html/) tagged template — a vnode tree, reconciled in place
+- an [`html`](/api/html/) tagged template: a vnode tree, reconciled in place
   on re-render
-- a **string** — assigned to the render target's `innerHTML`
+- a **string**: assigned to the render target's `innerHTML`
 
 Both render into the same target: the shadow root when `shadowRootInit` is set,
 the element itself otherwise. Returning `` html`` `` (which is `undefined`) or
@@ -165,7 +165,7 @@ Renders `template` into the render target. Called automatically on connect and
 on every prop or attribute change; you rarely call it yourself.
 
 For a vnode template, the new tree is compared against the previous one and
-re-render **patches the existing DOM in place** — see
+re-render **patches the existing DOM in place**. See
 [Template vs Render](/template-vs-render/) for what that preserves and the
 non-keyed matching caveat.
 
@@ -202,7 +202,7 @@ Override these to control how one prop crosses the prop/attribute boundary, and
 call `super` for the props you do not handle.
 
 The default conversion round-trips values through JSON. Types JSON cannot
-restore — `Date`, `Map`, `Set`, `URL`, class instances — need overridden
+restore (`Date`, `Map`, `Set`, `URL`, class instances) need overridden
 converters to live on `static props`; see
 [Custom attribute conversion](/prop-access/#custom-attribute-conversion) for
 worked examples, including the non-serializable cases.
@@ -229,7 +229,7 @@ toAttribute(name, value) {
 
 ### `fromAttribute(name, value)`
 
-Converts an attribute value into the prop value it represents — the inverse of
+Converts an attribute value into the prop value it represents, the inverse of
 `toAttribute()`.
 
 | Parameter | Type     | Description                                   |
@@ -256,7 +256,7 @@ Boolean props follow the HTML convention in both directions: **presence means
 | `true`  | present, empty value | `''`                  |
 | `false` | absent               | `null`                |
 
-Any present value reads as `true` — including the literal `flag="false"`, just
+Any present value reads as `true`, including the literal `flag="false"`, just
 as native `disabled="false"` is still disabled. Removing the attribute always
 yields `false`, never the declared default.
 
@@ -265,7 +265,7 @@ Use `toggleAttribute(name, bool)` to set them. Writing
 when it sees a boolean attribute written as `"true"` or `"false"` so the
 inversion cannot fail silently.
 
-Attributes whose `"false"` is meaningful — `aria-*`, `contenteditable` — should
+Attributes whose `"false"` is meaningful (`aria-*`, `contenteditable`) should
 be declared as **string** props.
 
 See it live: [Boolean props demo ↗](https://demo.webcomponent.io/examples/boolean-props/)

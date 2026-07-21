@@ -63,7 +63,7 @@ everything else pass through unchanged.
 
 ### `deserialize(value, type)`
 
-Parses an attribute string back into a value of the given declared type — the
+Parses an attribute string back into a value of the given declared type, the
 inverse of `serialize()`.
 
 | Parameter   | Type     |                                                     |
@@ -72,7 +72,7 @@ inverse of `serialize()`.
 | `type`      | `string` | `'boolean'`, `'number'`, `'object'`, `'undefined'` or `'string'` |
 | **returns** | `any`    | the parsed value                                    |
 
-`'boolean'` always returns `true` — strict HTML boolean-attribute semantics,
+`'boolean'` always returns `true`: strict HTML boolean-attribute semantics,
 where any present value is true. Absence is handled by the caller and never
 reaches here. `'number'`, `'object'` and `'undefined'` use `JSON.parse` and
 throw on malformed input; strings pass through.
