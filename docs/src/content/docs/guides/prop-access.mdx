@@ -55,12 +55,14 @@ class FlagBox extends WebComponent {
 ```
 
 ```html
-<flag-box></flag-box>
 <!-- props.flag === false -->
+<flag-box></flag-box>
+
+<!-- props.flag === true -->
 <flag-box flag></flag-box>
-<!-- props.flag === true  -->
+
+<!-- props.flag === true -->
 <flag-box flag=""></flag-box>
-<!-- props.flag === true  -->
 ```
 
 Reflection works the same way in reverse — `true` sets the bare attribute,
@@ -137,8 +139,8 @@ class EventCard extends WebComponent {
 ```
 
 ```html
-<event-card when="2026-07-20"></event-card>
 <!-- props.when is a Date -->
+<event-card when="2026-07-20"></event-card>
 ```
 
 Both take the **camelCase prop key**, matching your `static props` declaration
@@ -220,11 +222,11 @@ but it is still plain text — write it in markup with single quotes, since the
 payload contains double quotes:
 
 ```html
+<!-- props.when is a real Date, props.tags a real Set -->
 <event-card
   when='[["Date","2026-07-20T09:30:00.000Z"]]'
   tags='[["Set",1,2],"alpha","bravo"]'
 ></event-card>
-<!-- props.when is a real Date, props.tags a real Set -->
 ```
 
 devalue is your component's dependency, not wcb's — the base class stays
