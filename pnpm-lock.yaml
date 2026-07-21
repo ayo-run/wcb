@@ -78,6 +78,8 @@ importers:
         specifier: ^4.0.18
         version: 4.0.18(@opentelemetry/api@1.8.0)(@types/node@25.0.10)(@vitest/browser-playwright@4.0.18)(happy-dom@20.3.7)(jiti@2.6.1)(terser@5.39.0)(yaml@2.9.0)
 
+  create-wcb: {}
+
   demo:
     dependencies:
       shiki:

@@ -15,6 +15,15 @@ the file format itself.
 
 We provide a CEM Analyzer Plugin `web-component-base/cem-plugin` which allows using the `@custom-elements-manifest/analyzer` by handling wcb's `static props` object. In this guide we show how to use this plugin and the benefits for using it with [Storybook](#storybook) and [code editors](#code-editors).
 
+<Aside type="tip" title="Starting a new project?">
+  `npm create wcb@latest` scaffolds a project with everything below already
+  wired: a starter component, this plugin configured in
+  `custom-elements-manifest.config.mjs`, an `analyze` script, and the
+  `customElements` field set in `package.json`. The rest of this guide is the
+  manual path — use it to add the manifest to an existing project, or to
+  understand what the scaffold set up.
+</Aside>
+
 ## Install
 
 ```sh

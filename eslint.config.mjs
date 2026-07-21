@@ -26,6 +26,11 @@ export default [
     ],
     languageOptions: { globals: globals.node },
   },
+  // The create-wcb scaffolder CLI and its tests run in Node.
+  {
+    files: ['create-wcb/index.js', 'create-wcb/*.test.mjs'],
+    languageOptions: { globals: globals.node },
+  },
   {
     ignores: ['site/*', '**/dist/*', 'storybook/storybook-static/*'],
   },

@@ -1,0 +1,5 @@
+node_modules
+dist
+
+# build artifact — regenerate with `npm run analyze`
+custom-elements.json

@@ -1,0 +1,35 @@
+{
+  "name": "create-wcb",
+  "version": "0.1.0",
+  "description": "Scaffold a web-component-base (wcb) project with custom-elements.json generation wired in",
+  "type": "module",
+  "bin": {
+    "create-wcb": "index.js"
+  },
+  "files": [
+    "index.js",
+    "template"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ayo-run/wcb.git",
+    "directory": "create-wcb"
+  },
+  "homepage": "https://WebComponent.io",
+  "keywords": [
+    "web components",
+    "web component",
+    "custom elements",
+    "custom element",
+    "create",
+    "scaffold"
+  ],
+  "author": "Ayo Ayco",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ayo-run/wcb/issues"
+  }
+}
