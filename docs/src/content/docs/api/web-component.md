@@ -1,7 +1,7 @@
 ---
 title: WebComponent
 slug: api/web-component
-description: The WebComponent base class: static configuration, instance members, lifecycle hooks and attribute converters.
+description: 'The WebComponent base class: static configuration, instance members, lifecycle hooks and attribute converters.'
 ---
 
 The base class every component extends. Import from the package root or its own
