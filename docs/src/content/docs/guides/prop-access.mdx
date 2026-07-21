@@ -179,30 +179,56 @@ represent don't survive the trip: a `Date` comes back as a plain string, and a
 `Map` or `Set` collapses to `"{}"` before it ever reaches the attribute.
 
 Such types are still first-class props — declare a real default of that type
-(see the caution above) and override the converters, exactly as `EventCard`
-does for its `Date`. Here is a `Set` reflecting as a space-delimited token
-list, the same shape native `rel` and `class` use:
+(see the caution above) and override the converters. You can hand-write a
+textual form per prop, as `EventCard` above does for its `Date`; when several
+props need this, delegate to a serializer built for the job instead:
+[devalue](https://github.com/sveltejs/devalue) round-trips `Map`, `Set`,
+`Date`, `RegExp`, `BigInt`, `undefined`, and even cyclic references. One
+generic pair of overrides then covers every structured prop, present and
+future — here is `EventCard` rewritten with it, gaining a `Set` of tags along
+the way:
 
 ```js
-class TagList extends WebComponent {
-  static props = { tags: new Set() }
+import { parse, stringify } from 'devalue'
+
+class EventCard extends WebComponent {
+  static props = {
+    when: new Date(0),
+    tags: new Set(),
+    title: '',
+  }
 
   toAttribute(name, value) {
-    if (name === 'tags') return value.size ? [...value].join(' ') : null
+    if (value instanceof Object) return stringify(value)
     return super.toAttribute(name, value)
   }
 
   fromAttribute(name, value) {
-    if (name === 'tags') return new Set(value.split(/\s+/).filter(Boolean))
+    if (this.constructor.props[name] instanceof Object) return parse(value)
     return super.fromAttribute(name, value)
   }
 }
 ```
 
+The two guards are asymmetric on purpose: `toAttribute` sees the live value,
+but `fromAttribute` only ever sees a string — so it consults the declared
+default to decide whether the attribute is devalue-encoded. `title` misses
+both guards and reflects as a plain string, exactly as before.
+
+The encoded attribute is not as hand-friendly as a bespoke `when="2026-07-20"`,
+but it is still plain text — write it in markup with single quotes, since the
+payload contains double quotes:
+
 ```html
-<tag-list tags="alpha bravo"></tag-list>
-<!-- props.tags is a real Set -->
+<event-card
+  when='[["Date","2026-07-20T09:30:00.000Z"]]'
+  tags='[["Set",1,2],"alpha","bravo"]'
+></event-card>
+<!-- props.when is a real Date, props.tags a real Set -->
 ```
+
+devalue is your component's dependency, not wcb's — the base class stays
+zero-dependency.
 
 <Aside type="caution" title="Reassign, don't mutate">
   The props proxy only sees *assignments*. `this.props.tags.add('x')` mutates
@@ -211,12 +237,13 @@ class TagList extends WebComponent {
   Set(this.props.tags).add('x')`.
 </Aside>
 
-Converters cover any value with a sensible **textual form** — a `Date` as an
-ISO date, a `Set` as a token list, a `URL` as its `href`. A value with no
-textual form at all — a function, an element reference, a live handle like an
-`AbortController` — is not a converter problem: it doesn't belong in
-`static props` in the first place. Keep it as a plain class property instead —
-see [Unobserved properties](#unobserved-properties) below. wcb warns once per
+Converters cover any value with a sensible **textual form** — bespoke like an
+ISO date, or generic like devalue's encoding. A value with no textual form at
+all — a function, an element reference, a live handle like an
+`AbortController` — is not a converter problem: even devalue refuses it
+(`Cannot stringify a function`), and it doesn't belong in `static props` in
+the first place. Keep it as a plain class property instead — see
+[Unobserved properties](#unobserved-properties) below. wcb warns once per
 class when a declared default is a `function` or `symbol` for exactly this
 reason.
 
