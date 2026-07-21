@@ -176,11 +176,12 @@ if (image) {
     color: var(--sl-color-gray-2);
   }
 
+  /* no align-items: the default stretch keeps the chip and the link
+     buttons the same height whenever they share a row */
   .actions {
     gap: 1rem 2rem;
     flex-wrap: wrap;
     justify-content: center;
-    align-items: center;
   }
 
   .create-command {
@@ -190,8 +191,10 @@ if (image) {
     border: 1px solid var(--sl-color-gray-5);
     border-radius: 999rem;
     background-color: var(--sl-color-black);
+    /* natural height matches the mobile link button (40px); on wider
+       screens the stretch from .actions makes both 56px anyway */
     padding-inline: 1rem 0.375rem;
-    padding-block: 0.375rem;
+    padding-block: 0.1875rem;
     font-size: var(--sl-text-sm);
   }
 
