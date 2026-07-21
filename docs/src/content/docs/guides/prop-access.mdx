@@ -171,6 +171,55 @@ toAttribute(name, value) {
   `string` and your parsed `Date` is refused.
 </Aside>
 
+#### Non-serializable types
+
+The default converters round-trip prop values through JSON, which restores
+numbers, booleans, and plain objects/arrays exactly. Types JSON cannot
+represent don't survive the trip: a `Date` comes back as a plain string, and a
+`Map` or `Set` collapses to `"{}"` before it ever reaches the attribute.
+
+Such types are still first-class props — declare a real default of that type
+(see the caution above) and override the converters, exactly as `EventCard`
+does for its `Date`. Here is a `Set` reflecting as a space-delimited token
+list, the same shape native `rel` and `class` use:
+
+```js
+class TagList extends WebComponent {
+  static props = { tags: new Set() }
+
+  toAttribute(name, value) {
+    if (name === 'tags') return value.size ? [...value].join(' ') : null
+    return super.toAttribute(name, value)
+  }
+
+  fromAttribute(name, value) {
+    if (name === 'tags') return new Set(value.split(/\s+/).filter(Boolean))
+    return super.fromAttribute(name, value)
+  }
+}
+```
+
+```html
+<tag-list tags="alpha bravo"></tag-list>
+<!-- props.tags is a real Set -->
+```
+
+<Aside type="caution" title="Reassign, don't mutate">
+  The props proxy only sees *assignments*. `this.props.tags.add('x')` mutates
+  the Set behind the proxy's back — no reflection, no render, and the attribute
+  goes stale. Assign a fresh instance instead: `this.props.tags = new
+  Set(this.props.tags).add('x')`.
+</Aside>
+
+Converters cover any value with a sensible **textual form** — a `Date` as an
+ISO date, a `Set` as a token list, a `URL` as its `href`. A value with no
+textual form at all — a function, an element reference, a live handle like an
+`AbortController` — is not a converter problem: it doesn't belong in
+`static props` in the first place. Keep it as a plain class property instead —
+see [Unobserved properties](#unobserved-properties) below. wcb warns once per
+class when a declared default is a `function` or `symbol` for exactly this
+reason.
+
 ### Typed props in TypeScript
 
 See it live: [Compile-time prop types demo ↗](https://demo.webcomponent.io/examples/typed-props/) and [Typed props demo ↗](https://demo.webcomponent.io/examples/type-restore/)

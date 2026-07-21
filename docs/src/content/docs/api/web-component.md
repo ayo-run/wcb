@@ -201,6 +201,12 @@ See [Life-cycle Hooks](/life-cycle-hooks/) for worked examples. See it live: [Li
 Override these to control how one prop crosses the prop/attribute boundary, and
 call `super` for the props you do not handle.
 
+The default conversion round-trips values through JSON. Types JSON cannot
+restore — `Date`, `Map`, `Set`, `URL`, class instances — need overridden
+converters to live on `static props`; see
+[Custom attribute conversion](/prop-access/#custom-attribute-conversion) for
+worked examples, including the non-serializable cases.
+
 ### `toAttribute(name, value)`
 
 Converts a prop value into the attribute value that reflects it.
