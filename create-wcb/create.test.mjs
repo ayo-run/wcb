@@ -34,9 +34,9 @@ describe('create-wcb', () => {
     JSON.parse(fs.readFileSync(path.join(workDir, ...segments), 'utf8'))
 
   it('scaffolds a project with the CEM story set up', () => {
-    run(['my-app'])
+    run(['my-button'])
 
-    const root = path.join(workDir, 'my-app')
+    const root = path.join(workDir, 'my-button')
     for (const file of [
       'index.html',
       'src/hello-world.js',
@@ -45,8 +45,8 @@ describe('create-wcb', () => {
     ])
       expect(fs.existsSync(path.join(root, file)), file).toBe(true)
 
-    const packageJson = readJson('my-app', 'package.json')
-    expect(packageJson.name).toBe('my-app')
+    const packageJson = readJson('my-button', 'package.json')
+    expect(packageJson.name).toBe('my-button')
     expect(packageJson.customElements).toBe('custom-elements.json')
     expect(packageJson.scripts.analyze).toBe('cem analyze')
     expect(packageJson.dependencies['web-component-base']).toBeDefined()
@@ -56,9 +56,9 @@ describe('create-wcb', () => {
   })
 
   it('renames _gitignore to .gitignore', () => {
-    run(['my-app'])
+    run(['my-button'])
 
-    const root = path.join(workDir, 'my-app')
+    const root = path.join(workDir, 'my-button')
     expect(fs.existsSync(path.join(root, '.gitignore'))).toBe(true)
     expect(fs.existsSync(path.join(root, '_gitignore'))).toBe(false)
     expect(fs.readFileSync(path.join(root, '.gitignore'), 'utf8')).toContain(
@@ -67,8 +67,8 @@ describe('create-wcb', () => {
   })
 
   it('sanitizes the directory name into a valid package name', () => {
-    run(['My App'])
-    expect(readJson('My App', 'package.json').name).toBe('my-app')
+    run(['My Button'])
+    expect(readJson('My Button', 'package.json').name).toBe('my-button')
   })
 
   it('scaffolds into the current directory with "."', () => {
@@ -80,10 +80,10 @@ describe('create-wcb', () => {
 
   it('falls back to the default directory when the prompt is empty', () => {
     run([], { input: '\n' })
-    expect(fs.existsSync(path.join(workDir, 'wcb-app', 'index.html'))).toBe(
+    expect(fs.existsSync(path.join(workDir, 'wcb-button', 'index.html'))).toBe(
       true
     )
-    expect(readJson('wcb-app', 'package.json').name).toBe('wcb-app')
+    expect(readJson('wcb-button', 'package.json').name).toBe('wcb-button')
   })
 
   it('refuses a non-empty target directory', () => {

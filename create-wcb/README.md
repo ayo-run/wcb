@@ -4,7 +4,7 @@ Scaffold a [web-component-base](https://webcomponent.io) (wcb) project:
 
 ```sh
 npm create wcb@latest
-# or: npm create wcb@latest my-app
+# or: npm create wcb@latest my-button
 # or: pnpm create wcb / yarn create wcb / bun create wcb
 ```
 

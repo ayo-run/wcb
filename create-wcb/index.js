@@ -19,7 +19,7 @@ import process from 'node:process'
 import readline from 'node:readline/promises'
 import { fileURLToPath } from 'node:url'
 
-const DEFAULT_DIR = 'wcb-app'
+const DEFAULT_DIR = 'wcb-button'
 
 /**
  * Sanitizes a directory name into a valid npm package name.

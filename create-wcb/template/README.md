@@ -1,7 +1,7 @@
-# wcb app
+# wcb component
 
-A [web-component-base](https://webcomponent.io) project scaffolded with
-`npm create wcb@latest`.
+A [web-component-base](https://webcomponent.io) component project scaffolded
+with `npm create wcb@latest`.
 
 ## Commands
 
