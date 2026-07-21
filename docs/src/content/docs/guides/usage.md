@@ -9,7 +9,7 @@ In your component class:
 
 ```js
 // HelloWorld.mjs
-import { WebComponent } from 'https://unpkg.com/web-component-base@latest/index.js'
+import { WebComponent } from 'https://esm.sh/web-component-base@latest'
 
 class HelloWorld extends WebComponent {
   static props = {

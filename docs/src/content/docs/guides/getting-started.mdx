@@ -3,13 +3,13 @@ title: Getting Started
 slug: getting-started
 ---
 
-**Web Component Base (WCB)** is a zero-dependency, tiny JS base class for creating reactive [custom elements](https://developer.mozilla.org/en-US/docs/Web/API/Web_Components/Using_custom_elements) easily.
+**Web Component Base (WCB)** is a zero-dependency, tiny JS base class for creating reactive [custom elements](https://developer.mozilla.org/en-US/docs/Web/API/Web_Components/Using_custom_elements).
 
 When you extend the WebComponent class for your custom element, you only have to define the template and properties. Any change in an observed property's value will automatically cause the component UI to render.
 
-The result is a reactive UI on property changes.
-
 ## Quick start
+
+**Prerequisites:** [Node.js](https://nodejs.org) (current LTS), which includes npm.
 
 The fastest way to try wcb is to scaffold a new component:
 
@@ -24,30 +24,42 @@ It sets up a publishable custom element, ready to develop:
 - **A Vite setup** — a dev server with a demo page, plus a library build (`npm run build:lib`) that emits ESM + UMD bundles and `.d.ts` types, with `web-component-base` as a peerDependency
 - **`custom-elements.json` generation** — the CEM analyzer configured with wcb's plugin, an `npm run analyze` script, the `customElements` field in `package.json`, and a `prepack` hook so the manifest ships inside the published package
 
+Run the demo page to see the starter component render:
+
+```bash
+cd my-button
+npm install
+npm run dev
+```
+
+Vite prints a local URL — open it to see `<my-button>` rendered on the demo page. Edit `src/MyButton.ts` and the page updates as you save.
+
 See the [CEM Analyzer Plugin guide](/cem-plugin/) for more details on the manifest and how to use it with Storybook and code editors.
 
 Prefer starting on GitHub? The [`ayo-run/web-component`](https://github.com/ayo-run/web-component) template repository serves the same purpose via "Use this template".
 
-## Installation
+## Install via npm
 
-The sections below are more manual options — use them to add wcb to an existing project or page instead of scaffolding a new one.
-
-The library is distributed as complete ECMAScript Modules (ESM) and published on [NPM](https://ayco.io/n/web-component-base). Please open a [GitHub issue](https://github.com/ayo-run/wcb/issues/new) or [discussion](https://github.com/ayo-run/wcb/discussions) for problems or requests regarding our distribution. You can also submit a ticket in [SourceHut](https://todo.sr.ht/~ayoayco/wcb).
-
-### Import via CDN
-
-It is possible to import directly using a CDN like [esm.sh](https://esm.sh/web-component-base) or [unpkg](https://unpkg.com/web-component-base) in your vanilla JS component or HTML files. In all examples in this document, we use `unpkg` but you can find on CodePen examples that `esm.sh` also works well.
-
-Additionally, we use `@latest` in the rest of our [usage](/usage) and [examples](/examples) here for simplicity, but take note that this incurs additional resolution steps for CDNs to find the actual latest published version. You may replace the `@latest` in the URL with specific versions as shown in our CodePen examples, and this will typically be better for performance.
-
-```js
-import { WebComponent } from 'https://unpkg.com/web-component-base@latest/index.js'
-```
-
-### Installation via npm
-
-Usable for projects with bundlers or using import maps pointing to the specific files downloaded in `node_modules/web-component-base`.
+To add wcb to an existing project instead of scaffolding a new one, install it from [npm](https://www.npmjs.com/package/web-component-base):
 
 ```bash
 npm i web-component-base
 ```
+
+The package ships standard ECMAScript Modules (ESM), so it works with bundlers as well as import maps pointing into `node_modules/web-component-base`.
+
+Then import the base class with the bare package name:
+
+```js
+import { WebComponent } from 'web-component-base'
+```
+
+Continue with [Usage](/usage) to define your first component.
+
+:::tip[Prefer a CDN?]
+You can also import wcb straight from a CDN in vanilla JS or HTML files — see the [CodePen examples](/examples/#codepen-examples) for working setups.
+:::
+
+## Getting help
+
+Open a [GitHub issue](https://github.com/ayo-run/wcb/issues/new) or [discussion](https://github.com/ayo-run/wcb/discussions) for problems or requests. You can also submit a ticket on [SourceHut](https://todo.sr.ht/~ayoayco/wcb).
