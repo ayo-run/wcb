@@ -11,7 +11,7 @@ This mental model attempts to reduce the cognitive complexity of authoring compo
 1. You can _optionally_ call this `render()` method at any point to trigger a render if you need (eg, if you have private unobserved properties that need to manually trigger a render)
 1. Overriding the `render()` function for handling a custom `template` is also possible. Here's an example of using `lit-html`: [View on CodePen ↗](https://codepen.io/ayoayco-the-styleful/pen/ZEwNJBR?editors=1010)
 
-See it live: [Templating demo ↗](https://demo.webcomponent.io/examples/templating/) for the two template kinds, and [Render reconciliation demo ↗](https://demo.webcomponent.io/examples/render-reconciliation/) for what an in-place re-render preserves — focus, caret position and an uncommitted input value all survive.
+See it live: [Templating demo ↗](https://demo.webcomponent.io/examples/templating/) for the two template kinds, and [Render reconciliation demo ↗](https://demo.webcomponent.io/examples/render-reconciliation/) for what an in-place re-render preserves: focus, caret position and an uncommitted input value all survive.
 
 ## Composing components
 
@@ -33,7 +33,7 @@ class CounterBoard extends WebComponent {
 Each nested component **owns the DOM it renders for itself**. When an outer
 component re-renders, the reconciler patches the props it passes down to a
 nested element (that is how data flows from parent to child) but never touches
-the element's own children — so a nested component keeps its rendered content
+the element's own children, so a nested component keeps its rendered content
 and any internal state even when an ancestor re-renders for an unrelated
 reason. Data flows down as attributes, so pass values a nested component can
 read back from an attribute: primitives, or objects/arrays that survive a

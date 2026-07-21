@@ -91,10 +91,10 @@ customElements.define('styled-elements', StyledElement)
 
 ### Composing several stylesheets
 
-Pass an array to adopt more than one sheet. They are applied **in order**, so later entries win on equal specificity — put shared tokens or a base sheet first and per-component styles after it:
+Pass an array to adopt more than one sheet. They are applied **in order**, so later entries win on equal specificity. Put shared tokens or a base sheet first and per-component styles after it:
 
 ```js
-// tokens.js — shared across every component
+// tokens.js: shared across every component
 export const tokens = `
   :host {
     --cozy-radius: 6px;
@@ -131,4 +131,4 @@ class CozyBadge extends WebComponent {
 }
 ```
 
-A single string keeps working exactly as before — the array form is additive.
+A single string keeps working exactly as before. The array form is additive.

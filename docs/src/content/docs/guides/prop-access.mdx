@@ -65,7 +65,7 @@ class FlagBox extends WebComponent {
 <flag-box flag=""></flag-box>
 ```
 
-Reflection works the same way in reverse — `true` sets the bare attribute,
+Reflection works the same way in reverse. `true` sets the bare attribute,
 `false` removes it entirely:
 
 ```js
@@ -88,7 +88,7 @@ el.toggleAttribute('flag', true) // prop syncs, component re-renders
 
 <Aside type="caution" title="Any present value is true">
   Just like native `disabled="false"` is still disabled, **`flag="false"` parses
-  as `true`** — presence wins, there is no special case for the literal string.
+  as `true`**. Presence wins, there is no special case for the literal string.
   Writing `setAttribute('flag', String(someBool))` therefore always yields
   `true`; use `toggleAttribute('flag', someBool)` instead. wcb logs a
   `console.warn` when it sees a boolean attribute written as `"true"` or
@@ -96,7 +96,7 @@ el.toggleAttribute('flag', true) // prop syncs, component re-renders
 </Aside>
 
 Enumerated attributes like `contenteditable` and `aria-*` attributes are the
-exception — they are genuine strings where `"false"` is meaningful, so declare
+exception. They are genuine strings where `"false"` is meaningful, so declare
 them as **string** props rather than booleans. Strings serialize literally and
 are never removed, so they need nothing special at runtime; in TypeScript you
 can narrow them to the values you accept:
@@ -109,7 +109,7 @@ const props = { ariaChecked: 'false' as 'true' | 'false' }
   HTML has no true-default boolean attribute: absence has to mean both "false"
   and "default", which only works when they coincide. Model an on-by-default
   flag with an inverted name (`disabled`, not `enabled`). wcb warns once per
-  class on a `true` default — and for such a prop, removing the attribute lands
+  class on a `true` default, and for such a prop, removing the attribute lands
   on `false`, not back on the declared default.
 </Aside>
 
@@ -118,8 +118,8 @@ const props = { ariaChecked: 'false' as 'true' | 'false' }
 See it live: [Custom attribute converters demo ↗](https://demo.webcomponent.io/examples/attribute-converters/)
 
 The rules above cover the common cases. When a prop needs its own
-serialization — a `Date`, a delimited list, an enumerated attribute where
-`"false"` is meaningful — override `toAttribute` and `fromAttribute`, and
+serialization (a `Date`, a delimited list, an enumerated attribute where
+`"false"` is meaningful) override `toAttribute` and `fromAttribute`, and
 delegate everything else to `super`:
 
 ```js
@@ -144,7 +144,7 @@ class EventCard extends WebComponent {
 ```
 
 Both take the **camelCase prop key**, matching your `static props` declaration
-and `onChanges`'s `property` — not the kebab-case attribute name.
+and `onChanges`'s `property`, not the kebab-case attribute name.
 
 `toAttribute` returning **`null` removes the attribute**. That is exactly how a
 `false` boolean becomes an absent attribute, and it is available to any prop:
@@ -158,7 +158,7 @@ toAttribute(name, value) {
 
 <Aside type="note" title="Reflection does not round-trip">
   When a prop write reflects to its attribute, wcb does **not** parse the
-  attribute back through `fromAttribute` — the prop you assigned is already the
+  attribute back through `fromAttribute`. The prop you assigned is already the
   source of truth. So `toAttribute` may be lossy without corrupting the prop: in
   the example above `props.when` keeps its full timestamp even though the
   attribute carries only the date. `render()` and `onChanges` still fire as
@@ -169,7 +169,7 @@ toAttribute(name, value) {
 <Aside type="caution" title="The declared type still applies">
   A prop's runtime type comes from the `typeof` of its default, and the props
   proxy rejects writes that violate it. A `Date`-valued prop therefore needs an
-  actual `Date` default (`new Date(0)`), not `''` — otherwise the prop is typed
+  actual `Date` default (`new Date(0)`), not `''`. Otherwise the prop is typed
   `string` and your parsed `Date` is refused.
 </Aside>
 
@@ -180,14 +180,14 @@ numbers, booleans, and plain objects/arrays exactly. Types JSON cannot
 represent don't survive the trip: a `Date` comes back as a plain string, and a
 `Map` or `Set` collapses to `"{}"` before it ever reaches the attribute.
 
-Such types are still first-class props — declare a real default of that type
+Such types are still first-class props. Declare a real default of that type
 (see the caution above) and override the converters. You can hand-write a
 textual form per prop, as `EventCard` above does for its `Date`; when several
 props need this, delegate to a serializer built for the job instead:
 [devalue](https://github.com/sveltejs/devalue) round-trips `Map`, `Set`,
 `Date`, `RegExp`, `BigInt`, `undefined`, and even cyclic references. One
 generic pair of overrides then covers every structured prop, present and
-future — here is `EventCard` rewritten with it, gaining a `Set` of tags along
+future. Here is `EventCard` rewritten with it, gaining a `Set` of tags along
 the way:
 
 ```js
@@ -213,12 +213,12 @@ class EventCard extends WebComponent {
 ```
 
 The two guards are asymmetric on purpose: `toAttribute` sees the live value,
-but `fromAttribute` only ever sees a string — so it consults the declared
+but `fromAttribute` only ever sees a string, so it consults the declared
 default to decide whether the attribute is devalue-encoded. `title` misses
 both guards and reflects as a plain string, exactly as before.
 
 The encoded attribute is not as hand-friendly as a bespoke `when="2026-07-20"`,
-but it is still plain text — write it in markup with single quotes, since the
+but it is still plain text. Write it in markup with single quotes, since the
 payload contains double quotes:
 
 ```html
@@ -229,22 +229,22 @@ payload contains double quotes:
 ></event-card>
 ```
 
-devalue is your component's dependency, not wcb's — the base class stays
+devalue is your component's dependency, not wcb's. The base class stays
 zero-dependency.
 
 <Aside type="caution" title="Reassign, don't mutate">
   The props proxy only sees *assignments*. `this.props.tags.add('x')` mutates
-  the Set behind the proxy's back — no reflection, no render, and the attribute
+  the Set behind the proxy's back: no reflection, no render, and the attribute
   goes stale. Assign a fresh instance instead: `this.props.tags = new
   Set(this.props.tags).add('x')`.
 </Aside>
 
-Converters cover any value with a sensible **textual form** — bespoke like an
+Converters cover any value with a sensible **textual form**: bespoke like an
 ISO date, or generic like devalue's encoding. A value with no textual form at
-all — a function, an element reference, a live handle like an
-`AbortController` — is not a converter problem: even devalue refuses it
+all (a function, an element reference, a live handle like an
+`AbortController`) is not a converter problem: even devalue refuses it
 (`Cannot stringify a function`), and it doesn't belong in `static props` in
-the first place. Keep it as a plain class property instead — see
+the first place. Keep it as a plain class property instead. See
 [Unobserved properties](#unobserved-properties) below. wcb warns once per
 class when a declared default is a `function` or `symbol` for exactly this
 reason.
@@ -253,7 +253,7 @@ reason.
 
 See it live: [Compile-time prop types demo ↗](https://demo.webcomponent.io/examples/typed-props/) and [Typed props demo ↗](https://demo.webcomponent.io/examples/type-restore/)
 
-By default `this.props` is a permissive `{ [name: string]: any }` map. In TypeScript you can get compile-time types on your declared props: declare the shape as a named type, pass it as the class type argument, and annotate `static props` with it — the type above, the defaults within:
+By default `this.props` is a permissive `{ [name: string]: any }` map. In TypeScript you can get compile-time types on your declared props: declare the shape as a named type, pass it as the class type argument, and annotate `static props` with it (the type above, the defaults within):
 
 ```ts
 type CozyButtonProps = {
@@ -283,11 +283,11 @@ Unions stay narrow with nothing to cast, and the annotation cuts both ways:
 the defaults themselves are checked against the type, so a missing key or a
 default outside the union is a compile error too.
 
-This is types-only — the runtime is unchanged, and `static strictProps` still guards writes that come in from attributes at runtime. Omitting the type argument keeps the previous untyped behavior.
+This is types-only. The runtime is unchanged, and `static strictProps` still guards writes that come in from attributes at runtime. Omitting the type argument keeps the previous untyped behavior.
 
 <Aside type="tip">
   You can also infer the type from the defaults instead of writing it out:
-  declare them in a `const` and pass its `typeof` —
+  declare them in a `const` and pass its `typeof`:
   `class CozyButton extends WebComponent<typeof props> { static props = props }`.
   Inferred values widen (`variant: 'primary'` types as plain `string`), so
   narrow with a cast where it matters:
@@ -299,18 +299,18 @@ This is types-only — the runtime is unchanged, and `static strictProps` still 
 Everything declared in `static props` is observed and reflected: each key gets
 an attribute, writes trigger `render()` and `onChanges()`, and the default
 shows up in the DOM on first connect. That is the right contract for a
-component's public, DOM-facing API — and unnecessary for internal state.
+component's public, DOM-facing API, and unnecessary for internal state.
 
 For state that doesn't belong in the DOM, use a plain class property. A
 `WebComponent` is still just a class extending `HTMLElement`, so ordinary
 properties work exactly as on any element and are invisible to the props
-machinery — no attribute, no observation, no automatic render:
+machinery (no attribute, no observation, no automatic render):
 
 ```js
 class DataTable extends WebComponent {
   static props = { compact: false } // public API: <data-table compact>
 
-  rows = [] // internal state — never becomes an attribute
+  rows = [] // internal state, never becomes an attribute
   #controller = new AbortController() // non-serializable values are fine here
 
   async onInit() {
@@ -330,8 +330,8 @@ Because nothing watches a plain property, call
 update the view.
 
 The rule of thumb: `static props` is for values a consumer sets from markup or
-styles against with attribute selectors; a class property — public or
-`#private` — is for everything else: large data, functions, and handles like
+styles against with attribute selectors; a class property (public or
+`#private`) is for everything else: large data, functions, and handles like
 timers or `AbortController`s that could never round-trip through an attribute
 anyway. If you catch yourself thinking "I don't want this showing up as an
 attribute", that is the signal it should be a class property, not a prop.

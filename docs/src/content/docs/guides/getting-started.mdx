@@ -20,9 +20,9 @@ npm create wcb@latest
 
 It sets up a publishable custom element, ready to develop:
 
-- **A starter component** in TypeScript using the [`static props`](/prop-access/) convention — the class, tag, and file names are derived from your project name (`my-button` → `MyButton` / `<my-button>`), so there are no rename-me TODOs
-- **A Vite setup** — a dev server with a demo page, plus a library build (`npm run build:lib`) that emits ESM + UMD bundles and `.d.ts` types, with `web-component-base` as a peerDependency
-- **`custom-elements.json` generation** — the CEM analyzer configured with wcb's plugin, an `npm run analyze` script, the `customElements` field in `package.json`, and a `prepack` hook so the manifest ships inside the published package
+- **A starter component** in TypeScript using the [`static props`](/prop-access/) convention. The class, tag, and file names are derived from your project name (`my-button` → `MyButton` / `<my-button>`), so there are no rename-me TODOs
+- **A Vite setup**: a dev server with a demo page, plus a library build (`npm run build:lib`) that emits ESM + UMD bundles and `.d.ts` types, with `web-component-base` as a peerDependency
+- **`custom-elements.json` generation**: the CEM analyzer configured with wcb's plugin, an `npm run analyze` script, the `customElements` field in `package.json`, and a `prepack` hook so the manifest ships inside the published package
 
 Run the demo page to see the starter component render:
 
@@ -32,7 +32,7 @@ npm install
 npm run dev
 ```
 
-Vite prints a local URL — open it to see `<my-button>` rendered on the demo page. Edit `src/MyButton.ts` and the page updates as you save.
+Vite prints a local URL. Open it to see `<my-button>` rendered on the demo page. Edit `src/MyButton.ts` and the page updates as you save.
 
 See the [CEM Analyzer Plugin guide](/cem-plugin/) for more details on the manifest and how to use it with Storybook and code editors.
 
@@ -57,7 +57,7 @@ import { WebComponent } from 'web-component-base'
 Continue with [Usage](/usage) to define your first component.
 
 :::tip[Prefer a CDN?]
-You can also import wcb straight from a CDN in vanilla JS or HTML files — see the [CodePen examples](/examples/#codepen-examples) for working setups.
+You can also import wcb straight from a CDN in vanilla JS or HTML files. See the [CodePen examples](/examples/#codepen-examples) for working setups.
 :::
 
 ## Getting help
