@@ -55,9 +55,12 @@ class FlagBox extends WebComponent {
 ```
 
 ```html
-<flag-box></flag-box>         <!-- props.flag === false -->
-<flag-box flag></flag-box>    <!-- props.flag === true  -->
-<flag-box flag=""></flag-box> <!-- props.flag === true  -->
+<flag-box></flag-box>
+<!-- props.flag === false -->
+<flag-box flag></flag-box>
+<!-- props.flag === true  -->
+<flag-box flag=""></flag-box>
+<!-- props.flag === true  -->
 ```
 
 Reflection works the same way in reverse — `true` sets the bare attribute,
@@ -199,6 +202,48 @@ This is types-only — the runtime is unchanged, and `static strictProps` still 
 <Aside type="tip">
 Values in the defaults object widen as usual, so `variant: 'primary'` types as `string`. To narrow it to a union of allowed values, annotate the defaults: `const props = { variant: 'primary' as 'primary' | 'ghost' }`.
 </Aside>
+
+### Unobserved properties
+
+Everything declared in `static props` is observed and reflected: each key gets
+an attribute, writes trigger `render()` and `onChanges()`, and the default
+shows up in the DOM on first connect. That is the right contract for a
+component's public, DOM-facing API — and unnecessary for internal state.
+
+For state that doesn't belong in the DOM, use a plain class property. A
+`WebComponent` is still just a class extending `HTMLElement`, so ordinary
+properties work exactly as on any element and are invisible to the props
+machinery — no attribute, no observation, no automatic render:
+
+```js
+class DataTable extends WebComponent {
+  static props = { compact: false } // public API: <data-table compact>
+
+  rows = [] // internal state — never becomes an attribute
+  #controller = new AbortController() // non-serializable values are fine here
+
+  async onInit() {
+    const res = await fetch('/rows', { signal: this.#controller.signal })
+    this.rows = await res.json()
+    this.render() // unobserved changes render when you say so
+  }
+
+  onDestroy() {
+    this.#controller.abort()
+  }
+}
+```
+
+Because nothing watches a plain property, call
+[`this.render()`](/template-vs-render/) yourself when a change to one should
+update the view.
+
+The rule of thumb: `static props` is for values a consumer sets from markup or
+styles against with attribute selectors; a class property — public or
+`#private` — is for everything else: large data, functions, and handles like
+timers or `AbortController`s that could never round-trip through an attribute
+anyway. If you catch yourself thinking "I don't want this showing up as an
+attribute", that is the signal it should be a class property, not a prop.
 
 ### Alternatives
 
