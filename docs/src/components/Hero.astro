@@ -1,6 +1,8 @@
 ---
 // Override of Starlight's Hero so the splash page's visual slot holds the
-// live size chart instead of an image. Structure and styles mirror
+// live size chart instead of an image, and the actions row carries a
+// copyable `npm create wcb@latest` command chip beside the buttons
+// (patterned on astro.build's hero). Structure and styles mirror
 // @astrojs/starlight/components/Hero.astro (0.39.1) — a page that declares
 // `hero.image` still gets the stock image treatment; pages without one get
 // the chart.
@@ -10,6 +12,7 @@ import SizeChart from './SizeChart.astro'
 
 // mirrors starlight's own constant; not a public export
 const PAGE_TITLE_ID = '_top'
+const CREATE_COMMAND = 'npm create wcb@latest'
 
 const { data } = Astro.locals.starlightRoute.entry
 const { title = data.title, tagline, image, actions = [] } = data.hero || {}
@@ -55,22 +58,71 @@ if (image) {
       <h1 id={PAGE_TITLE_ID} data-page-title set:html={title} />
       {tagline && <div class="tagline" set:html={tagline} />}
     </div>
-    {
-      actions.length > 0 && (
-        <div class="sl-flex actions">
-          {actions.map(
-            ({ attrs: { class: className, ...attrs } = {}, icon, link: href, text, variant }) => (
-              <LinkButton {href} {variant} icon={icon?.name} class:list={[className]} {...attrs}>
-                {text}
-                {icon?.html && <Fragment set:html={icon.html} />}
-              </LinkButton>
-            )
-          )}
-        </div>
-      )
-    }
+    <div class="sl-flex actions">
+      {
+        actions.map(
+          ({ attrs: { class: className, ...attrs } = {}, icon, link: href, text, variant }) => (
+            <LinkButton {href} {variant} icon={icon?.name} class:list={[className]} {...attrs}>
+              {text}
+              {icon?.html && <Fragment set:html={icon.html} />}
+            </LinkButton>
+          )
+        )
+      }
+      <div class="create-command">
+        <code>{CREATE_COMMAND}</code>
+        <button
+          type="button"
+          aria-label={`Copy "${CREATE_COMMAND}" to clipboard`}
+          data-command={CREATE_COMMAND}
+        >
+          <svg
+            class="copy-icon"
+            aria-hidden="true"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect x="9" y="9" width="13" height="13" rx="2" />
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+          </svg>
+          <svg
+            class="check-icon"
+            aria-hidden="true"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M20 6 9 17l-5-5" />
+          </svg>
+        </button>
+      </div>
+    </div>
   </div>
 </div>
+
+<script>
+  const button = document.querySelector<HTMLButtonElement>(
+    '.create-command button'
+  )
+  button?.addEventListener('click', async () => {
+    const command = button.dataset.command
+    if (!command) return
+    await navigator.clipboard.writeText(command)
+    button.setAttribute('data-copied', '')
+    setTimeout(() => button.removeAttribute('data-copied'), 1500)
+  })
+</script>
 
 <style>
   .hero {
@@ -124,10 +176,59 @@ if (image) {
     color: var(--sl-color-gray-2);
   }
 
+  /* no align-items: the default stretch keeps the chip and the link
+     buttons the same height whenever they share a row */
   .actions {
     gap: 1rem 2rem;
     flex-wrap: wrap;
     justify-content: center;
+  }
+
+  .create-command {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 999rem;
+    background-color: var(--sl-color-black);
+    /* natural height matches the mobile link button (40px); on wider
+       screens the stretch from .actions makes both 56px anyway */
+    padding-inline: 1rem 0.375rem;
+    padding-block: 0.1875rem;
+    font-size: var(--sl-text-sm);
+  }
+
+  .create-command code {
+    font-family: var(--__sl-font-mono);
+    color: var(--sl-color-gray-2);
+  }
+
+  .create-command button {
+    display: inline-flex;
+    padding: 0.5rem;
+    border: 0;
+    border-radius: 999rem;
+    background: none;
+    cursor: pointer;
+    color: var(--sl-color-gray-3);
+  }
+
+  .create-command button:hover {
+    color: var(--sl-color-white);
+    background-color: var(--sl-color-gray-6);
+  }
+
+  .create-command .check-icon {
+    display: none;
+  }
+
+  .create-command button[data-copied] .copy-icon {
+    display: none;
+  }
+
+  .create-command button[data-copied] .check-icon {
+    display: block;
+    color: var(--sl-color-green);
   }
 
   @media (min-width: 50rem) {
