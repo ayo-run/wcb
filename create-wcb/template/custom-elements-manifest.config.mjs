@@ -8,7 +8,7 @@
 import { wcbStaticProps } from 'web-component-base/cem-plugin'
 
 export default {
-  globs: ['src/**/*.js'],
+  globs: ['src/**/*.ts'],
   outdir: '.',
   plugins: [wcbStaticProps()],
 }

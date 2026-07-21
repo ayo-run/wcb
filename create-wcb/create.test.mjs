@@ -33,14 +33,19 @@ describe('create-wcb', () => {
   const readJson = (...segments) =>
     JSON.parse(fs.readFileSync(path.join(workDir, ...segments), 'utf8'))
 
+  const read = (...segments) =>
+    fs.readFileSync(path.join(workDir, ...segments), 'utf8')
+
   it('scaffolds a project with the CEM story set up', () => {
     run(['my-button'])
 
     const root = path.join(workDir, 'my-button')
     for (const file of [
       'index.html',
-      'src/hello-world.js',
+      'src/my-button.ts',
       'custom-elements-manifest.config.mjs',
+      'vite-lib.config.ts',
+      'tsconfig.json',
       'README.md',
     ])
       expect(fs.existsSync(path.join(root, file)), file).toBe(true)
@@ -49,10 +54,51 @@ describe('create-wcb', () => {
     expect(packageJson.name).toBe('my-button')
     expect(packageJson.customElements).toBe('custom-elements.json')
     expect(packageJson.scripts.analyze).toBe('cem analyze')
-    expect(packageJson.dependencies['web-component-base']).toBeDefined()
+    expect(packageJson.files).toContain('custom-elements.json')
+    expect(packageJson.peerDependencies['web-component-base']).toBeDefined()
     expect(
       packageJson.devDependencies['@custom-elements-manifest/analyzer']
     ).toBeDefined()
+  })
+
+  it('stamps the component identity from the project name', () => {
+    const output = run(['my-button'])
+    expect(output).toContain('<my-button>')
+
+    const component = read('my-button', 'src', 'my-button.ts')
+    expect(component).toContain('export class MyButton')
+    expect(component).toContain("customElements.define('my-button', MyButton)")
+
+    expect(read('my-button', 'index.html')).toContain('<my-button')
+    expect(read('my-button', 'vite-lib.config.ts')).toContain(
+      'src/my-button.ts'
+    )
+
+    const packageJson = readJson('my-button', 'package.json')
+    expect(packageJson.module).toBe('./dist/my-button.js')
+    expect(packageJson.types).toBe('./dist/my-button.d.ts')
+
+    // no template identity survives the stamp
+    for (const file of [
+      'package.json',
+      'index.html',
+      'README.md',
+      'vite-lib.config.ts',
+      path.join('src', 'my-button.ts'),
+    ]) {
+      expect(read('my-button', file)).not.toContain('wcb-button')
+      expect(read('my-button', file)).not.toContain('WcbButton')
+    }
+  })
+
+  it('suffixes hyphen-less names so the tag is valid', () => {
+    run(['button'])
+
+    expect(readJson('button', 'package.json').name).toBe('button')
+    const component = read('button', 'src', 'button-element.ts')
+    expect(component).toContain(
+      "customElements.define('button-element', ButtonElement)"
+    )
   })
 
   it('renames _gitignore to .gitignore', () => {
@@ -61,9 +107,7 @@ describe('create-wcb', () => {
     const root = path.join(workDir, 'my-button')
     expect(fs.existsSync(path.join(root, '.gitignore'))).toBe(true)
     expect(fs.existsSync(path.join(root, '_gitignore'))).toBe(false)
-    expect(fs.readFileSync(path.join(root, '.gitignore'), 'utf8')).toContain(
-      'custom-elements.json'
-    )
+    expect(read('my-button', '.gitignore')).toContain('custom-elements.json')
   })
 
   it('sanitizes the directory name into a valid package name', () => {
@@ -91,8 +135,6 @@ describe('create-wcb', () => {
     fs.writeFileSync(path.join(workDir, 'taken', 'keep.txt'), 'important')
 
     expect(() => run(['taken'], { stdio: 'pipe' })).toThrow(/not empty/)
-    expect(
-      fs.readFileSync(path.join(workDir, 'taken', 'keep.txt'), 'utf8')
-    ).toBe('important')
+    expect(read('taken', 'keep.txt')).toBe('important')
   })
 })

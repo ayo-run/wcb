@@ -1,20 +1,37 @@
 {
   "name": "wcb-button",
-  "private": true,
   "version": "0.0.0",
+  "description": "A reactive custom element built on web-component-base",
   "type": "module",
+  "license": "MIT",
   "customElements": "custom-elements.json",
+  "module": "./dist/wcb-button.js",
+  "types": "./dist/wcb-button.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/wcb-button.d.ts",
+      "import": "./dist/wcb-button.js",
+      "default": "./dist/wcb-button.umd.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "custom-elements.json"
+  ],
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "analyze": "cem analyze"
+    "build": "vite build --config vite-lib.config.ts",
+    "analyze": "cem analyze",
+    "prepack": "npm run build && npm run analyze"
   },
-  "dependencies": {
+  "peerDependencies": {
     "web-component-base": "^6.1.1"
   },
   "devDependencies": {
     "@custom-elements-manifest/analyzer": "^0.11.0",
-    "vite": "^7.3.1"
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1",
+    "vite-plugin-dts": "^5.0.3",
+    "web-component-base": "^6.1.1"
   }
 }

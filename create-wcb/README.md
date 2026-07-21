@@ -1,6 +1,7 @@
 # create-wcb
 
-Scaffold a [web-component-base](https://webcomponent.io) (wcb) project:
+Scaffold a publishable [web-component-base](https://webcomponent.io) (wcb)
+custom element:
 
 ```sh
 npm create wcb@latest
@@ -10,8 +11,13 @@ npm create wcb@latest
 
 ## What you get
 
-- A starter component built on wcb's `static props` convention
-- A Vite dev server (`npm run dev`) and production build (`npm run build`)
+- A custom element built on wcb's `static props` convention, written in
+  TypeScript — the class, tag, and file names are stamped from your project
+  name (`my-button` → `MyButton` / `<my-button>`), so there are no rename-me
+  TODOs
+- A Vite setup: `npm run dev` serves the demo page, `npm run build` produces
+  ESM + UMD bundles and `.d.ts` types in `dist/`, with `web-component-base`
+  external as a peerDependency
 - `custom-elements.json` generation set up end to end:
   - `custom-elements-manifest.config.mjs` configured with
     [`web-component-base/cem-plugin`](https://webcomponent.io/cem-plugin/), so
@@ -20,9 +26,11 @@ npm create wcb@latest
     `@custom-elements-manifest/analyzer`
   - the `customElements` field set in `package.json`, which is how Storybook,
     editors, and other tooling discover the manifest
+  - the manifest ships inside the published package: `prepack` rebuilds
+    `dist/` and regenerates `custom-elements.json`, and both are in `files`
 
 The manifest is one shared `custom-elements.json` per package — the file every
-tool expects — regenerated on demand and gitignored by default.
+tool expects — regenerated on demand and gitignored in the repo.
 
 ## Options
 
@@ -31,7 +39,13 @@ npm create wcb@latest [directory]
 ```
 
 Prompts for a directory when omitted; `.` scaffolds into the current (empty)
-directory. Refuses to write into a non-empty directory.
+directory. Refuses to write into a non-empty directory. A hyphen-less name
+gets an `-element` suffix on the tag (`button` → `<button-element>`), since
+custom element tag names require a hyphen.
+
+Prefer starting from GitHub instead of the terminal? The
+[`ayo-run/web-component`](https://github.com/ayo-run/web-component) template
+repository serves the same purpose via "Use this template".
 
 ---
 

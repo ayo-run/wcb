@@ -1,19 +1,25 @@
-# wcb component
+# wcb-button
 
-A [web-component-base](https://webcomponent.io) component project scaffolded
-with `npm create wcb@latest`.
+A publishable custom element built on
+[web-component-base](https://webcomponent.io), scaffolded with
+`npm create wcb@latest`.
 
 ## Commands
 
-- `npm run dev` — start the Vite dev server
-- `npm run build` — build for production
-- `npm run preview` — preview the production build
-- `npm run analyze` — generate `custom-elements.json` from your components'
-  `static props` (one manifest for the whole package)
+- `npm run dev` — start the Vite dev server on the `index.html` demo page
+- `npm run build` — build the library: ESM + UMD bundles and `.d.ts` types
+  in `dist/`, with `web-component-base` left external (it is a
+  peerDependency)
+- `npm run analyze` — generate `custom-elements.json` from the component's
+  `static props`
 
-## custom-elements.json
+## Publishing
 
-The manifest is a build artifact (gitignored here); tooling discovers it via
-the `customElements` field in `package.json`. Regenerate it after changing
-`static props`, and see the [CEM plugin guide](https://webcomponent.io/cem-plugin/)
-for setting it up with Storybook and code editors.
+`npm publish` (or `npm pack`) runs the `prepack` script, which rebuilds
+`dist/` and regenerates `custom-elements.json` — both ship inside the
+package, and the `customElements` field in `package.json` is how Storybook,
+editors, and other tooling discover the manifest. In the repo itself the
+manifest stays gitignored; it is a build artifact.
+
+See the [CEM plugin guide](https://webcomponent.io/cem-plugin/) for setting
+it up with Storybook and code editors.

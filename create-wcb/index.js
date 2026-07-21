@@ -3,10 +3,12 @@
  * @license MIT <https://opensource.org/licenses/MIT>
  * @author Ayo Ayco <https://ayo.ayco.io>
  *
- * Scaffolds a wcb (`web-component-base`) project: a starter component, a Vite
- * dev server, and `custom-elements.json` generation already set up — the CEM
- * analyzer config with wcb's plugin, an `analyze` script, and the
- * `customElements` field in `package.json`.
+ * Scaffolds a wcb (`web-component-base`) component: a publishable custom
+ * element with a Vite library build (ESM + UMD + types), a demo page, and
+ * `custom-elements.json` generation already set up — the CEM analyzer config
+ * with wcb's plugin, an `analyze` script, and the `customElements` field in
+ * `package.json`. The component class, tag, and file names are stamped from
+ * the project name, so no rename-me TODOs are left behind.
  *
  * Runs via `npm create wcb@latest [directory]` (npm resolves `create wcb` to
  * this package's bin). Zero dependencies: prompts use `node:readline`.
@@ -20,6 +22,9 @@ import readline from 'node:readline/promises'
 import { fileURLToPath } from 'node:url'
 
 const DEFAULT_DIR = 'wcb-button'
+/** The component identity used inside the template, rewritten on scaffold. */
+const TEMPLATE_TAG = 'wcb-button'
+const TEMPLATE_CLASS = 'WcbButton'
 
 /**
  * Sanitizes a directory name into a valid npm package name.
@@ -33,6 +38,49 @@ function toValidPackageName(name) {
     .replace(/\s+/g, '-')
     .replace(/^[._]+/, '')
     .replace(/[^a-z0-9-~._]+/g, '-')
+}
+
+/**
+ * Derives a custom element tag name from the package name. Tag names must
+ * start with a lowercase letter and contain a hyphen, so a hyphen-less name
+ * gets an `-element` suffix (`button` → `button-element`).
+ * @param {string} packageName the sanitized package name
+ * @returns {string} a valid custom element tag name
+ */
+function toTagName(packageName) {
+  let tag = packageName
+    .replace(/[^a-z0-9-]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+  if (!tag) return TEMPLATE_TAG
+  if (!/^[a-z]/.test(tag)) tag = `wc-${tag}`
+  if (!tag.includes('-')) tag = `${tag}-element`
+  return tag
+}
+
+/**
+ * Converts a tag name to its PascalCase class name (`my-button` → `MyButton`).
+ * @param {string} tag the custom element tag name
+ * @returns {string} the PascalCase class name
+ */
+function toClassName(tag) {
+  return tag
+    .split('-')
+    .filter(Boolean)
+    .map((part) => part[0].toUpperCase() + part.slice(1))
+    .join('')
+}
+
+/**
+ * Lists every file under a directory recursively.
+ * @param {string} dir the directory to walk
+ * @returns {string[]} absolute file paths
+ */
+function walkFiles(dir) {
+  return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const full = path.join(dir, entry.name)
+    return entry.isDirectory() ? walkFiles(full) : [full]
+  })
 }
 
 /**
@@ -51,20 +99,38 @@ function detectPackageManager() {
 /**
  * Copies the template into the target directory, renaming `_gitignore` to
  * `.gitignore` (npm strips `.gitignore` files from published packages, so the
- * template can't ship one under its real name) and stamping the package name.
+ * template can't ship one under its real name), then stamps the component
+ * identity: the template's `wcb-button` tag, `WcbButton` class, and file
+ * names are rewritten to the ones derived from the package name.
  * @param {string} root absolute path of the target directory
  * @param {string} packageName the name to write into the scaffolded `package.json`
- * @returns {void}
+ * @returns {{tag: string, className: string}} the stamped component identity
  */
 function scaffold(root, packageName) {
   const templateDir = fileURLToPath(new URL('./template', import.meta.url))
   fs.cpSync(templateDir, root, { recursive: true })
   fs.renameSync(path.join(root, '_gitignore'), path.join(root, '.gitignore'))
 
+  const tag = toTagName(packageName)
+  const className = toClassName(tag)
+  fs.renameSync(
+    path.join(root, 'src', `${TEMPLATE_TAG}.ts`),
+    path.join(root, 'src', `${tag}.ts`)
+  )
+  for (const file of walkFiles(root)) {
+    const content = fs.readFileSync(file, 'utf8')
+    const stamped = content
+      .replaceAll(TEMPLATE_CLASS, className)
+      .replaceAll(TEMPLATE_TAG, tag)
+    if (stamped !== content) fs.writeFileSync(file, stamped)
+  }
+
   const packageJsonPath = path.join(root, 'package.json')
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'))
   packageJson.name = packageName
   fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n')
+
+  return { tag, className }
 }
 
 /**
@@ -78,9 +144,11 @@ async function main() {
   if (arg === '--help' || arg === '-h') {
     console.log(`Usage: npm create wcb@latest [directory]
 
-Scaffolds a web-component-base project in [directory] (prompts when omitted;
-"." scaffolds into the current directory). The project comes with a starter
-component, a Vite dev server, and custom-elements.json generation set up.`)
+Scaffolds a publishable web-component-base custom element in [directory]
+(prompts when omitted; "." scaffolds into the current directory). The
+component class, tag, and file names are derived from the directory name,
+and the project comes with a Vite library build, a demo page, and
+custom-elements.json generation set up.`)
     return
   }
 
@@ -107,19 +175,20 @@ component, a Vite dev server, and custom-elements.json generation set up.`)
     process.exit(1)
   }
 
-  scaffold(root, packageName)
+  const { tag } = scaffold(root, packageName)
 
   const pm = detectPackageManager()
   const run = pm === 'npm' ? 'npm run' : pm
   console.log(`
-Scaffolded ${packageName} in ${root}
+Scaffolded ${packageName} in ${root} — defines <${tag}>
 
 Next steps:
 
   cd ${targetDir}
   ${pm} install
-  ${run} dev       # start the Vite dev server
+  ${run} dev       # demo page on the Vite dev server
   ${run} analyze   # generate custom-elements.json
+  ${run} build     # library build: ESM + UMD + types in dist/
 `)
 }
 

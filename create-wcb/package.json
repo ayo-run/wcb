@@ -1,7 +1,7 @@
 {
   "name": "create-wcb",
   "version": "0.1.0",
-  "description": "Scaffold a web-component-base (wcb) project with custom-elements.json generation already set up",
+  "description": "Scaffold a publishable web-component-base (wcb) custom element with custom-elements.json generation already set up",
   "type": "module",
   "bin": {
     "create-wcb": "index.js"
