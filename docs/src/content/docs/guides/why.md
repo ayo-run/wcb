@@ -7,7 +7,7 @@ The `WebComponent` base class gives a full component development experience at t
 
 WCB exists for five reasons:
 
-1. **It is the cheapest runtime reactivity you can buy.** Smallest footprint for a full authoring experience — declarative templates, typed prop⇄attribute sync, lifecycle hooks, and state-preserving re-renders. Every alternative with comparable ergonomics costs 1.3×–4.8× more on the wire (brotli-compressed). If your budget is "a component on a mostly-static page", WCB fits where Lit and FAST are the heaviest thing on the wire.
+1. **It is the cheapest runtime reactivity you can buy.** Smallest footprint for a full authoring experience — declarative templates, typed prop⇄attribute sync, lifecycle hooks, and state-preserving re-renders. Every alternative with comparable ergonomics costs 1.3x-4.8x more on the wire (brotli-compressed). If your budget is "a component on a mostly-static page", WCB fits where Lit and FAST are the heaviest thing on the wire.
 2. **Zero tooling, genuinely.** No compiler, no decorators, no build step: one `import` from a CDN in a `<script type="module">` works on current browsers. The whole mental model is `static props` + `template` + four hooks, and the shipped source is readable in one sitting — the runtime is 2.6 kB brotli-compressed ([measured](/comparison/)).
 3. **Attribute-first reactivity is HTML-native.** Because props serialize to attributes, initial state can be rendered by _any_ server in plain HTML — no JS-framework SSR integration needed — and components stay inspectable/debuggable in devtools as ordinary attributes.
 4. **Light DOM by default.** Global stylesheets, forms, and third-party CSS just work; and the shadow DOM is one static field away when you want encapsulation.
