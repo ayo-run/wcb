@@ -5,6 +5,8 @@
  * A Custom Elements Manifest analyzer plugin that teaches
  * `@custom-elements-manifest/analyzer` about wcb's `static props` convention.
  *
+ * For easy scaffolding, run: `npm create wcb@latest`
+ *
  * This module is **dev-time only** — it runs in Node during `cem analyze` and
  * never reaches the browser. It is not imported by `WebComponent`, so the core
  * stays zero-dependency and within its size budget.
