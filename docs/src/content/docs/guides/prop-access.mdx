@@ -55,9 +55,14 @@ class FlagBox extends WebComponent {
 ```
 
 ```html
-<flag-box></flag-box>         <!-- props.flag === false -->
-<flag-box flag></flag-box>    <!-- props.flag === true  -->
-<flag-box flag=""></flag-box> <!-- props.flag === true  -->
+<!-- props.flag === false -->
+<flag-box></flag-box>
+
+<!-- props.flag === true -->
+<flag-box flag></flag-box>
+
+<!-- props.flag === true -->
+<flag-box flag=""></flag-box>
 ```
 
 Reflection works the same way in reverse — `true` sets the bare attribute,
@@ -134,8 +139,8 @@ class EventCard extends WebComponent {
 ```
 
 ```html
-<event-card when="2026-07-20"></event-card>
 <!-- props.when is a Date -->
+<event-card when="2026-07-20"></event-card>
 ```
 
 Both take the **camelCase prop key**, matching your `static props` declaration
@@ -168,6 +173,82 @@ toAttribute(name, value) {
   `string` and your parsed `Date` is refused.
 </Aside>
 
+#### Non-serializable types
+
+The default converters round-trip prop values through JSON, which restores
+numbers, booleans, and plain objects/arrays exactly. Types JSON cannot
+represent don't survive the trip: a `Date` comes back as a plain string, and a
+`Map` or `Set` collapses to `"{}"` before it ever reaches the attribute.
+
+Such types are still first-class props — declare a real default of that type
+(see the caution above) and override the converters. You can hand-write a
+textual form per prop, as `EventCard` above does for its `Date`; when several
+props need this, delegate to a serializer built for the job instead:
+[devalue](https://github.com/sveltejs/devalue) round-trips `Map`, `Set`,
+`Date`, `RegExp`, `BigInt`, `undefined`, and even cyclic references. One
+generic pair of overrides then covers every structured prop, present and
+future — here is `EventCard` rewritten with it, gaining a `Set` of tags along
+the way:
+
+```js
+import { parse, stringify } from 'devalue'
+
+class EventCard extends WebComponent {
+  static props = {
+    when: new Date(0),
+    tags: new Set(),
+    title: '',
+  }
+
+  toAttribute(name, value) {
+    if (value instanceof Object) return stringify(value)
+    return super.toAttribute(name, value)
+  }
+
+  fromAttribute(name, value) {
+    if (this.constructor.props[name] instanceof Object) return parse(value)
+    return super.fromAttribute(name, value)
+  }
+}
+```
+
+The two guards are asymmetric on purpose: `toAttribute` sees the live value,
+but `fromAttribute` only ever sees a string — so it consults the declared
+default to decide whether the attribute is devalue-encoded. `title` misses
+both guards and reflects as a plain string, exactly as before.
+
+The encoded attribute is not as hand-friendly as a bespoke `when="2026-07-20"`,
+but it is still plain text — write it in markup with single quotes, since the
+payload contains double quotes:
+
+```html
+<!-- props.when is a real Date, props.tags a real Set -->
+<event-card
+  when='[["Date","2026-07-20T09:30:00.000Z"]]'
+  tags='[["Set",1,2],"alpha","bravo"]'
+></event-card>
+```
+
+devalue is your component's dependency, not wcb's — the base class stays
+zero-dependency.
+
+<Aside type="caution" title="Reassign, don't mutate">
+  The props proxy only sees *assignments*. `this.props.tags.add('x')` mutates
+  the Set behind the proxy's back — no reflection, no render, and the attribute
+  goes stale. Assign a fresh instance instead: `this.props.tags = new
+  Set(this.props.tags).add('x')`.
+</Aside>
+
+Converters cover any value with a sensible **textual form** — bespoke like an
+ISO date, or generic like devalue's encoding. A value with no textual form at
+all — a function, an element reference, a live handle like an
+`AbortController` — is not a converter problem: even devalue refuses it
+(`Cannot stringify a function`), and it doesn't belong in `static props` in
+the first place. Keep it as a plain class property instead — see
+[Unobserved properties](#unobserved-properties) below. wcb warns once per
+class when a declared default is a `function` or `symbol` for exactly this
+reason.
+
 ### Typed props in TypeScript
 
 See it live: [Compile-time prop types demo ↗](https://demo.webcomponent.io/examples/typed-props/) and [Typed props demo ↗](https://demo.webcomponent.io/examples/type-restore/)
@@ -199,6 +280,48 @@ This is types-only — the runtime is unchanged, and `static strictProps` still 
 <Aside type="tip">
 Values in the defaults object widen as usual, so `variant: 'primary'` types as `string`. To narrow it to a union of allowed values, annotate the defaults: `const props = { variant: 'primary' as 'primary' | 'ghost' }`.
 </Aside>
+
+### Unobserved properties
+
+Everything declared in `static props` is observed and reflected: each key gets
+an attribute, writes trigger `render()` and `onChanges()`, and the default
+shows up in the DOM on first connect. That is the right contract for a
+component's public, DOM-facing API — and unnecessary for internal state.
+
+For state that doesn't belong in the DOM, use a plain class property. A
+`WebComponent` is still just a class extending `HTMLElement`, so ordinary
+properties work exactly as on any element and are invisible to the props
+machinery — no attribute, no observation, no automatic render:
+
+```js
+class DataTable extends WebComponent {
+  static props = { compact: false } // public API: <data-table compact>
+
+  rows = [] // internal state — never becomes an attribute
+  #controller = new AbortController() // non-serializable values are fine here
+
+  async onInit() {
+    const res = await fetch('/rows', { signal: this.#controller.signal })
+    this.rows = await res.json()
+    this.render() // unobserved changes render when you say so
+  }
+
+  onDestroy() {
+    this.#controller.abort()
+  }
+}
+```
+
+Because nothing watches a plain property, call
+[`this.render()`](/template-vs-render/) yourself when a change to one should
+update the view.
+
+The rule of thumb: `static props` is for values a consumer sets from markup or
+styles against with attribute selectors; a class property — public or
+`#private` — is for everything else: large data, functions, and handles like
+timers or `AbortController`s that could never round-trip through an attribute
+anyway. If you catch yourself thinking "I don't want this showing up as an
+attribute", that is the signal it should be a class property, not a prop.
 
 ### Alternatives
 
