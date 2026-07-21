@@ -19,7 +19,9 @@ class CozyButton extends WebComponent<typeof buttonProps> {
   get template() {
     // reads are inferred from the defaults, not `any`
     type _variantIsString = Expect<Equals<typeof this.props.variant, string>>
-    type _disabledIsBoolean = Expect<Equals<typeof this.props.disabled, boolean>>
+    type _disabledIsBoolean = Expect<
+      Equals<typeof this.props.disabled, boolean>
+    >
 
     return `<button class="${this.props.variant}"></button>`
   }
@@ -39,6 +41,35 @@ class CozyButton extends WebComponent<typeof buttonProps> {
   }
 }
 
+// the same contract holds with an explicit named type — the type above, the
+// defaults within — where unions stay narrow and the annotation also checks
+// the defaults themselves
+type IndicatorProps = {
+  status: 'default' | 'active' | 'negative'
+  pulse: boolean
+}
+
+class StatusIndicator extends WebComponent<IndicatorProps> {
+  static props: IndicatorProps = { status: 'default', pulse: false }
+
+  read() {
+    type _statusIsUnion = Expect<
+      Equals<typeof this.props.status, 'default' | 'active' | 'negative'>
+    >
+    type _pulseIsBoolean = Expect<Equals<typeof this.props.pulse, boolean>>
+  }
+
+  wrong() {
+    // @ts-expect-error 'blinking' is not in the union
+    this.props.status = 'blinking'
+  }
+}
+
+class BadDefaults extends WebComponent<IndicatorProps> {
+  // @ts-expect-error missing 'pulse', and 'blinking' is outside the union
+  static props: IndicatorProps = { status: 'blinking' }
+}
+
 // without a type argument, props stays the permissive PropStringMap
 class Untyped extends WebComponent {
   static props = { anything: 1 }
@@ -47,4 +78,4 @@ class Untyped extends WebComponent {
   }
 }
 
-export type { CozyButton, Untyped }
+export type { CozyButton, StatusIndicator, BadDefaults, Untyped }
