@@ -44,6 +44,9 @@ importers:
       happy-dom:
         specifier: ^20.3.7
         version: 20.3.7
+      htm:
+        specifier: ^3.1.1
+        version: 3.1.1
       husky:
         specifier: ^9.1.7
         version: 9.1.7
@@ -4514,6 +4517,9 @@ packages:
   hot-shots@11.4.0:
     resolution: {integrity: sha512-IoyXi0eBFLbaARl6IjQxNzxqNxH3h1XX026PP5uru/RwVVLOt9Qr9f87GW+4L/sj7sNyMGzmIsh++0z5ibkP5w==}
     engines: {node: '>=16.0.0'}
+
+  htm@3.1.1:
+    resolution: {integrity: sha512-983Vyg8NwUE7JkZ6NmOqpCZ+sh1bKv2iYTlUkzlWmA5JD2acKoxd4KVxbMmxX/85mtfdnDmTFoNKcg5DGAvxNQ==}
 
   html-entities@2.6.0:
     resolution: {integrity: sha512-kig+rMn/QOVRvr7c86gQ8lWXq+Hkv6CbAH1hLu+RG338StTpE8Z0b44SDVaqVu7HGKf27frdmUYEs9hTUX/cLQ==}
@@ -12568,6 +12574,8 @@ snapshots:
   hot-shots@11.4.0:
     optionalDependencies:
       unix-dgram: 2.0.7
+
+  htm@3.1.1: {}
 
   html-entities@2.6.0: {}
 

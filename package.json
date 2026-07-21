@@ -97,6 +97,7 @@
     "eslint-plugin-jsdoc": "^62.4.1",
     "globals": "^17.1.0",
     "happy-dom": "^20.3.7",
+    "htm": "^3.1.1",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.8",
     "netlify-cli": "^23.13.5",
