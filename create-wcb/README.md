@@ -1,5 +1,9 @@
 # create-wcb
 
+> [!Note] Work in progress CLI for wcb development.
+> Currently, it scaffolds a new web component project
+> with our CEM Analyzer Plugin already configured
+
 Scaffold a publishable [web-component-base](https://webcomponent.io) (wcb)
 custom element:
 
