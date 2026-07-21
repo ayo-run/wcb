@@ -13,7 +13,7 @@ See it live: [Lifecycle order demo ↗](https://demo.webcomponent.io/examples/li
 - Best for setting up the component
 
 ```js
-import { WebComponent } from 'https://unpkg.com/web-component-base@latest/index.js'
+import { WebComponent } from 'https://unpkg.com/web-component-base@latest/dist/index.js'
 
 class ClickableText extends WebComponent {
   // gets called when the component is used in an HTML document
@@ -51,7 +51,7 @@ class ClickableText extends WebComponent {
 - best for undoing any setup done in `onInit()`
 
 ```js
-import { WebComponent } from 'https://unpkg.com/web-component-base@latest/index.js'
+import { WebComponent } from 'https://unpkg.com/web-component-base@latest/dist/index.js'
 
 class ClickableText extends WebComponent {
   clickCallback() {
@@ -86,7 +86,7 @@ Use `property` to read the value straight off `props` (`this.props[property]`); 
 See it live: [onChanges payload demo ↗](https://demo.webcomponent.io/examples/on-changes/)
 
 ```js
-import { WebComponent } from 'https://unpkg.com/web-component-base@latest/index.js'
+import { WebComponent } from 'https://unpkg.com/web-component-base@latest/dist/index.js'
 
 class ClickableText extends WebComponent {
   // gets called when an attribute value changes

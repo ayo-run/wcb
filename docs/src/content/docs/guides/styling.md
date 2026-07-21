@@ -17,7 +17,7 @@ When using the built-in `html` function for tagged templates, a style object of 
 Try it now with this [example on CodePen ↗](https://codepen.io/ayoayco-the-styleful/pen/bGzXjwQ?editors=1010), or see it live: [Style objects demo ↗](https://demo.webcomponent.io/examples/style-objects/)
 
 ```js
-import { WebComponent } from 'https://unpkg.com/web-component-base@latest/index.js'
+import { WebComponent } from 'https://unpkg.com/web-component-base@latest/dist/index.js'
 
 class StyledElement extends WebComponent {
   static props = {

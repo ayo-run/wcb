@@ -48,7 +48,7 @@ Here is an example of using a custom element in a single .html file.
   <head>
     <title>WC Base Test</title>
     <script type="module">
-      import { WebComponent } from 'https://unpkg.com/web-component-base@latest/index.js'
+      import { WebComponent } from 'https://unpkg.com/web-component-base@latest/dist/index.js'
 
       class HelloWorld extends WebComponent {
         static props = {
