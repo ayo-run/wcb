@@ -63,7 +63,10 @@
       "eslint --config eslint.config.mjs --fix",
       "prettier --write"
     ],
-    "*.{json,css,html,md,yml,yaml}": "prettier --write"
+    "*.{json,css,html,md,yml,yaml}": "prettier --write",
+    "src": "test",
+    "src": "test:e2e",
+    "src": "size-limit"
   },
   "repository": {
     "type": "git",

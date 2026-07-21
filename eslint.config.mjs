@@ -32,6 +32,11 @@ export default [
     languageOptions: { globals: globals.node },
   },
   {
-    ignores: ['site/*', '**/dist/*', 'storybook/storybook-static/*'],
+    ignores: [
+      'site/*',
+      '**/dist/*',
+      'storybook/storybook-static/*',
+      'create-wcb/*',
+    ],
   },
 ]

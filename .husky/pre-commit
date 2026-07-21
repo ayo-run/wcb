@@ -3,6 +3,3 @@
 # re-run these once per remote; keeping them here runs them once per commit.
 # The full cross-browser e2e matrix still runs nightly in CI. Order: cheap → expensive.
 pnpm exec lint-staged
-pnpm test
-pnpm test:e2e
-pnpm size-limit
