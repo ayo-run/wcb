@@ -15,7 +15,9 @@ npm create wcb@latest
   TypeScript — the class, tag, and file names are stamped from your project
   name (`my-button` → `MyButton` / `<my-button>`), so there are no rename-me
   TODOs
-- A Vite setup: `npm run dev` serves the demo page, `npm run build` produces
+- A Vite setup patterned on the
+  [`ayo-run/web-component`](https://github.com/ayo-run/web-component)
+  template: `npm run dev` serves the demo page, `npm run build:lib` produces
   ESM + UMD bundles and `.d.ts` types in `dist/`, with `web-component-base`
   external as a peerDependency
 - `custom-elements.json` generation set up end to end:

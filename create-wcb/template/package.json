@@ -1,9 +1,10 @@
 {
   "name": "wcb-button",
-  "version": "0.0.0",
-  "description": "A reactive custom element built on web-component-base",
+  "version": "1.0.0",
   "type": "module",
+  "description": "A wcb-button web component",
   "license": "MIT",
+  "homepage": "https://webcomponent.io",
   "customElements": "custom-elements.json",
   "module": "./dist/wcb-button.js",
   "types": "./dist/wcb-button.d.ts",
@@ -11,27 +12,31 @@
     ".": {
       "types": "./dist/wcb-button.d.ts",
       "import": "./dist/wcb-button.js",
-      "default": "./dist/wcb-button.umd.cjs"
+      "require": "./dist/wcb-button.umd.cjs",
+      "default": "./dist/wcb-button.js"
     }
   },
   "files": [
     "dist",
-    "custom-elements.json"
+    "custom-elements.json",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
+    "test": "echo \"Warning: no test specified\"",
     "dev": "vite",
-    "build": "vite build --config vite-lib.config.ts",
+    "build": "vite build",
+    "build:lib": "vite build --config vite-lib.config.ts",
     "analyze": "cem analyze",
-    "prepack": "npm run build && npm run analyze"
-  },
-  "peerDependencies": {
-    "web-component-base": "^6.1.1"
+    "prepack": "npm run build:lib && npm run analyze"
   },
   "devDependencies": {
     "@custom-elements-manifest/analyzer": "^0.11.0",
-    "typescript": "^5.9.3",
-    "vite": "^7.3.1",
-    "vite-plugin-dts": "^5.0.3",
+    "@types/node": "^25.9.3",
+    "vite": "^8.1.5",
+    "vite-plugin-dts": "^5.0.3"
+  },
+  "peerDependencies": {
     "web-component-base": "^6.1.1"
   }
 }

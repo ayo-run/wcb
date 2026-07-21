@@ -186,9 +186,9 @@ Next steps:
 
   cd ${targetDir}
   ${pm} install
-  ${run} dev       # demo page on the Vite dev server
-  ${run} analyze   # generate custom-elements.json
-  ${run} build     # library build: ESM + UMD + types in dist/
+  ${run} dev        # demo page on the Vite dev server
+  ${run} analyze    # generate custom-elements.json
+  ${run} build:lib  # library build: ESM + UMD + types in dist/
 `)
 }
 

@@ -1,7 +1,7 @@
-// Library build — `npm run build` emits ESM + UMD bundles and .d.ts types
-// into dist/, with web-component-base left external for consumers to provide
-// (it is a peerDependency). The plain `vite` dev server ignores this file and
-// serves the index.html demo page instead.
+// Library build — `npm run build:lib` emits ESM + UMD bundles and .d.ts
+// types into dist/, with web-component-base left external for consumers to
+// provide (it is a peerDependency). The plain `vite` dev server and
+// `npm run build` use the default config and the index.html demo page.
 
 import { resolve } from 'node:path'
 import { defineConfig } from 'vite'
@@ -15,11 +15,11 @@ export default defineConfig({
       name: 'WcbButton',
       fileName: 'wcb-button',
     },
-    rollupOptions: {
+    rolldownOptions: {
       external: ['web-component-base'],
       output: {
         globals: {
-          'web-component-base': 'WebComponentBase',
+          'web-component-base': 'web-component-base',
         },
       },
     },

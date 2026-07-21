@@ -45,7 +45,7 @@ describe('create-wcb', () => {
       'src/my-button.ts',
       'custom-elements-manifest.config.mjs',
       'vite-lib.config.ts',
-      'tsconfig.json',
+      'pnpm-workspace.yaml',
       'README.md',
     ])
       expect(fs.existsSync(path.join(root, file)), file).toBe(true)
@@ -54,6 +54,7 @@ describe('create-wcb', () => {
     expect(packageJson.name).toBe('my-button')
     expect(packageJson.customElements).toBe('custom-elements.json')
     expect(packageJson.scripts.analyze).toBe('cem analyze')
+    expect(packageJson.scripts['build:lib']).toContain('vite-lib.config.ts')
     expect(packageJson.files).toContain('custom-elements.json')
     expect(packageJson.peerDependencies['web-component-base']).toBeDefined()
     expect(
