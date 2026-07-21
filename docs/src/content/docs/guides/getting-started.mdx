@@ -11,7 +11,28 @@ The result is a reactive UI on property changes.
 
 You can see every feature running at [demo.webcomponent.io ↗](https://demo.webcomponent.io/) — a live gallery with the source alongside each demo. Individual demos are linked from the guide that covers them, and the full list is in [Examples](/examples/#live-demo-gallery).
 
+## Quick start
+
+The fastest way to try wcb is to scaffold a new component with [`create-wcb`](https://www.npmjs.com/package/create-wcb):
+
+```bash
+npm create wcb@latest
+# or name it directly: npm create wcb@latest my-button
+```
+
+It sets up a publishable custom element, ready to develop:
+
+- **A starter component** in TypeScript using the [`static props`](/prop-access/) convention — the class, tag, and file names are derived from your project name (`my-button` → `MyButton` / `<my-button>`), so there are no rename-me TODOs
+- **A Vite setup** — a dev server with a demo page, plus a library build (`npm run build:lib`) that emits ESM + UMD bundles and `.d.ts` types, with `web-component-base` as a peerDependency
+- **`custom-elements.json` generation** — the CEM analyzer configured with wcb's plugin, an `npm run analyze` script, the `customElements` field in `package.json`, and a `prepack` hook so the manifest ships inside the published package
+
+See the [CEM Analyzer Plugin guide](/cem-plugin/) for more details on the manifest and how to use it with Storybook and code editors.
+
+Prefer starting on GitHub? The [`ayo-run/web-component`](https://github.com/ayo-run/web-component) template repository serves the same purpose via "Use this template".
+
 ## Installation
+
+The sections below are more manual options — use them to add wcb to an existing project or page instead of scaffolding a new one.
 
 The library is distributed as complete ECMAScript Modules (ESM) and published on [NPM](https://ayco.io/n/web-component-base). Please open a [GitHub issue](https://github.com/ayo-run/wcb/issues/new) or [discussion](https://github.com/ayo-run/wcb/discussions) for problems or requests regarding our distribution. You can also submit a ticket in [SourceHut](https://todo.sr.ht/~ayoayco/wcb).
 
