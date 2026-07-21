@@ -12,7 +12,7 @@ npm create wcb@latest
 
 - A starter component built on wcb's `static props` convention
 - A Vite dev server (`npm run dev`) and production build (`npm run build`)
-- `custom-elements.json` generation wired up end to end:
+- `custom-elements.json` generation set up end to end:
   - `custom-elements-manifest.config.mjs` configured with
     [`web-component-base/cem-plugin`](https://webcomponent.io/cem-plugin/), so
     every `static props` key becomes a typed attribute + field in the manifest

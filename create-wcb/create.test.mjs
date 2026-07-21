@@ -33,7 +33,7 @@ describe('create-wcb', () => {
   const readJson = (...segments) =>
     JSON.parse(fs.readFileSync(path.join(workDir, ...segments), 'utf8'))
 
-  it('scaffolds a project with the CEM story wired up', () => {
+  it('scaffolds a project with the CEM story set up', () => {
     run(['my-app'])
 
     const root = path.join(workDir, 'my-app')

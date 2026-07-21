@@ -16,4 +16,4 @@ A [web-component-base](https://webcomponent.io) project scaffolded with
 The manifest is a build artifact (gitignored here); tooling discovers it via
 the `customElements` field in `package.json`. Regenerate it after changing
 `static props`, and see the [CEM plugin guide](https://webcomponent.io/cem-plugin/)
-for wiring it into Storybook and code editors.
+for setting it up with Storybook and code editors.

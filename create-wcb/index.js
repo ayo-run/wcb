@@ -4,7 +4,7 @@
  * @author Ayo Ayco <https://ayo.ayco.io>
  *
  * Scaffolds a wcb (`web-component-base`) project: a starter component, a Vite
- * dev setup, and `custom-elements.json` generation pre-wired — the CEM
+ * dev server, and `custom-elements.json` generation already set up — the CEM
  * analyzer config with wcb's plugin, an `analyze` script, and the
  * `customElements` field in `package.json`.
  *
@@ -80,7 +80,7 @@ async function main() {
 
 Scaffolds a web-component-base project in [directory] (prompts when omitted;
 "." scaffolds into the current directory). The project comes with a starter
-component, a Vite dev server, and custom-elements.json generation wired up.`)
+component, a Vite dev server, and custom-elements.json generation set up.`)
     return
   }
 
