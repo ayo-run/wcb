@@ -85,11 +85,7 @@ class TransitionSafe extends WebComponent {
   // self-contained so the transition is guaranteed present wherever the
   // component is used — including the e2e spec, which loads no page CSS
   static shadowRootInit = { mode: 'open' }
-  // `:host` needs an explicit block so the box's `width: 90%` resolves against a
-  // definite containing block. Without it the host is `display: inline` (no page
-  // CSS in the e2e spec), and percentage-width resolution against an unsized
-  // inline host is engine-dependent — WebKit never grows the box, so the e2e
-  // "grew mid-transition" assertion sees the untouched 4em start width.
+
   static styles = `
     :host { display: block; }
     .anim-box {
