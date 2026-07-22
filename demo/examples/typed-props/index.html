@@ -17,9 +17,9 @@
   <body>
     <h1>Compile-time prop types</h1>
     <p>
-      Pass the shape of your defaults as a type argument —
-      <code>extends WebComponent&lt;typeof props&gt;</code> — and
-      <code>this.props.*</code> is inferred from them instead of being
+      Declare the shape as a named type and pass it as the class type
+      argument — <code>extends WebComponent&lt;TypedButtonProps&gt;</code> —
+      and <code>this.props.*</code> is checked against it instead of being
       <code>any</code>.
     </p>
 

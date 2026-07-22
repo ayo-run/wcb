@@ -103,8 +103,6 @@ Two details worth knowing:
 - **Types come from the default literal**: `true`/`false` → `boolean`, numeric → `number`, object/array → `object`, everything else → `string`. The TypeScript annotation is not consulted, so `variant`'s union still lands in the manifest as `string`.
 - **Attribute names come from wcb's own `getKebabCase`**, the same function `observedAttributes` uses, so manifest names can't drift from what the component actually observes.
 
-The defaults may be written inline as above, or hoisted into a module-level `const` — the shape the inferred variant of the [typed props](/prop-access/#typed-props-in-typescript) pattern uses (`WebComponent<typeof props>`). The plugin resolves both.
-
 ## Storybook
 
 Storybook's web-components renderer builds **autodocs and controls** from a [Custom Elements Manifest](https://github.com/webcomponents/custom-elements-manifest).

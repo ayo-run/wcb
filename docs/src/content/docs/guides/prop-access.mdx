@@ -98,11 +98,14 @@ el.toggleAttribute('flag', true) // prop syncs, component re-renders
 Enumerated attributes like `contenteditable` and `aria-*` attributes are the
 exception. They are genuine strings where `"false"` is meaningful, so declare
 them as **string** props rather than booleans. Strings serialize literally and
-are never removed, so they need nothing special at runtime; in TypeScript you
-can narrow them to the values you accept:
+are never removed, so they need nothing special at runtime; in TypeScript,
+narrow them to the values you accept in your
+[props type](#typed-props-in-typescript):
 
 ```ts
-const props = { ariaChecked: 'false' as 'true' | 'false' }
+type ToggleProps = {
+  ariaChecked: 'true' | 'false'
+}
 ```
 
 <Aside type="tip" title="Default boolean props to false">
@@ -284,15 +287,6 @@ the defaults themselves are checked against the type, so a missing key or a
 default outside the union is a compile error too.
 
 This is types-only. The runtime is unchanged, and `static strictProps` still guards writes that come in from attributes at runtime. Omitting the type argument keeps the previous untyped behavior.
-
-<Aside type="tip">
-  You can also infer the type from the defaults instead of writing it out:
-  declare them in a `const` and pass its `typeof`:
-  `class CozyButton extends WebComponent<typeof props> { static props = props }`.
-  Inferred values widen (`variant: 'primary'` types as plain `string`), so
-  narrow with a cast where it matters:
-  `variant: 'primary' as 'primary' | 'ghost'`.
-</Aside>
 
 ### Unobserved properties
 
