@@ -3,7 +3,7 @@ packages:
   - 'docs/'
   - 'demo/'
   - 'storybook/'
-  - 'create-wcb/'
+  - 'create/'
 allowBuilds:
   '@parcel/watcher': false
   esbuild: true # insurance for core build
