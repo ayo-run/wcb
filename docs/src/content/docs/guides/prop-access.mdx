@@ -41,11 +41,11 @@ Another advantage over `HTMLElement.dataset` is that `WebComponent.props` can ho
 
 </Aside>
 
-### Typed props in TypeScript
+### Opt-in typed props in TypeScript
 
 See it live: [Compile-time prop types demo ↗](https://demo.webcomponent.io/examples/typed-props/) and [Typed props demo ↗](https://demo.webcomponent.io/examples/type-restore/)
 
-By default `this.props` is a permissive `{ [name: string]: any }` map. In TypeScript you can get compile-time types on your declared props: declare the shape as a named type, pass it as the class type argument, and annotate `static props` with it (the type above, the defaults within):
+By default `this.props` is a permissive `{ [name: string]: any }` map. In TypeScript you can get compile-time types on your declared props. Declare the shape as a named type, pass it as the class type argument, and annotate `static props` with it in the initialization:
 
 ```ts
 type CozyButtonProps = {
@@ -71,11 +71,11 @@ class CozyButton extends WebComponent<CozyButtonProps> {
 }
 ```
 
-Unions stay narrow with nothing to cast, and the annotation cuts both ways:
-the defaults themselves are checked against the type, so a missing key or a
-default outside the union is a compile error too.
+This annotation applies the type-check to succeeding assignments while the defaults themselves are checked against the type, so a missing key or a default outside the union is a compile error too.
 
-This is types-only. The runtime is unchanged, and `static strictProps` still guards writes that come in from attributes at runtime. Omitting the type argument keeps the previous untyped behavior.
+<Aside type="tip" title="Use `static strictType` if you want runtime type guards">
+At runtime, assigning a different type to a prop quietly fails. Setting [`static strictProps`](/api/web-component/#static-strictprops) to true will throw a `TypeError` when wrong types are assigned.
+</Aside>
 
 ### Boolean props
 
