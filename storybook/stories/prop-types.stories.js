@@ -15,8 +15,8 @@ export const BooleanProps = {
   args: { isInline: false, anotherone: false },
   render: ({ isInline, anotherone }) => html`
     <boolean-prop-test
-      is-inline=${isInline}
-      anotherone=${anotherone}
+      ?is-inline=${isInline}
+      ?anotherone=${anotherone}
     ></boolean-prop-test>
   `,
 }

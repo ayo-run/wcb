@@ -10,7 +10,7 @@ export default {
   render: ({ variant, disabled, clicks }) => html`
     <typed-button
       variant=${variant}
-      disabled=${disabled}
+      ?disabled=${disabled}
       clicks=${clicks}
     ></typed-button>
   `,
