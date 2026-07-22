@@ -11,6 +11,8 @@ This page puts these benefits and their cost in context: how much does WCB weigh
 
 Numbers below are **measured** from the same minimal counter component (one reactive `count` prop, a click handler, a re-render on change) written in each library, bundled with `esbuild --bundle --minify --format=esm`, and compressed with gzip (level 9) and brotli (quality 11). This is the real "cost of your first component": library runtime + component code, everything the browser downloads.
 
+See it live: [Library comparison demo ↗](https://demo.webcomponent.io/examples/library-comparison/) — every counter running side by side, the source of each, and the `measure.mjs` script that produces the table below.
+
 | Library                   | Version | Minified | Gzip    | Brotli     |
 | ------------------------- | ------- | -------- | ------- | ---------- |
 | **web-component-base**    | 6.1.0   | 6.7 kB   | 2.9 kB  | **2.6 kB** |
@@ -49,4 +51,4 @@ For what these numbers and capabilities add up to (and when they don't) see [Why
 
 ---
 
-_WCB re-measured 2026-07-20 at v6.1.0; the other libraries measured 2026-07-19, with esbuild, Node zlib (gzip −9, brotli q11), at the pinned versions above. Methodology: identical counter component per library, bundled per library, compressed. Re-run them yourself. The benchmark is trivially reproducible with the versions pinned above._
+_WCB re-measured 2026-07-20 at v6.1.0; the other libraries measured 2026-07-19, with esbuild, Node zlib (gzip −9, brotli q11), at the pinned versions above. Methodology: identical counter component per library, bundled per library, compressed. Re-run them yourself — the counters and the [`measure.mjs`](https://demo.webcomponent.io/examples/library-comparison/) script live in the demo workspace (`demo/examples/library-comparison/`). The benchmark is trivially reproducible with the versions pinned above._

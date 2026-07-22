@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Library comparison — the same counter, measured</title>
+    <script type="module" src="./counters/vanilla.mjs"></script>
+    <script type="module" src="./counters/wcb.mjs"></script>
+    <script type="module" src="./counters/elena.mjs"></script>
+    <script type="module" src="./counters/lit.mjs"></script>
+    <script type="module" src="./counters/fast.mjs"></script>
+    <script>try{document.documentElement.dataset.theme=localStorage.getItem('wcb-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')}catch(e){}</script>
+    <link rel="stylesheet" href="../../shell.css" />
+    <script type="module" src="../../shell.js"></script>
+    <style>
+      .counters {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 1em;
+        margin: 1.5em 0;
+      }
+      .counter-card {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--card);
+        padding: 1em;
+        display: flex;
+        flex-direction: column;
+        gap: 0.6em;
+      }
+      .counter-card .lib {
+        font-weight: 600;
+      }
+      .counter-card .size {
+        font-size: 0.85em;
+        color: var(--muted);
+      }
+      .counter-card .size strong {
+        color: var(--accent);
+      }
+      .counter-card button {
+        font-size: 1.4em;
+        padding: 0.3em 0.8em;
+        min-width: 3em;
+      }
+      .win {
+        color: var(--accent);
+        font-weight: 600;
+      }
+      figcaption {
+        color: var(--muted);
+        font-size: 0.9em;
+        margin-top: 0.4em;
+      }
+      table.sizes {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 1em 0;
+      }
+      table.sizes th,
+      table.sizes td {
+        border: 1px solid var(--border);
+        padding: 0.5em 0.75em;
+        text-align: right;
+      }
+      table.sizes th:first-child,
+      table.sizes td:first-child {
+        text-align: left;
+      }
+      table.sizes thead th {
+        background: var(--tag);
+      }
+      table.sizes tbody tr:first-child {
+        font-weight: 600;
+      }
+      .repro {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4em;
+        align-items: baseline;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>The same counter, in each library</h1>
+    <p>
+      This is the component behind the
+      <a href="https://webcomponent.io/comparison/">comparison guide</a>: one
+      minimal counter — a single reactive <code>count</code> prop, a click
+      handler, a re-render on change — implemented in
+      <code>web-component-base</code> and in each library it's measured against.
+      Every counter below is live; click it. The source of each is listed at
+      the bottom of the page, and the
+      <a href="#methodology">measurement that produces the sizes</a> is
+      <code>measure.mjs</code>, runnable from this folder.
+    </p>
+
+    <div class="counters">
+      <figure class="counter-card">
+        <span class="lib">web-component-base</span>
+        <span class="size"><strong>2.6 kB</strong> brotli</span>
+        <wcb-counter></wcb-counter>
+        <figcaption><code>static props</code> + <code>html</code></figcaption>
+      </figure>
+      <figure class="counter-card">
+        <span class="lib">Elena</span>
+        <span class="size"><strong>3.4 kB</strong> brotli</span>
+        <elena-counter></elena-counter>
+        <figcaption>progressive enhancement in <code>firstUpdated</code></figcaption>
+      </figure>
+      <figure class="counter-card">
+        <span class="lib">Lit</span>
+        <span class="size"><strong>5.3 kB</strong> brotli</span>
+        <lit-counter></lit-counter>
+        <figcaption><code>static properties</code>, shadow DOM</figcaption>
+      </figure>
+      <figure class="counter-card">
+        <span class="lib">FAST</span>
+        <span class="size"><strong>12.2 kB</strong> brotli</span>
+        <fast-counter></fast-counter>
+        <figcaption>binding directives, shadow DOM</figcaption>
+      </figure>
+      <figure class="counter-card">
+        <span class="lib">vanilla <code>HTMLElement</code></span>
+        <span class="size"><strong>~0.2 kB</strong> brotli</span>
+        <vanilla-counter></vanilla-counter>
+        <figcaption>no library — the hand-rolled baseline</figcaption>
+      </figure>
+    </div>
+
+    <h2 id="methodology">How it's measured</h2>
+    <p>
+      The number that matters for a first component is not the library's
+      advertised size — it's <strong>library runtime + your component code,
+      bundled and compressed</strong>, because that's everything the browser
+      actually downloads. So <code>measure.mjs</code>, for each library:
+    </p>
+    <ol>
+      <li>
+        bundles the counter <em>with</em> its library runtime using
+        <code>esbuild</code> (<code>bundle: true</code>,
+        <code>minify: true</code>, <code>format: 'esm'</code>) — tree-shaking
+        away whatever that component doesn't touch;
+      </li>
+      <li>
+        compresses the bundle with <strong>gzip</strong> (level 9) and
+        <strong>brotli</strong> (quality 11) via Node's built-in
+        <code>zlib</code> — the same codecs a CDN or server serves with.
+      </li>
+    </ol>
+    <p>
+      The counters are byte-for-byte the same components running above and
+      listed under Implementation below. The external libraries are pinned dev
+      dependencies of this demo workspace, and <code>web-component-base</code>
+      is bundled from its published <code>dist/</code>, so the run is
+      deterministic.
+    </p>
+
+    <h2>Output</h2>
+    <p>
+      Measured at the pinned versions below (WCB from this repo's build,
+      esbuild <code>0.27</code>, Node <code>zlib</code>):
+    </p>
+    <table class="sizes">
+      <thead>
+        <tr>
+          <th>Library</th>
+          <th>Version</th>
+          <th>Minified</th>
+          <th>Gzip</th>
+          <th>Brotli</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>web-component-base</td>
+          <td>6.1.1</td>
+          <td>6.7 kB</td>
+          <td>2.9 kB</td>
+          <td>2.6 kB</td>
+        </tr>
+        <tr>
+          <td>@elenajs/core</td>
+          <td>1.0.0</td>
+          <td>9.1 kB</td>
+          <td>3.7 kB</td>
+          <td>3.4 kB</td>
+        </tr>
+        <tr>
+          <td>lit</td>
+          <td>3.3.3</td>
+          <td>15.3 kB</td>
+          <td>5.9 kB</td>
+          <td>5.3 kB</td>
+        </tr>
+        <tr>
+          <td>@microsoft/fast-element</td>
+          <td>3.0.1</td>
+          <td>44.8 kB</td>
+          <td>13.6 kB</td>
+          <td>12.2 kB</td>
+        </tr>
+        <tr>
+          <td>vanilla <code>HTMLElement</code></td>
+          <td>—</td>
+          <td>0.6 kB</td>
+          <td>0.3 kB</td>
+          <td>0.2 kB</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      The WCB counter is the smallest real component here — about
+      <strong>21% under Elena, 51% under Lit, and 79% under FAST</strong> once
+      compressed.
+    </p>
+
+    <h2>Reproduce it</h2>
+    <p class="repro">
+      From <code>demo/examples/library-comparison/</code>:
+      <code>node measure.mjs</code> for the table,
+      <code>node measure.mjs --md</code> for Markdown, or
+      <code>node measure.mjs --json</code> for raw numbers.
+    </p>
+    <p>
+      Bump a pinned version in <code>demo/package.json</code>, re-run, and the
+      numbers move with it — the benchmark is the source of truth, not this
+      page.
+    </p>
+  </body>
+</html>
