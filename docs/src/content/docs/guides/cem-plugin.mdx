@@ -37,7 +37,7 @@ npm i -D @custom-elements-manifest/analyzer
 import { wcbStaticProps } from 'web-component-base/cem-plugin'
 
 export default {
-  globs: ['src/**/*.js'],
+  globs: ['src/**/*.{js,ts}'],
   outdir: '.',
   plugins: [wcbStaticProps()],
 }
@@ -66,11 +66,19 @@ With globs scoped to your source it should finish in well under a second.
 
 Given a component:
 
-```js
-const props = { variant: 'primary', disabled: false, maxCount: 3 }
+```ts
+type CozyButtonProps = {
+  variant: 'primary' | 'ghost'
+  disabled: boolean
+  maxCount: number
+}
 
-export class CozyButton extends WebComponent {
-  static props = props
+export class CozyButton extends WebComponent<CozyButtonProps> {
+  static props: CozyButtonProps = {
+    variant: 'primary',
+    disabled: false,
+    maxCount: 3,
+  }
   static shadowRootInit = { mode: 'open' }
   static styles = ':host { display: inline-block }'
   get template() {
@@ -92,10 +100,10 @@ customElements.define('cozy-button', CozyButton)
 
 Two details worth knowing:
 
-- **Types come from the default literal**: `true`/`false` → `boolean`, numeric → `number`, object/array → `object`, everything else → `string`.
+- **Types come from the default literal**: `true`/`false` → `boolean`, numeric → `number`, object/array → `object`, everything else → `string`. The TypeScript annotation is not consulted, so `variant`'s union still lands in the manifest as `string`.
 - **Attribute names come from wcb's own `getKebabCase`**, the same function `observedAttributes` uses, so manifest names can't drift from what the component actually observes.
 
-The defaults may be written inline or hoisted into a module-level `const`. The latter is required by the [typed props](/prop-access/#typed-props-in-typescript) pattern, and the plugin resolves it either way.
+The defaults may be written inline as above, or hoisted into a module-level `const` — the shape the inferred variant of the [typed props](/prop-access/#typed-props-in-typescript) pattern uses (`WebComponent<typeof props>`). The plugin resolves both.
 
 ## Storybook
 
@@ -170,7 +178,7 @@ import { wcbStaticProps } from 'web-component-base/cem-plugin'
 import { generateCustomData } from 'cem-plugin-vs-code-custom-data-generator'
 
 export default {
-  globs: ['src/**/*.js'],
+  globs: ['src/**/*.{js,ts}'],
   outdir: '.',
   plugins: [wcbStaticProps(), generateCustomData()],
 }
