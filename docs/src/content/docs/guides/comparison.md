@@ -11,6 +11,8 @@ This page puts these benefits and their cost in context: how much does WCB weigh
 
 Numbers below are **measured** from the same minimal counter component (one reactive `count` prop, a click handler, a re-render on change) written in each library, bundled with `esbuild --bundle --minify --format=esm`, and compressed with gzip (level 9) and brotli (quality 11). This is the real "cost of your first component": library runtime + component code, everything the browser downloads.
 
+See it live: [Library comparison demo ↗](https://demo.webcomponent.io/examples/library-comparison/) — every counter running side by side, the source of each, and the `measure.mjs` script that produces the table below.
+
 | Library                   | Version | Minified | Gzip    | Brotli     |
 | ------------------------- | ------- | -------- | ------- | ---------- |
 | **web-component-base**    | 6.1.0   | 6.7 kB   | 2.9 kB  | **2.6 kB** |
@@ -35,18 +37,18 @@ What each library gives you beyond extending directly from `HTMLElement`, the bo
 | Keyed list reconciliation        | ⚠️ positional                                                      | ✅ `repeat` directive                                    | ❌                                      | ✅ `repeat` with recycling controls              |
 | Light DOM by default             | ✅ (shadow DOM opt-in via `static shadowRootInit`)                 | ❌ shadow DOM by default                                 | ✅ (shadow opt-in)                      | ❌ shadow DOM by default                         |
 | Scoped styles                    | ✅ `static styles` + constructable stylesheets (needs shadow root) | ✅ shadow-scoped CSS                                     | ✅ scoped without shadow DOM            | ✅ shadow-scoped + design tokens                 |
-| SSR / hydration story            | ✅ attribute-driven state renders from any server                  | ✅ `@lit-labs/ssr` + hydration                           | ✅ HTML/CSS-first, server utilities     | ⚠️ experimental SSR                              |
+| SSR / hydration story            | ✅ attribute-driven state renders from any server                  | ✅ `@lit-labs/ssr` + hydration                           | ✅ server-rendered markup + hydration utilities | ⚠️ experimental SSR                              |
 | Works with zero build tooling    | ✅ import from CDN, no compiler                                    | ✅ (buildless possible, decorators need tooling)         | ✅                                      | ⚠️ practical with tooling                        |
 | Editor/IDE tooling               | ✅ typed props + [CEM analyzer plugin](/cem-plugin/)               | ✅ extensive (analyzer, TS decorators, IDE plugins)      | ✅ CEM-focused                          | ✅ TS-first                                      |
 | Lifecycle hooks                  | `onInit`, `afterViewInit`, `onChanges`, `onDestroy`                | full reactive update lifecycle                           | `willUpdate`, `firstUpdated`, `updated` | full lifecycle + behaviors                       |
-| Backing / ecosystem              | solo maintainer, small surface                                     | Google, huge ecosystem                                   | new (2026), design-system focus         | Microsoft, powers Fluent UI                      |
+| Backing / ecosystem              | solo maintainer, small surface                                     | Google, large ecosystem                                   | new (2026), solo-authored         | Microsoft, powers Fluent UI                      |
 
 :::note[Why 11ty WebC isn't here]
-WebC is a compile-time tool: it resolves components during an Eleventy build and ships plain HTML with no client runtime. Every row above is about what a library does _in the browser at runtime_, so a side-by-side comparison would be measuring two different things. If your components are static at build time, WebC solves a different problem, and solves it well.
+WebC is a compile-time tool: it resolves components during an Eleventy build and ships plain HTML with no client runtime. Every row above is about what a library does _in the browser at runtime_, so a side-by-side comparison would be measuring two different things. If your components are static at build time, WebC solves a different problem.
 :::
 
 For what these numbers and capabilities add up to (and when they don't) see [Why would anyone use WCB?](/why/).
 
 ---
 
-_WCB re-measured 2026-07-20 at v6.1.0; the other libraries measured 2026-07-19, with esbuild, Node zlib (gzip −9, brotli q11), at the pinned versions above. Methodology: identical counter component per library, bundled per library, compressed. Re-run them yourself. The benchmark is trivially reproducible with the versions pinned above._
+_WCB re-measured 2026-07-20 at v6.1.0; the other libraries measured 2026-07-19, with esbuild, Node zlib (gzip −9, brotli q11), at the pinned versions above. Methodology: identical counter component per library, bundled per library, compressed. Re-run them yourself — the counters and the [`measure.mjs`](https://demo.webcomponent.io/examples/library-comparison/) script live in the demo workspace (`demo/examples/library-comparison/`). The benchmark is trivially reproducible with the versions pinned above._
