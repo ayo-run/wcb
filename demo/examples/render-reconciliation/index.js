@@ -85,7 +85,9 @@ class TransitionSafe extends WebComponent {
   // self-contained so the transition is guaranteed present wherever the
   // component is used — including the e2e spec, which loads no page CSS
   static shadowRootInit = { mode: 'open' }
+
   static styles = `
+    :host { display: block; }
     .anim-box {
       width: 4em;
       height: 2.5em;
