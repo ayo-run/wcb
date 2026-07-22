@@ -51,5 +51,5 @@ initializer and, for every key, records in the manifest:
 Without it the analyzer sees `props` as one opaque static field and emits no
 attributes, so editor completion and Storybook controls have nothing to read.
 
-The `static props` object may be declared inline or as an identifier resolved
-from the same source file.
+The `static props` initializer must resolve to an object literal in the same
+source file.

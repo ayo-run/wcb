@@ -37,7 +37,7 @@ npm i -D @custom-elements-manifest/analyzer
 import { wcbStaticProps } from 'web-component-base/cem-plugin'
 
 export default {
-  globs: ['src/**/*.js'],
+  globs: ['src/**/*.{js,ts}'],
   outdir: '.',
   plugins: [wcbStaticProps()],
 }
@@ -66,11 +66,19 @@ With globs scoped to your source it should finish in well under a second.
 
 Given a component:
 
-```js
-const props = { variant: 'primary', disabled: false, maxCount: 3 }
+```ts
+type CozyButtonProps = {
+  variant: 'primary' | 'ghost'
+  disabled: boolean
+  maxCount: number
+}
 
-export class CozyButton extends WebComponent {
-  static props = props
+export class CozyButton extends WebComponent<CozyButtonProps> {
+  static props: CozyButtonProps = {
+    variant: 'primary',
+    disabled: false,
+    maxCount: 3,
+  }
   static shadowRootInit = { mode: 'open' }
   static styles = ':host { display: inline-block }'
   get template() {
@@ -92,10 +100,8 @@ customElements.define('cozy-button', CozyButton)
 
 Two details worth knowing:
 
-- **Types come from the default literal**: `true`/`false` → `boolean`, numeric → `number`, object/array → `object`, everything else → `string`.
+- **Types come from the default literal**: `true`/`false` → `boolean`, numeric → `number`, object/array → `object`, everything else → `string`. The TypeScript annotation is not consulted, so `variant`'s union still lands in the manifest as `string`.
 - **Attribute names come from wcb's own `getKebabCase`**, the same function `observedAttributes` uses, so manifest names can't drift from what the component actually observes.
-
-The defaults may be written inline or hoisted into a module-level `const`. The latter is required by the [typed props](/prop-access/#typed-props-in-typescript) pattern, and the plugin resolves it either way.
 
 ## Storybook
 
@@ -118,18 +124,36 @@ Bind a story to the tag name and Storybook infers the rest, giving a text field 
 ```js
 // cozy-button.stories.js
 import { html } from 'lit'
-import '../src/cozy-button.js'
+import '../src/cozy-button.ts'
 
 export default {
   title: 'Cozy/Button',
   component: 'cozy-button', // ← no argTypes needed
-  render: ({ variant, disabled }) => html`
-    <cozy-button variant=${variant} disabled=${disabled}></cozy-button>
+  render: ({ variant, disabled, maxCount }) => html`
+    <cozy-button
+      variant=${variant}
+      ?disabled=${disabled}
+      max-count=${maxCount}
+    ></cozy-button>
   `,
 }
 
-export const Default = { args: { variant: 'primary', disabled: false } }
+export const Default = {
+  args: { variant: 'primary', disabled: false, maxCount: 3 },
+}
 ```
+
+<Aside type="note" title="The `html` in story files is lit's, not wcb's">
+  Storybook's web-components renderer renders stories with
+  [lit-html](https://lit.dev/docs/templates/overview/), so story files import
+  `html` from `lit` and templates in them use **lit's binding syntax** — the
+  `?disabled=${disabled}` prefix above is lit for "add or remove the boolean
+  attribute" (a plain `disabled=${false}` would write `disabled="false"`,
+  which wcb [parses as `true`](/prop-access/#boolean-props)). None of this
+  applies to your component: it keeps wcb's own `html` tag with no special
+  binding prefixes, and lit is a devDependency of the Storybook setup, never
+  shipped with the component.
+</Aside>
 
 <Aside type="tip">
   Regenerate the manifest before starting Storybook (`cem analyze && storybook
@@ -170,7 +194,7 @@ import { wcbStaticProps } from 'web-component-base/cem-plugin'
 import { generateCustomData } from 'cem-plugin-vs-code-custom-data-generator'
 
 export default {
-  globs: ['src/**/*.js'],
+  globs: ['src/**/*.{js,ts}'],
   outdir: '.',
   plugins: [wcbStaticProps(), generateCustomData()],
 }

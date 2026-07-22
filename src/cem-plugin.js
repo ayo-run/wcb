@@ -75,16 +75,13 @@ function unwrap(ts, node) {
 
 /**
  * Resolves an identifier to the object literal of a module-level `const` in
- * the same file. This is what makes the typed-props pattern work:
+ * the same file, so a component that keeps its defaults in a shared `const`
+ * still yields attributes instead of silently emitting none:
  *
  * ```js
  * const props = { variant: 'primary' }
  * class Foo extends WebComponent { static props = props }
  * ```
- *
- * A class can't reference its own static in its `extends` clause, so typed
- * components must hoist the defaults into a const — without this the whole
- * pattern would yield zero attributes.
  * @param {any} ts the TypeScript module handed to the hook
  * @param {any} node any node in the source file
  * @param {string} name the identifier to resolve

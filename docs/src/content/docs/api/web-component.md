@@ -20,10 +20,16 @@ In TypeScript, pass the shape of `static props` as a type argument to get a
 typed `this.props`:
 
 ```ts
-const props = { variant: 'primary', disabled: false }
+type CozyButtonProps = {
+  variant: 'primary' | 'ghost'
+  disabled: boolean
+}
 
-class CozyButton extends WebComponent<typeof props> {
-  static props = props
+class CozyButton extends WebComponent<CozyButtonProps> {
+  static props: CozyButtonProps = {
+    variant: 'primary',
+    disabled: false,
+  }
 }
 ```
 
