@@ -41,6 +41,42 @@ Another advantage over `HTMLElement.dataset` is that `WebComponent.props` can ho
 
 </Aside>
 
+### Typed props in TypeScript
+
+See it live: [Compile-time prop types demo ↗](https://demo.webcomponent.io/examples/typed-props/) and [Typed props demo ↗](https://demo.webcomponent.io/examples/type-restore/)
+
+By default `this.props` is a permissive `{ [name: string]: any }` map. In TypeScript you can get compile-time types on your declared props: declare the shape as a named type, pass it as the class type argument, and annotate `static props` with it (the type above, the defaults within):
+
+```ts
+type CozyButtonProps = {
+  variant: 'primary' | 'ghost'
+  disabled: boolean
+}
+
+class CozyButton extends WebComponent<CozyButtonProps> {
+  static props: CozyButtonProps = {
+    variant: 'primary',
+    disabled: false,
+  }
+
+  get template() {
+    this.props.variant // 'primary' | 'ghost'
+    this.props.disabled // boolean
+    this.props.notAProp // ❌ compile error: not declared
+
+    this.props.disabled = 'yes' // ❌ compile error: string is not boolean
+    this.props.variant = 'plaid' // ❌ compile error: not in the union
+    return html`<button class=${this.props.variant}></button>`
+  }
+}
+```
+
+Unions stay narrow with nothing to cast, and the annotation cuts both ways:
+the defaults themselves are checked against the type, so a missing key or a
+default outside the union is a compile error too.
+
+This is types-only. The runtime is unchanged, and `static strictProps` still guards writes that come in from attributes at runtime. Omitting the type argument keeps the previous untyped behavior.
+
 ### Boolean props
 
 Boolean props follow the HTML boolean-attribute convention, exactly like native
@@ -159,15 +195,16 @@ toAttribute(name, value) {
 }
 ```
 
-<Aside type="note" title="Reflection does not round-trip">
-  When a prop write reflects to its attribute, wcb does **not** parse the
+#### Conversion is only triggered on attribute changes
+
+  When assigning a value to a prop, wcb does **not** check and parse the
   attribute back through `fromAttribute`. The prop you assigned is already the
-  source of truth. So `toAttribute` may be lossy without corrupting the prop: in
-  the example above `props.when` keeps its full timestamp even though the
-  attribute carries only the date. `render()` and `onChanges` still fire as
-  normal. `fromAttribute` is called for attributes written from *outside* the
-  component (markup, `setAttribute`, `toggleAttribute`).
-</Aside>
+  source of truth and the text form attribute could be a less precise
+  representation. In the example above `props.when` keeps its full
+  timestamp even though the attribute carries only the date. `render()` and
+  `onChanges` still fire as normal. `fromAttribute` conversion is only called
+  for attributes written from *outside* the component via markup, `setAttribute`,
+  or `toggleAttribute`.
 
 <Aside type="caution" title="The declared type still applies">
   A prop's runtime type comes from the `typeof` of its default, and the props
@@ -176,22 +213,20 @@ toAttribute(name, value) {
   `string` and your parsed `Date` is refused.
 </Aside>
 
-#### Non-serializable types
+#### Handling non-serializable data types
 
 The default converters round-trip prop values through JSON, which restores
 numbers, booleans, and plain objects/arrays exactly. Types JSON cannot
 represent don't survive the trip: a `Date` comes back as a plain string, and a
-`Map` or `Set` collapses to `"{}"` before it ever reaches the attribute.
+`Map` or `Set` collapses to `"{}"`.
 
-Such types are still first-class props. Declare a real default of that type
-(see the caution above) and override the converters. You can hand-write a
-textual form per prop, as `EventCard` above does for its `Date`; when several
-props need this, delegate to a serializer built for the job instead:
-[devalue](https://github.com/sveltejs/devalue) round-trips `Map`, `Set`,
-`Date`, `RegExp`, `BigInt`, `undefined`, and even cyclic references. One
-generic pair of overrides then covers every structured prop, present and
-future. Here is `EventCard` rewritten with it, gaining a `Set` of tags along
-the way:
+Such types are still first-class props. You can declare a real default of that type (see the caution above) and override the converters. The `EventCard` example above handles this by using custom conversion logic for its `Date` prop.
+
+Another way to do this is to use a library built for the job instead.
+You can opt to use a serializer like [devalue](https://github.com/sveltejs/devalue) as your component's dependency, which can serialize and parse `Map`, `Set`, `Date`, `RegExp`, `BigInt`, `undefined`, and even cyclic references. One
+generic pair of overrides then covers every structured prop.
+
+Here is `EventCard` rewritten with it, with an additional prop `tags` of type `Set`:
 
 ```js
 import { parse, stringify } from 'devalue'
@@ -204,6 +239,7 @@ class EventCard extends WebComponent {
   }
 
   toAttribute(name, value) {
+    // handles `when` and `tags`
     if (value instanceof Object) return stringify(value)
     return super.toAttribute(name, value)
   }
@@ -217,12 +253,12 @@ class EventCard extends WebComponent {
 
 The two guards are asymmetric on purpose: `toAttribute` sees the live value,
 but `fromAttribute` only ever sees a string, so it consults the declared
-default to decide whether the attribute is devalue-encoded. `title` misses
-both guards and reflects as a plain string, exactly as before.
+default (using `this.constructor.props`) to decide whether the attribute is
+devalue-encoded. `title` misses both guards and reflects as a plain string,
+exactly as before.
 
-The encoded attribute is not as hand-friendly as a bespoke `when="2026-07-20"`,
-but it is still plain text. Write it in markup with single quotes, since the
-payload contains double quotes:
+The encoded attribute is not as readable as a bespoke `when="2026-07-20"`,
+but it is still plain text:
 
 ```html
 <!-- props.when is a real Date, props.tags a real Set -->
@@ -231,9 +267,6 @@ payload contains double quotes:
   tags='[["Set",1,2],"alpha","bravo"]'
 ></event-card>
 ```
-
-devalue is your component's dependency, not wcb's. The base class stays
-zero-dependency.
 
 <Aside type="caution" title="Reassign, don't mutate">
   The props proxy only sees *assignments*. `this.props.tags.add('x')` mutates
@@ -252,41 +285,6 @@ the first place. Keep it as a plain class property instead. See
 class when a declared default is a `function` or `symbol` for exactly this
 reason.
 
-### Typed props in TypeScript
-
-See it live: [Compile-time prop types demo ↗](https://demo.webcomponent.io/examples/typed-props/) and [Typed props demo ↗](https://demo.webcomponent.io/examples/type-restore/)
-
-By default `this.props` is a permissive `{ [name: string]: any }` map. In TypeScript you can get compile-time types on your declared props: declare the shape as a named type, pass it as the class type argument, and annotate `static props` with it (the type above, the defaults within):
-
-```ts
-type CozyButtonProps = {
-  variant: 'primary' | 'ghost'
-  disabled: boolean
-}
-
-class CozyButton extends WebComponent<CozyButtonProps> {
-  static props: CozyButtonProps = {
-    variant: 'primary',
-    disabled: false,
-  }
-
-  get template() {
-    this.props.variant // 'primary' | 'ghost'
-    this.props.disabled // boolean
-    this.props.notAProp // ❌ compile error: not declared
-
-    this.props.disabled = 'yes' // ❌ compile error: string is not boolean
-    this.props.variant = 'plaid' // ❌ compile error: not in the union
-    return html`<button class=${this.props.variant}></button>`
-  }
-}
-```
-
-Unions stay narrow with nothing to cast, and the annotation cuts both ways:
-the defaults themselves are checked against the type, so a missing key or a
-default outside the union is a compile error too.
-
-This is types-only. The runtime is unchanged, and `static strictProps` still guards writes that come in from attributes at runtime. Omitting the type argument keeps the previous untyped behavior.
 
 ### Unobserved properties
 
