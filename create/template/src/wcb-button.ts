@@ -1,7 +1,11 @@
 import { WebComponent, html } from 'web-component-base'
 
-// the type above, the defaults within — see
-// https://webcomponent.io/prop-access/#typed-props-in-typescript
+/**
+ * Declare a type for your `static props`
+ * It is not required for wcb to work, but rather an
+ * opt-in compile-time type safety with Typescript
+ * @see https://webcomponent.io/prop-access/#opt-in-typed-props-in-typescript
+ */
 type WcbButtonProps = {
   label: string
   disabled: boolean
@@ -11,8 +15,7 @@ type WcbButtonProps = {
 /**
  * A starter component. Every key in `static props` is a reactive property
  * reflected to a kebab-cased attribute — writing `this.props.clicks++`
- * updates the attribute and re-renders. `npm run analyze` turns the same
- * declaration into typed entries in `custom-elements.json`.
+ * updates the attribute and re-renders.
  */
 export class WcbButton extends WebComponent<WcbButtonProps> {
   static props: WcbButtonProps = {
