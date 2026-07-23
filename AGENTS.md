@@ -14,7 +14,7 @@ This file provides guidance to AI coding agents when working with code in this r
 - `pnpm lint` — ESLint (flat config in `eslint.config.mjs`, includes `eslint-plugin-jsdoc`).
 - `pnpm format` — Prettier over the repo.
 - `pnpm build` — `tsc` emits `.d.ts` types, then `copy:source` uses esbuild to minify/bundle `src/*.js` + `src/utils/*` into `dist/` as ESM. **`dist/` is what gets published; `src/` is shipped as the readable source.**
-- `pnpm size-limit` — enforces the per-file byte budgets declared in `package.json` `size-limit` (each `dist/` file has its own, e.g. `WebComponent.js` ≤ 2.05 KB, `html.js` ≤ 0.6 KB, each util ≤ 0.5–0.8 KB). Keep additions tiny; this gate is a core project value. `size-change-log.md` is the running record of how each change moved the base-class bundle and why.
+- `pnpm size-limit` — enforces the per-file byte budgets declared in `package.json` `size-limit` (each `dist/` file has its own, e.g. `WebComponent.js` ≤ 2.05 KB, `html.js` ≤ 0.6 KB, each util ≤ 0.5–0.8 KB). Keep additions tiny; this gate is a core project value. `size-change-log.md` is the running record of how each change moved the base-class bundle and why; its latest row's min+brotli figure is the single source of truth for the base-class size, so `docs/src/content/docs/guides/library-size.md` must be updated in lockstep whenever a new row lands.
 - `pnpm test:types` — builds, then type-checks the TS type tests (`test/types/typed-props.test-d.ts`) and the `demo/examples/typed-props/` example. `this.props` is typed by passing the props shape as a class type argument: `class X extends WebComponent<typeof props>`.
 - `pnpm docs` — run the Astro docs site (`docs/` workspace) locally.
 - `pnpm demo` — run the Vite examples showcase (`demo/` workspace) locally; `pnpm demo:build` builds it.
@@ -54,7 +54,7 @@ Any change to observable behavior ships as one unit — code alone is an incompl
 1. **Tests** — unit specs in `test/` (or colocated `*.test.mjs`) covering the new contract *and* the old behavior it replaces. Add a `test/e2e/` spec whenever the behavior depends on something happy-dom cannot model faithfully — CSS selector matching, computed styles, custom-element upgrade timing.
 2. **Demo examples** — a runnable example under `demo/examples/` that demonstrates the behavior, linked from a card in `demo/index.html`. Update any existing example the change affects, including ones that now emit a console warning or model a discouraged pattern.
 3. **Documentation** — the guide under `docs/src/content/docs/guides/` that doubles as the behavioral spec. For a breaking change, also update the `README.md` banner with the migration consumers have to perform.
-4. **Size budget** — `pnpm size-limit` stays green. If an addition genuinely needs more headroom, raise the budget in `package.json` deliberately and say so in the change description; never let it drift silently.
+4. **Size budget** — `pnpm size-limit` stays green. If an addition genuinely needs more headroom, raise the budget in `package.json` deliberately and say so in the change description; never let it drift silently. Whenever the change moves the base-class bundle, record it as a new row in `size-change-log.md` **and** update the headline size in `docs/src/content/docs/guides/library-size.md` to match that row's new min+brotli figure — the two must never disagree.
 
 Verify with `pnpm test:all` (unit + types + e2e across all engines) before calling the change done.
 
