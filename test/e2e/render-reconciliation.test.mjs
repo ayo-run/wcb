@@ -5,6 +5,29 @@ beforeEach(() => {
   document.body.innerHTML = ''
 })
 
+/**
+ * Waits for `condition()` to hold, driven by real animation frames instead of a
+ * wall-clock timer.
+ *
+ * A CSS transition only advances when the page gets a rendering opportunity,
+ * and `setTimeout` never asks for one. This file is the first in the e2e suite,
+ * so its page is still busy importing modules; under WebKit that regularly cost
+ * 500ms of wall clock with *zero* frames, leaving the box at its start width
+ * and failing the nightly. Awaiting `requestAnimationFrame` ties the wait to
+ * actual rendering, so the transition has genuinely progressed when we measure.
+ * @param {() => boolean} condition polled once per frame
+ * @param {number} timeout give up after this many ms (stays inside the 2s transition)
+ * @returns {Promise<boolean>} whether the condition held before the timeout
+ */
+async function untilFrame(condition, timeout = 1500) {
+  const start = performance.now()
+  while (!condition()) {
+    if (performance.now() - start > timeout) return false
+    await new Promise((resolve) => requestAnimationFrame(resolve))
+  }
+  return true
+}
+
 test('a controlled input keeps its element, focus, caret and value while typing', () => {
   document.body.innerHTML = '<controlled-input></controlled-input>'
   const el = document.querySelector('controlled-input')
@@ -53,8 +76,17 @@ test('an unrelated re-render leaves an animating element untouched', async () =>
   const startWidth = box.getBoundingClientRect().width
   root.querySelector('#run').click()
 
-  // let a few of the unrelated re-renders land mid-transition
-  await new Promise((resolve) => setTimeout(resolve, 500))
+  // the class change starts exactly one transition, synchronously
+  expect(box.getAnimations()).toHaveLength(1)
+
+  // let a few of the unrelated re-renders land mid-transition — measured in
+  // frames, so a page that is not rendering yet cannot report a false "stuck"
+  const progressed = await untilFrame(
+    () =>
+      box.getBoundingClientRect().width > startWidth &&
+      Number(root.querySelector('#ticks').textContent) > 0
+  )
+  expect(progressed).toBe(true)
 
   // same element instance, still growing — a rebuilt node would have snapped
   // back to the start width
