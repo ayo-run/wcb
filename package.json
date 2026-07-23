@@ -64,8 +64,6 @@
       "prettier --write"
     ],
     "*.{json,css,html,md,yml,yaml}": "prettier --write",
-    "src": "test",
-    "src": "test:e2e",
     "src": "size-limit"
   },
   "repository": {
@@ -143,5 +141,6 @@
       "path": "./dist/utils/get-kebab-case.js",
       "limit": "0.5 KB"
     }
-  ]
+  ],
+  "packageManager": "pnpm@11.17.0+sha512.cca3cea332ad254bb84145f966d19f4879615210346fc92c79a047f23a0d7b3cca3c3792f0076ba1f1831d277efbcf0a9119b31a9a60eca7fb3d6231f331ef72"
 }
