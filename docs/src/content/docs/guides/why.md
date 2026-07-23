@@ -20,6 +20,6 @@ Pick honestly:
 - **Reorderable lists of stateful items**: patching is positional, not keyed; preserved focus/animation follows the position, not the item. Lit's `repeat` or FAST handle this correctly.
 - **High-frequency updates on large trees**: WCB re-renders synchronously per prop write and diffs the whole vnode tree; Lit/FAST update only the affected bindings on a batched schedule.
 - **SSR with client hydration**: WCB renders on the client after `connectedCallback`, so there's no hydration step. If you need server-rendered markup that hydrates in place, use Lit (`@lit-labs/ssr`).
-- **Big-team, long-horizon design systems**: WCB is a solo-maintained library with a deliberately small surface. For large-org backing and ecosystem, choose Lit (Google) or FAST (Microsoft, powers Fluent UI).
+- **Big-team, long-horizon design systems**: WCB is a solo-maintained library with a deliberately small surface. For large-org backing and ecosystem, choose Lit (OpenJS Foundation) or FAST (Microsoft, powers Fluent UI).
 
 For the measured numbers and the capability-by-capability breakdown behind these claims, see [WCB & similar libraries](/comparison/).
