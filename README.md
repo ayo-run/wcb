@@ -39,10 +39,6 @@ When you extend the `WebComponent` class for your component, you only have to de
 
 The result is a reactive UI on property changes.
 
-When the `template` is an `html` tagged template (a vnode tree), a re-render **patches the existing DOM in place** instead of rebuilding it: elements of the same tag are reused, only changed props/attributes/text are touched, and leftover nodes are trimmed. Transient DOM state on the rendered nodes therefore survives a re-render — focus, caret/selection, an `<input>`'s uncommitted value, `:hover`, and running CSS transitions. A controlled text field can write every keystroke back to a prop without losing focus.
-
-Patching is **index-based and non-keyed**: list items are matched by position, not identity. The resulting DOM is always correct, but preserved state follows the _position_ rather than the _item_ — remove the first row of a list and the node that held row 1 is rewritten to hold row 2, so a caret, an uncommitted value, or a running transition stays where it was while the content shifts under it. Fixed-order lists and append/remove-at-the-end are unaffected; reorderable lists of focusable or animated items are the sharp edge. A `key` prop for identity-based matching is not implemented.
-
 ## Want to get in touch?
 
 There are many ways to get in touch:
