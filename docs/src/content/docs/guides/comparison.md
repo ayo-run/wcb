@@ -41,7 +41,7 @@ What each library gives you beyond extending directly from `HTMLElement`, the bo
 | Works with zero build tooling    | ✅ import from CDN, no compiler                                    | ✅ (buildless possible, decorators need tooling)         | ✅                                      | ⚠️ practical with tooling                        |
 | Editor/IDE tooling               | ✅ typed props + [CEM analyzer plugin](/cem-plugin/)               | ✅ extensive (analyzer, TS decorators, IDE plugins)      | ✅ CEM-focused                          | ✅ TS-first                                      |
 | Lifecycle hooks                  | `onInit`, `afterViewInit`, `onChanges`, `onDestroy`                | full reactive update lifecycle                           | `willUpdate`, `firstUpdated`, `updated` | full lifecycle + behaviors                       |
-| Backing / ecosystem              | solo maintainer, small surface                                     | Google, large ecosystem                                   | new (2026), solo-authored         | Microsoft, powers Fluent UI                      |
+| Backing / ecosystem              | solo maintainer, small surface                                     | OpenJS Foundation (donated by Google 2025), large ecosystem | new (2026), solo-authored         | Microsoft, powers Fluent UI                      |
 
 :::note[Why 11ty WebC isn't here]
 WebC is a compile-time tool: it resolves components during an Eleventy build and ships plain HTML with no client runtime. Every row above is about what a library does _in the browser at runtime_, so a side-by-side comparison would be measuring two different things. If your components are static at build time, WebC solves a different problem.
