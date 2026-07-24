@@ -204,4 +204,53 @@ export function wcbStaticProps() {
   }
 }
 
+/**
+ * A companion analyzer plugin that rewrites each module's `path` from the
+ * scanned source to its built, published counterpart — so a shipped
+ * `custom-elements.json` points at the files consumers actually import
+ * (`dist/*.js`) rather than the source the analyzer read (`src/*.ts`), which a
+ * package typically does not publish.
+ *
+ * Zero-config it maps the `src/` prefix to `dist/` and rewrites TypeScript
+ * extensions to their emitted JS form (`.ts`→`.js`, `.mts`→`.mjs`,
+ * `.cts`→`.cjs`); other extensions pass through untouched. Override `rootDir` /
+ * `outDir` (named to mirror `tsconfig`) or extend `ext` for other layouts.
+ * @param {object} [options]
+ * @param {string} [options.rootDir] source directory prefix to replace (default `'src'`)
+ * @param {string} [options.outDir] built-output directory to point at (default `'dist'`)
+ * @param {Record<string, string>} [options.ext] extension remap, merged over the defaults
+ * @returns {{name: string, packageLinkPhase: (ctx: any) => void}} a CEM analyzer plugin
+ * @example
+ * // custom-elements-manifest.config.mjs
+ * import { wcbStaticProps, distPaths } from 'web-component-base/cem-plugin'
+ * export default {
+ *   globs: ['src/**\/*.ts'],
+ *   plugins: [wcbStaticProps(), distPaths()],
+ * }
+ */
+export function distPaths(options = {}) {
+  const withSlash = (dir) => dir.replace(/\/*$/, '/')
+  const from = withSlash(options.rootDir ?? 'src')
+  const to = withSlash(options.outDir ?? 'dist')
+  const ext = { '.ts': '.js', '.mts': '.mjs', '.cts': '.cjs', ...options.ext }
+  return {
+    name: 'wcb-dist-paths',
+    packageLinkPhase({ customElementsManifest }) {
+      for (const mod of customElementsManifest.modules ?? []) {
+        if (!mod.path) continue
+        let path = mod.path.startsWith(from)
+          ? to + mod.path.slice(from.length)
+          : mod.path
+        for (const [srcExt, outExt] of Object.entries(ext)) {
+          if (path.endsWith(srcExt)) {
+            path = path.slice(0, -srcExt.length) + outExt
+            break
+          }
+        }
+        mod.path = path
+      }
+    },
+  }
+}
+
 export default wcbStaticProps

@@ -1,7 +1,7 @@
 import { createRequire } from 'node:module'
 import { describe, expect, it } from 'vitest'
 import { create } from '@custom-elements-manifest/analyzer/src/create.js'
-import { wcbStaticProps } from '../src/cem-plugin.js'
+import { distPaths, wcbStaticProps } from '../src/cem-plugin.js'
 import { getKebabCase } from '../src/utils/index.js'
 
 // The analyzer resolves its own `typescript`, which may be a different version
@@ -183,5 +183,76 @@ describe('cem-plugin: wcbStaticProps', () => {
     )
     expect(doc.attributes).toBeUndefined()
     expect(doc.members.map((m) => m.name)).toContain('props')
+  })
+})
+
+/**
+ * Runs the real analyzer over one or more named source files with the given
+ * plugins installed and returns the module paths from the generated manifest —
+ * `packageLinkPhase` (where `distPaths` runs) fires as part of this.
+ * @param {string[]} fileNames source paths to stamp on the scanned modules
+ * @param {object[]} plugins analyzer plugins to install
+ * @returns {string[]} the resulting `module.path` for each module
+ */
+function modulePaths(fileNames, plugins) {
+  const manifest = create({
+    modules: fileNames.map((fileName) =>
+      ts.createSourceFile(fileName, '', ts.ScriptTarget.ES2015, true)
+    ),
+    plugins,
+    context: { dev: false, thirdPartyCEMs: [] },
+  })
+  return manifest.modules.map((m) => m.path)
+}
+
+describe('cem-plugin: distPaths', () => {
+  it('rewrites src/*.ts paths to dist/*.js by default', () => {
+    expect(modulePaths(['src/wcb-button.ts'], [distPaths()])).toEqual([
+      'dist/wcb-button.js',
+    ])
+  })
+
+  it('maps .mts/.cts to their emitted JS extensions', () => {
+    expect(
+      modulePaths(['src/a.mts', 'src/b.cts', 'src/c.ts'], [distPaths()])
+    ).toEqual(['dist/a.mjs', 'dist/b.cjs', 'dist/c.js'])
+  })
+
+  it('swaps the directory but keeps plain .js sources as-is', () => {
+    expect(modulePaths(['src/nested/widget.js'], [distPaths()])).toEqual([
+      'dist/nested/widget.js',
+    ])
+  })
+
+  it('honors rootDir / outDir overrides for non-standard layouts', () => {
+    expect(
+      modulePaths(
+        ['lib/x.ts'],
+        [distPaths({ rootDir: 'lib', outDir: 'dist/esm' })]
+      )
+    ).toEqual(['dist/esm/x.js'])
+  })
+
+  it('leaves paths outside rootDir untouched (dir), still remaps extension', () => {
+    expect(modulePaths(['other/x.ts'], [distPaths()])).toEqual(['other/x.js'])
+  })
+
+  it('runs alongside wcbStaticProps without interfering', () => {
+    const manifest = create({
+      modules: [
+        ts.createSourceFile(
+          'src/cozy-button.ts',
+          COZY_BUTTON,
+          ts.ScriptTarget.ES2015,
+          true
+        ),
+      ],
+      plugins: [wcbStaticProps(), distPaths()],
+      context: { dev: false, thirdPartyCEMs: [] },
+    })
+    const mod = manifest.modules[0]
+    expect(mod.path).toBe('dist/cozy-button.js')
+    const doc = mod.declarations.find((d) => d.name === 'CozyButton')
+    expect(doc.attributes.map((a) => a.name)).toContain('max-count')
   })
 })

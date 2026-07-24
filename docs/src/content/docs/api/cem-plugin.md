@@ -9,8 +9,8 @@ A plugin for
 that teaches it to read wcb's `static props` object.
 
 ```js
-import { wcbStaticProps } from 'web-component-base/cem-plugin'
-// also available as the module's default export
+import { wcbStaticProps, distPaths } from 'web-component-base/cem-plugin'
+// wcbStaticProps is also available as the module's default export
 import wcbStaticProps from 'web-component-base/cem-plugin'
 ```
 
@@ -53,3 +53,36 @@ attributes, so editor completion and Storybook controls have nothing to read.
 
 The `static props` initializer must resolve to an object literal in the same
 source file.
+
+## `distPaths(options?)`
+
+A companion plugin that rewrites each module's `path` in the manifest from the
+scanned source to the built output a package publishes, so a shipped
+`custom-elements.json` points at files consumers can actually import.
+
+```js
+// custom-elements-manifest.config.mjs
+import { wcbStaticProps, distPaths } from 'web-component-base/cem-plugin'
+
+export default {
+  globs: ['src/**/*.ts'],
+  outdir: '.',
+  plugins: [wcbStaticProps(), distPaths()],
+}
+```
+
+| Option    | Type                     | Default  |                                                |
+| --------- | ------------------------ | -------- | ---------------------------------------------- |
+| `rootDir` | `string`                 | `'src'`  | source directory prefix to replace             |
+| `outDir`  | `string`                 | `'dist'` | built-output directory to point at             |
+| `ext`     | `Record<string, string>` | see below | extension remap, merged over the defaults     |
+
+Zero-config it maps the `rootDir` prefix to `outDir` and rewrites TypeScript
+extensions to their emitted JS form — `.ts` → `.js`, `.mts` → `.mjs`,
+`.cts` → `.cjs`. Other extensions pass through, so a plain `.js` source only
+has its directory swapped. `options.ext` merges over that default map.
+
+It runs in the analyzer's `packageLinkPhase` (after `wcbStaticProps`'s
+`analyzePhase`), so ordering the two in the `plugins` array does not matter.
+Run `cem analyze` after your build so the files the rewritten paths point at
+exist. See the [publishing note in the guide](/cem-plugin/#configure).

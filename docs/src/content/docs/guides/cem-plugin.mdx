@@ -49,6 +49,35 @@ Then run the analyzer:
 npx cem analyze
 ```
 
+<Aside type="caution" title="Publishing a package? Point the manifest at your built files">
+  The analyzer stamps each module's `path` with the exact file it scanned —
+  so with `globs: ['src/**/*.ts']` every `path` in `custom-elements.json` is a
+  `.ts` source file. Most packages publish only their built `dist/` output
+  (and can't `import` a `.ts` at runtime anyway), so a consumer reading that
+  manifest resolves paths that aren't in the tarball.
+
+Add `distPaths()` after `wcbStaticProps()` to rewrite those paths to the
+built output. Zero-config it maps `src/` → `dist/` and TypeScript extensions
+to their emitted JS form (`.ts` → `.js`, and `.mts` / `.cts` likewise):
+
+```js
+import { wcbStaticProps, distPaths } from 'web-component-base/cem-plugin'
+
+export default {
+  globs: ['src/**/*.ts'],
+  outdir: '.',
+  plugins: [wcbStaticProps(), distPaths()],
+}
+```
+
+For a different layout, override `rootDir` / `outDir` (named to mirror
+`tsconfig`): `distPaths({ rootDir: 'lib', outDir: 'dist/esm' })`. Run
+`cem analyze` **after** your build so the `dist/` files it points at exist.
+Not publishing the manifest — e.g. a local Storybook or editor setup over
+your own source — needs none of this.
+
+</Aside>
+
 <Aside type="caution" title="LOOK OUT! `cem analyze` fails by hanging, not by erroring">
   Run it **from the directory holding your config and a `package.json`**. Two
   things make it appear to do nothing, neither of which prints an error:
