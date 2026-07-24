@@ -47,7 +47,7 @@ There are many ways to get in touch:
 
 ## Inspirations and thanks
 
-1. [Sara Rainsberger](https://rainsberger.ca/) - I never stop singing praises to the Astro documentation team and I use Sarah's ["50 docs tips in 50 days"](https://www.rainsberger.ca/docs-tips/) as a guide in reviewing the [documentation for wcb](https://webcomponent.io). I do not have a team myself, and do not have the level of excellence Sarah brings to reviewing docs. I often need the assistance and have encodified a [docs-review skill](https://github.com/ayo-run/wcb/blob/main/.claude/skills/docs-review/SKILL.md) for it.
+1. [Sara Rainsberger](https://rainsberger.ca/) - I never stop singing praises to the Astro documentation team and I use Sarah's ["50 docs tips in 50 days"](https://www.rainsberger.ca/docs-tips/) as a guide in reviewing the [documentation for wcb](https://webcomponent.io). I do not have a team myself, and do not have the level of excellence Sarah brings to reviewing docs. I often need the assistance and have encodified a [docs-review skill](https://github.com/ayo-run/wcb/blob/main/.claude/skills/docs-review/SKILL.md) for it *with permission*.
 1. [htm](https://github.com/developit/htm) - I use it for the `html` function for tagged templates, and take a lot of inspiration in building the rendering implementation. It is highly likely that I will go for what Preact is doing... but we'll see.
 1. [fast](https://github.com/microsoft/fast) - When I found that Microsoft has their own base class I thought it was super cool!
 1. [lit](https://github.com/lit/lit) - `lit-html` continues to amaze me and I worked to make `wcb` generic so I (and others) can continue to use it
