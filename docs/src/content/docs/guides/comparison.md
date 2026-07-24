@@ -15,13 +15,13 @@ See it live: [Library comparison demo ↗](https://demo.webcomponent.io/examples
 
 | Library                   | Version | Minified | Gzip    | Brotli     |
 | ------------------------- | ------- | -------- | ------- | ---------- |
-| **web-component-base**    | 6.1.2   | 6.6 kB   | 2.9 kB  | **2.6 kB** |
+| **web-component-base**    | 6.1.4   | 6.6 kB   | 2.9 kB  | **2.6 kB** |
 | `@elenajs/core`           | 1.0.0   | 9.1 kB   | 3.7 kB  | 3.4 kB     |
 | `lit`                     | 3.3.3   | 15.3 kB  | 5.9 kB  | 5.3 kB     |
 | `@microsoft/fast-element` | 3.0.1   | 44.8 kB  | 13.6 kB | 12.2 kB    |
 | vanilla `HTMLElement`     | -       | 0.6 kB   | 0.3 kB  | 0.2 kB     |
 
-For scale: even after all of the v5.2–v6.1 work, the WCB counter is **~21% smaller than Elena, ~51% smaller than Lit, and ~79% smaller than FAST**.
+For scale: even after all of the v5.2–v6.1 work, the WCB counter is **~23% smaller than Elena, ~52% smaller than Lit, and ~79% smaller than FAST**.
 
 ## Feature comparison
 
@@ -51,4 +51,4 @@ For what these numbers and capabilities add up to (and when they don't) see [Why
 
 ---
 
-_WCB re-measured 2026-07-24 at v6.1.2; the other libraries measured 2026-07-19, with esbuild, Node zlib (gzip −9, brotli q11), at the pinned versions above. Methodology: identical counter component per library, bundled per library, compressed. Re-run them yourself — the counters and the [`measure.mjs`](https://demo.webcomponent.io/examples/library-comparison/) script live in the demo workspace (`demo/examples/library-comparison/`). The benchmark is trivially reproducible with the versions pinned above._
+_WCB re-measured 2026-07-24 at v6.1.4; the other libraries measured 2026-07-19, with esbuild, Node zlib (gzip −9, brotli q11), at the pinned versions above. Methodology: identical counter component per library, bundled per library, compressed. Re-run them yourself — the counters and the [`measure.mjs`](https://demo.webcomponent.io/examples/library-comparison/) script live in the demo workspace (`demo/examples/library-comparison/`). The benchmark is trivially reproducible with the versions pinned above._
