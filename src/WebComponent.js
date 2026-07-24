@@ -304,12 +304,10 @@ export class WebComponent extends HTMLElement {
     Object.keys(initialProps).forEach((camelCase) => {
       this.#typeMap[camelCase] = typeof initialProps[camelCase]
     })
-    if (!this.#props) {
-      this.#props = new Proxy(
-        initialProps,
-        this.#handler((key, value) => this.#reflect(key, value), this)
-      )
-    }
+    this.#props = new Proxy(
+      initialProps,
+      this.#handler((key, value) => this.#reflect(key, value), this)
+    )
   }
 
   /**
@@ -371,12 +369,9 @@ export class WebComponent extends HTMLElement {
            * - resolve prop values
            * - attach event listeners
            */
-          const el = createElement(template)
-
-          if (el) {
-            if (Array.isArray(el)) this.#host.replaceChildren(...el)
-            else this.#host.replaceChildren(el)
-          }
+          // a multi-root template comes back as a DocumentFragment, which
+          // replaceChildren splices in — so one call covers both shapes
+          this.#host.replaceChildren(createElement(template))
         } else {
           // re-render: reconcile in place so focus, caret/selection, an
           // uncommitted <input> value, :hover and running transitions survive
