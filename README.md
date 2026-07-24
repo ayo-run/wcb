@@ -24,7 +24,9 @@
 
 🤷‍♂️ zero-dependency, 🤏 tiny JS base class for creating reactive [custom elements](https://developer.mozilla.org/en-US/docs/Web/API/Web_Components/Using_custom_elements) easily ✨
 
-This is the base class used for web components in Ayo's projects, primarily [cozy-games](https://git.ayo.run/ayo/cozy-games), [mcfly](https://git.ayo.run/ayo/mcfly/), his [personal site](https://ayo.ayco.io), his [blog](https://ayos.blog), and [others](https://git.ayo.run/ayo).
+When you extend the `WebComponent` class for your component, you only have to define the `template` and `properties`. Any change in any property value will automatically cause just the component UI to render.
+
+The result is a reactive UI on property changes.
 
 Next actions:
 
@@ -34,10 +36,6 @@ Next actions:
 4. [Try it on TypeScript playground](https://www.typescriptlang.org/play/?#code/JYWwDg9gTgLgBAbzgdQKYCMDCFwQHap4wA0cAFjCADZwC+cAZlDnAOQDuGAtAMY6QEiXdAEMAzqlYAoKQHoAVPKlx5cACKoeVEVFRwRcGAE8wehtDhGIAVyhwABmJgiYwHnDDMwY+8tUBJeGAxODwIeF0AR2tgXQATRgt2HnRDCDh2aABrUnRrCJcyVDsRPD84CDAYLmA8OD5wYCpULlcQPWNTODERBlRjDOAYMjgAFRNUMR4oYCrygAEJPQoYbwAuWVlOdAaBQhgAOmAIWU9KrhEeHkmxWQBiSura1om4rjPvGrwX0ymZuZUsiknT0yBSACF8jB8AAFLwhAC8iGUcG06FQVDW3RgMzwAHMUXFgiJ0M04lj0BAIM1SiitG4smIsXhrCB0VApLQZAolCo4ABBbE6GDFer8fD7A5wACiADdikY4FlUIrag4nC43B54fY4MF9HBdJdXPLtZVisZyroGM0eCKEtCDcrROheOJUAkXDjgHkRXBACgEGRmrnxDmGwQOHzEB3pPEZAGp474+dYwHEXJNDEV9DBvb69KUErouLo8HFitG-EDUAAPSCweraMQhMHoSG5-BwWsisstjDYXCCGAAHlb7eheDhlTEAD5kXAha53FGsWOobD4XAkQgUQu0RisaxMFQGXB2qxiLu4ESeqSPViGCIqBJLwuF7HGViAAyvugyBd5OAW5wAAFAAlFuc47m+eoMKBACE4bRlGBw3iSZIQUhkbwjGJ5xmIiYolyKJ4v0hioOA2giuB85vroMC2HUFDUMmMFwMOvoThUeAfgiAAkCBYYBYD0Ghd5xPxglkBGKFiWStAzleMECVhKH7lQ9CBip0nIThH5iLQADrSnsbInH4IpMGsVyxE8NYTg4NKzTtEQ0blgwtSoCBHApMI654BeKAQv5YFSEAA)
 
 ![counter example code snippet](https://git.ayo.run/ayo/wcb/raw/branch/main/assets/IMG_0682.png)
-
-When you extend the `WebComponent` class for your component, you only have to define the `template` and `properties`. Any change in any property value will automatically cause just the component UI to render.
-
-The result is a reactive UI on property changes.
 
 ## Want to get in touch?
 
@@ -57,6 +55,10 @@ There are many ways to get in touch:
 ## Size change log
 
 See [`size-change-log.md`](./size-change-log.md) for a running record of how each correctness/feature change affects the `WebComponent` base class bundle size, with the reason and benefit of each.
+
+## Background
+
+This is the base class used for web components in Ayo's projects, primarily [cozy-games](https://git.ayo.run/ayo/cozy-games), [mcfly](https://git.ayo.run/ayo/mcfly/), his [personal site](https://ayo.ayco.io), his [blog](https://ayos.blog), and [others](https://git.ayo.run/ayo).
 
 ---
 
