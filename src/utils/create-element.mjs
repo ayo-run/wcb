@@ -24,12 +24,7 @@ export function createElement(tree) {
     /**
      * handle children
      */
-    tree.children?.forEach((child) => {
-      const childEl = createElement(child)
-      if (childEl instanceof Node) {
-        el.appendChild(childEl)
-      }
-    })
+    tree.children?.forEach((child) => el.appendChild(createElement(child)))
     return el
   }
 }
