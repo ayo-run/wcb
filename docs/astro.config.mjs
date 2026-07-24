@@ -15,7 +15,7 @@ export default defineConfig({
         {
           icon: 'npm',
           label: 'NPM',
-          href: 'https://www.npmjs.com/package/web-component-base',
+          href: 'https://npmx.dev/package/web-component-base',
         },
         {
           icon: 'sourcehut',
