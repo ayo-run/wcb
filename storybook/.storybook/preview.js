@@ -1,5 +1,5 @@
 import { setCustomElementsManifest } from '@storybook/web-components-vite'
-import manifest from '../custom-elements.json'
+import manifest from '../.wcb/custom-elements.json'
 
 // This single line is what turns the manifest into autodocs + inferred
 // controls. Without the wcb CEM plugin the manifest has no `attributes` at

@@ -53,10 +53,15 @@ describe('create-wcb', () => {
 
     const packageJson = readJson('my-button', 'package.json')
     expect(packageJson.name).toBe('my-button')
-    expect(packageJson.customElements).toBe('custom-elements.json')
+    // Seeded in the scaffold and kept in sync by `cem analyze` — the analyzer
+    // maintains `customElements`, wcbJetBrainsPlugin maintains `web-types`.
+    expect(packageJson.customElements).toBe('.wcb/custom-elements.json')
+    expect(packageJson['web-types']).toBe('.wcb/web-types.json')
     expect(packageJson.scripts.analyze).toBe('cem analyze')
     expect(packageJson.scripts['build:lib']).toContain('vite-lib.config.ts')
-    expect(packageJson.files).toContain('custom-elements.json')
+    // the generated files ship via `files` (prepack runs analyze first)
+    expect(packageJson.files).toContain('.wcb/custom-elements.json')
+    expect(packageJson.files).toContain('.wcb/web-types.json')
     expect(packageJson.peerDependencies['web-component-base']).toBeDefined()
     expect(
       packageJson.devDependencies['@custom-elements-manifest/analyzer']
@@ -109,7 +114,7 @@ describe('create-wcb', () => {
     const root = path.join(workDir, 'my-button')
     expect(fs.existsSync(path.join(root, '.gitignore'))).toBe(true)
     expect(fs.existsSync(path.join(root, '_gitignore'))).toBe(false)
-    expect(read('my-button', '.gitignore')).toContain('custom-elements.json')
+    expect(read('my-button', '.gitignore')).toContain('.wcb/')
   })
 
   it('sanitizes the directory name into a valid package name', () => {

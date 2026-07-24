@@ -11,16 +11,16 @@ A publishable custom element built on
 - `npm run build:lib` — build the library: ESM + UMD bundles and `.d.ts`
   types in `dist/`, with `web-component-base` left external (it is a
   peerDependency)
-- `npm run analyze` — generate `custom-elements.json` from the component's
-  `static props`
+- `npm run analyze` — generate the manifest, VS Code custom-data, and
+  JetBrains web-types into `.wcb/` (all generated output lives there, gitignored)
 
 ## Publishing
 
 `npm publish` (or `npm pack`) runs the `prepack` script, which rebuilds the
-library and regenerates `custom-elements.json` — both ship inside the
-package, and the `customElements` field in `package.json` is how Storybook,
-editors, and other tooling discover the manifest. In the repo itself the
-manifest stays gitignored; it is a build artifact.
+library and regenerates `.wcb/custom-elements.json` — both `dist/` and the
+manifest ship inside the package (via the `files` field), and the
+`customElements` field in `package.json` is how Storybook, editors, and other
+tooling discover the manifest.
 
 See the [CEM plugin guide](https://webcomponent.io/cem-plugin/) for setting
 it up with Storybook and code editors.

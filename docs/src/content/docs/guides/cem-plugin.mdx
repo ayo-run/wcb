@@ -17,20 +17,22 @@ The CEM Analyzer (`@custom-elements-manifest/analyzer`), by default, will read
 `static props` as one static field and emits no attributes for it. This causes
 tooling like Storybook and code editors autocomplete to have nothing to read.
 
-Using our `web-component-base/cem-plugin`, the CEM Analyzer will expand each
-prop into a typed manifest attribute and matching public field. The steps below
-will guide you through installing the CEM Analyzer and configuring it so that
-tooling can work with your `wcb` custom elements.
+`web-component-base/cem-plugin` is a set of plugins that teach the CEM Analyzer
+to expand each prop into a typed manifest attribute and matching public field,
+and to turn that manifest into the files each tool wants. From there you get
+[Storybook controls and autodocs](#storybook) and [editor
+autocomplete](#code-editors) with no per-component configuration. The steps
+below will guide you through installing the CEM Analyzer and configuring it so
+that tooling can work with your `wcb` custom elements.
 
 <Aside type="tip" title="Starting a new project?">
   `npm create wcb@latest` scaffolds a project with the install and
-  configuration below already done: a starter component, this plugin and
-  [`distPaths()`](#ship-the-manifest-with-a-package-distpaths) configured in
-  `custom-elements-manifest.config.mjs`, an `analyze` script, and the
-  `customElements` field set in `package.json`. Use this guide to add the
-  manifest to an existing project, to understand what the scaffold configured,
-  or to wire the manifest into [Storybook](#storybook) or [your
-  editor](#code-editors) — which the scaffold leaves to you.
+  configuration below already done: a starter component, these plugins
+  configured in `custom-elements-manifest.config.mjs`, an `analyze` script, and
+  the `customElements` and `web-types` fields set in `package.json`. Use this
+  guide to add the manifest to an existing project, to understand what the
+  scaffold configured, or to wire the manifest into [Storybook](#storybook) —
+  which the scaffold leaves to you.
 </Aside>
 
 ## Install
@@ -43,16 +45,19 @@ npm i -D @custom-elements-manifest/analyzer
 
 ```js
 // custom-elements-manifest.config.mjs
-import { wcbStaticProps } from 'web-component-base/cem-plugin'
+import wcbPluginSet from 'web-component-base/cem-plugin'
 
 export default {
   globs: ['src/**/*.{js,ts}'],
-  outdir: '.',
-  plugins: [wcbStaticProps()],
+  outdir: '.wcb',
+  plugins: [...wcbPluginSet()],
 }
 ```
 
-Then run the analyzer:
+`wcbPluginSet()` is the complete set of plugins for generating a custom elements manifest
+and integrations with code editors such as VS Code and JetBrains IDEs. You can find all the plugins and what they do in the [cem-plugin API Reference](/api/cem-plugin)
+
+Once you have the CEM Analyzer configuration, run the analyzer:
 
 ```sh
 npx cem analyze
@@ -123,7 +128,7 @@ Storybook's web-components renderer builds **autodocs and controls** from a [Cus
 ```js
 // .storybook/preview.js
 import { setCustomElementsManifest } from '@storybook/web-components-vite'
-import manifest from '../custom-elements.json'
+import manifest from '../.wcb/custom-elements.json'
 
 setCustomElementsManifest(manifest)
 
@@ -159,16 +164,16 @@ export const Default = {
   [lit-html](https://lit.dev/docs/templates/overview/), so story files import
   `html` from `lit` and templates in them use **lit's binding syntax** — the
   `?disabled=${disabled}` prefix above is lit for "add or remove the boolean
-  attribute" (a plain `disabled=${false}` would write `disabled="false"`,
-  which wcb [parses as `true`](/prop-access/#boolean-props)). None of this
-  applies to your component: it keeps wcb's own `html` tag with no special
-  binding prefixes, and lit is a devDependency of the Storybook setup, never
-  shipped with the component.
+  attribute" (a plain `disabled=${false}` would write `disabled="false"`, which
+  wcb [parses as `true`](/prop-access/#boolean-props)). None of this applies to
+  your component: it keeps wcb's own `html` tag with no special binding
+  prefixes, and lit is a devDependency of the Storybook setup, never shipped
+  with the component.
 </Aside>
 
 <Aside type="tip">
   Regenerate the manifest before starting Storybook (`cem analyze && storybook
-  dev`). `custom-elements.json` is a build artifact, so it is usually
+  dev`). `.wcb/custom-elements.json` is a build artifact, so it is usually
   gitignored and rebuilt on demand.
 </Aside>
 
@@ -183,49 +188,64 @@ Once `custom-elements.json` exists, editors can offer tag-name and attribute aut
   just because the file exists. You need one of the two routes below.
 </Aside>
 
-First, declare the manifest file in your `package.json`. Route 2's language server
+First, declare the manifest file in your `package.json`. [Route 2](#route-2-a-language-server-extension-for-tagged-templates)'s language server
 discovers it through this field, and it's the ecosystem convention other manifest-driven
-tools will look for:
+tools will look for. Route 1 and JetBrains use their own discovery, covered below:
 
 ```json
 {
-  "customElements": "custom-elements.json"
+  "customElements": ".wcb/custom-elements.json"
 }
 ```
 
+You don't have to write this by hand — `cem analyze` sets it for you (it points the field at wherever `outdir` puts the manifest and keeps it in sync). It's shown here so you know what the field is.
+
 ### Route 1: native VS Code, no extension
 
-VS Code's built-in HTML language service reads its own [custom data](https://github.com/microsoft/vscode-custom-data) format. A second analyzer plugin converts the manifest into it, so both files come out of one `cem analyze` run:
-
-```sh
-npm i -D cem-plugin-vs-code-custom-data-generator
-```
+VS Code's built-in HTML and CSS language services read their own [custom data](https://github.com/microsoft/vscode-custom-data) format. `web-component-base/cem-plugin` ships a second plugin, `wcbVsCodePlugin()`, that converts the manifest into it, so the custom-data files come out of the same `cem analyze` run:
 
 ```js
 // custom-elements-manifest.config.mjs
-import { wcbStaticProps } from 'web-component-base/cem-plugin'
-import { generateCustomData } from 'cem-plugin-vs-code-custom-data-generator'
+import { wcbStaticProps, wcbVsCodePlugin } from 'web-component-base/cem-plugin'
 
 export default {
   globs: ['src/**/*.{js,ts}'],
-  outdir: '.',
-  plugins: [wcbStaticProps(), generateCustomData()],
+  outdir: '.wcb',
+  plugins: [wcbStaticProps(), wcbVsCodePlugin()],
 }
 ```
 
 ```json
 // .vscode/settings.json
 {
-  "html.customData": ["./vscode.html-custom-data.json"]
+  "html.customData": ["./.wcb/html-custom-data.json"],
+  "css.customData": ["./.wcb/css-custom-data.json"]
+}
+```
+
+It writes two files into `.wcb/` (its default `outdir`): `html-custom-data.json` (a tag per custom element, with its attributes and any `@reference Name - url` links) and `css-custom-data.json` (your `@cssproperty` entries as CSS custom-property completions and `@csspart` entries as `::part(...)` pseudo-elements). Disable either by passing its name as `null`, e.g. `wcbVsCodePlugin({ cssFileName: null })` when your components declare no CSS API.
+
+Those three come from JSDoc on the class — declare them and `wcbVsCodePlugin()` reads them straight out of the manifest:
+
+```ts
+// src/cozy-button.ts
+/**
+ * A button with cozy defaults.
+ * @reference Design tokens - https://example.com/tokens
+ * @cssproperty --cozy-radius - Corner radius. Default `4px`.
+ * @csspart label - The button's text span.
+ */
+export class CozyButton extends WebComponent<CozyButtonProps> {
+  // ...
 }
 ```
 
 <Aside type="caution">
-  `html.customData` paths resolve from the **workspace root**, not from the
-  settings file. If you run `cem analyze` in a subfolder, either point at
-  `./that-folder/vscode.html-custom-data.json` or give the generator its own
-  `outdir`, `generateCustomData({ outdir: '..' })`, so the file lands where
-  the setting expects it.
+  `html.customData` / `css.customData` paths resolve from the **workspace
+  root**, not from the settings file — hence the `./.wcb/` prefix above.
+  `wcbVsCodePlugin()` writes to `.wcb/` by default; override with
+  `wcbVsCodePlugin({ outdir: '...' })` (and match the setting) if you keep
+  generated files elsewhere, e.g. when `cem analyze` runs in a subfolder.
 </Aside>
 
 Restart VS Code and `<cozy-` completes in HTML files, with `variant` / `disabled` / `max-count` offered as attributes and their types and defaults on hover.
@@ -248,6 +268,44 @@ Two alternatives, both worth knowing the state of:
   Ecosystem state last checked July 2026.
 </Aside>
 
+### JetBrains (WebStorm / IntelliJ)
+
+JetBrains IDEs do **not** read the VS Code custom-data format. They use their own [web-types](https://github.com/JetBrains/web-types) JSON. `web-component-base/cem-plugin` ships `wcbJetBrainsPlugin()` — the JetBrains counterpart to `wcbVsCodePlugin()` — generating `.wcb/web-types.json` from the same manifest:
+
+```js
+// custom-elements-manifest.config.mjs
+import {
+  wcbStaticProps,
+  wcbJetBrainsPlugin,
+} from 'web-component-base/cem-plugin'
+
+export default {
+  globs: ['src/**/*.{js,ts}'],
+  outdir: '.wcb',
+  plugins: [wcbStaticProps(), wcbJetBrainsPlugin()],
+}
+```
+
+JetBrains discovers the file through the `web-types` field in `package.json` — no editor setting needed:
+
+```json
+{
+  "web-types": ".wcb/web-types.json"
+}
+```
+
+Like `customElements`, you don't write this by hand: `wcbJetBrainsPlugin()` sets the `web-types` field during `cem analyze` (pointing it at its own output and keeping it in sync). Pass `wcbJetBrainsPlugin({ packageJson: false })` to opt out. Just add the file to your package's `files` so it ships — then anyone who installs your library gets tag, attribute, property, and event completion in WebStorm automatically. The generated `name` / `version` mirror your `package.json` (override with `wcbJetBrainsPlugin({ name, version })` if needed).
+
+<Aside type="tip">
+  `wcbVsCodePlugin()` and `wcbJetBrainsPlugin()` are independent — list both to
+  cover VS Code and JetBrains from one `cem analyze`. `npm create wcb@latest`
+  sets up both (with `wcbPluginSet()`), so a scaffolded package publishes editor metadata for both out of the box.
+</Aside>
+
+### Other editors (Neovim, Sublime, Helix, Emacs)
+
+The Route 1 files are Microsoft's [`vscode-html-languageservice`](https://github.com/microsoft/vscode-html-languageservice/blob/main/docs/customData.md) / [`vscode-css-languageservice`](https://github.com/microsoft/vscode-css-languageservice/blob/main/docs/customData.md) custom-data format — a language-server feature, not a VS Code-only one. Any editor running those servers (via `vscode-langservers-extracted`) reads the same `.wcb/*-custom-data.json`; you point the server at them through its LSP `dataPaths` (the `html.customData` / `css.customData` init options) rather than a `.vscode/settings.json`. The wiring is manual and differs per client — check your LSP setup's docs.
+
 ## Ship the manifest with a package: `distPaths()`
 
 Publishing your components to npm? The analyzer stamps each module's `path` with the exact file it scanned —
@@ -256,11 +314,11 @@ so with `globs: ['src/**/*.ts']` every `path` in `custom-elements.json` is a
 (and can't `import` a `.ts` at runtime anyway), so a consumer reading that
 manifest resolves paths that aren't in the tarball.
 
-Add `distPaths()` after `wcbStaticProps()` to rewrite those paths to the
+`wcbPluginSet()` includes `distPaths()`, which rewrites those paths to the
 built output. Zero-config it maps `src/` → `dist/` and TypeScript extensions
 to their emitted JS form (`.ts` → `.js`, `.mts` → `.mjs`, `.cts` → `.cjs`).
 Other extensions pass through, so a `.js` source only has its directory
-swapped:
+swapped. On its own:
 
 ```js
 // custom-elements-manifest.config.mjs
@@ -268,13 +326,13 @@ import { wcbStaticProps, distPaths } from 'web-component-base/cem-plugin'
 
 export default {
   globs: ['src/**/*.ts'],
-  outdir: '.',
+  outdir: '.wcb',
   plugins: [wcbStaticProps(), distPaths()],
 }
 ```
 
-For a different layout, override `rootDir` / `outDir`: `distPaths({ rootDir: 'lib', outDir: 'dist/esm' })`. Run
+For a different layout, override `rootDir` / `outDir`: `distPaths({ rootDir: 'lib', outDir: 'dist/esm' })` — or `wcbPluginSet({ distPaths: { rootDir: 'lib', outDir: 'dist/esm' } })`. Run
 `cem analyze` **after** your build so the `dist/` files it points at exist. See
-the [API reference](/api/cem-plugin/#distpathsoptions) for the `ext` extension
+the [API reference](/api/cem-plugin/#distpaths) for the `ext` extension
 remap. Not publishing the manifest — e.g. a local Storybook or editor setup
 over your own source — needs none of this.

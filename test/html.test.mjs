@@ -30,7 +30,9 @@ describe('html tagged template', () => {
   })
 
   it('nests child vnodes', () => {
-    const vnode = html`<ul><li>a</li></ul>`
+    const vnode = html`<ul>
+      <li>a</li>
+    </ul>`
     expect(vnode.type).toBe('ul')
     expect(vnode.children[0]).toMatchObject({ type: 'li', children: ['a'] })
   })
@@ -42,7 +44,8 @@ describe('html tagged template', () => {
   })
 
   it('returns an array for multiple root nodes', () => {
-    const vnodes = html`<p>a</p><p>b</p>`
+    const vnodes = html`<p>a</p>
+      <p>b</p>`
     expect(Array.isArray(vnodes)).toBe(true)
     expect(vnodes).toHaveLength(2)
   })

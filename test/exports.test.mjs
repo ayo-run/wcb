@@ -20,6 +20,24 @@ describe('cem-plugin entry', () => {
     expect(mod.wcbStaticProps().name).toBe('wcb-static-props')
   })
 
+  it('exposes every plugin', async () => {
+    const mod = await import('../src/cem-plugin.js')
+    expect(mod.distPaths().name).toBe('wcb-dist-paths')
+    expect(mod.wcbVsCodePlugin().name).toBe('wcb-vs-code-plugin')
+    expect(mod.wcbJetBrainsPlugin().name).toBe('wcb-jet-brains-plugin')
+  })
+
+  it('defaults to wcbPluginSet(), the spreadable full plugin set', async () => {
+    const mod = await import('../src/cem-plugin.js')
+    expect(mod.default).toBe(mod.wcbPluginSet)
+    expect(mod.wcbPluginSet().map((p) => p.name)).toEqual([
+      'wcb-static-props',
+      'wcb-dist-paths',
+      'wcb-vs-code-plugin',
+      'wcb-jet-brains-plugin',
+    ])
+  })
+
   it('is not reachable from the package root', () => {
     // dev-only tooling must never be pulled into the browser bundle or the
     // size-limit budget
