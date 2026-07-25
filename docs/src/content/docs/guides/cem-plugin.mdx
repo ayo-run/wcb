@@ -15,9 +15,9 @@ the file format itself.
 
 The CEM Analyzer (`@custom-elements-manifest/analyzer`), by default, will read
 `static props` as one static field and emits no attributes for it. This causes
-tooling like Storybook and code editors autocomplete to have nothing to read.
+tooling like Storybook and code editors to not see information about our custom elements.
 
-`web-component-base/cem-plugin` is a set of plugins that teach the CEM Analyzer
+`web-component-base/cem-plugin` is a set of plugins that enables the CEM Analyzer
 to expand each prop into a typed manifest attribute and matching public field,
 and to turn that manifest into the files each tool wants. From there you get
 [Storybook controls and autodocs](#storybook) and [editor
@@ -26,10 +26,10 @@ below will guide you through installing the CEM Analyzer and configuring it so
 that tooling can work with your `wcb` custom elements.
 
 <Aside type="tip" title="Starting a new project?">
-  `npm create wcb@latest` scaffolds a project with the install and
+  `npm create wcb@latest` scaffolds a project with the installation and
   configuration below already done: a starter component, these plugins
-  configured in `custom-elements-manifest.config.mjs`, an `analyze` script, and
-  the `customElements` and `web-types` fields set in `package.json`. Use this
+  configured in for the CEM analyzer, an `analyze` script, and
+  the necessary fields set in `package.json`. Use this
   guide to add the manifest to an existing project, to understand what the
   scaffold configured, or to wire the manifest into [Storybook](#storybook) —
   which the scaffold leaves to you.
@@ -50,7 +50,7 @@ import wcbPluginSet from 'web-component-base/cem-plugin'
 export default {
   globs: ['src/**/*.{js,ts}'],
   outdir: '.wcb',
-  plugins: [...wcbPluginSet()],
+  plugins: [...wcbPluginSet()], // includes all the plugins
 }
 ```
 
@@ -117,13 +117,136 @@ customElements.define('cozy-button', CozyButton)
 Two details worth knowing:
 
 - **Types come from the default literal**: `true`/`false` → `boolean`, numeric → `number`, object/array → `object`, everything else → `string`. The TypeScript annotation is not consulted, so `variant`'s union still lands in the manifest as `string`.
-- **Attribute names come from wcb's own `getKebabCase`**, the same function `observedAttributes` uses, so manifest names can't drift from what the component actually observes.
+- **Attribute names come from wcb's own `getKebabCase`**, the same function `observedAttributes` uses
+
+## Code editors
+
+Once `custom-elements.json` exists, editors can offer tag-name and attribute autocomplete for your components, driven by the same `static props` the plugin reads.
+
+### VS Code
+
+VS Code does **not** read `custom-elements.json` natively. Nothing happens
+just because the file exists. You need one of the two routes below.
+
+First, the manifest file needs to be declared in your `package.json`.
+
+```json
+{
+  "customElements": ".wcb/custom-elements.json"
+}
+```
+
+`cem analyze` sets this field for you (it points the field at wherever `outdir` puts the manifest and keeps it in sync). It's shown here as a reference so you know what the field is.
+
+#### Route 1: native VS Code, no extension
+
+VS Code's built-in HTML and CSS language services read their own [custom data](https://github.com/microsoft/vscode-custom-data) format. `web-component-base/cem-plugin` ships a second plugin, `wcbVsCodePlugin()` (also included in `wcbPluginSet()` in the examble above), that converts the manifest into it:
+
+```js
+// custom-elements-manifest.config.mjs
+import { wcbStaticProps, wcbVsCodePlugin } from 'web-component-base/cem-plugin'
+
+export default {
+  globs: ['src/**/*.{js,ts}'],
+  outdir: '.wcb',
+  plugins: [wcbStaticProps(), wcbVsCodePlugin()], // both included in [...wcbPluginSet()]
+}
+```
+
+```json
+// .vscode/settings.json
+{
+  "html.customData": ["./.wcb/html-custom-data.json"],
+  "css.customData": ["./.wcb/css-custom-data.json"]
+}
+```
+
+It writes two files into `.wcb/` (its default `outdir`): `html-custom-data.json` (a tag per custom element, with its attributes and any `@reference Name - url` links) and `css-custom-data.json` (your `@cssproperty` entries as CSS custom-property completions and `@csspart` entries as `::part(...)` pseudo-elements). Disable either by passing its name as `null`, e.g. `wcbVsCodePlugin({ cssFileName: null })` when your components declare no CSS API.
+
+Those three come from JSDoc on the class — declare them and `wcbVsCodePlugin()` reads them straight out of the manifest:
+
+```ts
+// src/cozy-button.ts
+/**
+ * A button with cozy defaults.
+ * @reference Design tokens - https://example.com/tokens
+ * @cssproperty --cozy-radius - Corner radius. Default `4px`.
+ * @csspart label - The button's text span.
+ */
+export class CozyButton extends WebComponent<CozyButtonProps> {
+  // ...
+}
+```
+
+<Aside type="caution">
+  `html.customData` / `css.customData` paths resolve from the **workspace
+  root**, not from the settings file — hence the `./.wcb/` prefix above.
+  `wcbVsCodePlugin()` writes to `.wcb/` by default; override with
+  `wcbVsCodePlugin({ outdir: '...' })` (and match the setting) if you keep
+  generated files elsewhere, e.g. when `cem analyze` runs in a subfolder.
+</Aside>
+
+Restart VS Code and `<cozy-` completes in HTML files, with `variant` / `disabled` / `max-count` offered as attributes and their types and defaults on hover.
+
+**The catch:** `html.customData` only applies to `.html` files. wcb components author their markup in `html` tagged templates inside `.js` / `.ts`, and those do not go through the HTML language service. This route helps whoever writes plain HTML pages against your components. It will not light up inside your own templates.
+
+#### Route 2: a language server extension, for tagged templates
+
+To get the same completions **inside** tagged templates, you need an extension that understands them. The most current option is the [Custom Elements Manifest Language Server](https://marketplace.visualstudio.com/items?itemName=pwrs.cem-language-server-vscode) (`pwrs.cem-language-server-vscode`). It autocompletes tag names and attributes inside template literals in both JS and TS, adds hover documentation for attributes and defaults, and discovers the manifest through the `customElements` field above, no `.vscode/settings.json` needed.
+
+Two alternatives, both worth knowing the state of:
+
+- [`wc-toolkit/wc-language-server`](https://wc-toolkit.com/integrations/web-components-language-server/): VS Code and JetBrains, also manifest-driven. Self-described as **alpha and experimental**.
+- `Matsuuu.custom-elements-language-server-project`: the one you'll find most often in older write-ups. It is alpha, and **its repository was archived in January 2026**.
+
+<Aside type="note">
+  This corner of the ecosystem moves quickly and every option is pre-1.0. Route
+  1 is the conservative choice (it is plain VS Code configuration with no
+  extension to go stale) at the cost of not covering tagged templates.
+  Ecosystem state last checked July 2026.
+</Aside>
+
+### JetBrains (WebStorm / IntelliJ)
+
+JetBrains IDEs do **not** read the VS Code custom-data format. They use their own [web-types](https://github.com/JetBrains/web-types) JSON. `web-component-base/cem-plugin` ships `wcbJetBrainsPlugin()` — the JetBrains counterpart to `wcbVsCodePlugin()` — generating `.wcb/web-types.json` from the same manifest:
+
+```js
+// custom-elements-manifest.config.mjs
+import {
+  wcbStaticProps,
+  wcbJetBrainsPlugin,
+} from 'web-component-base/cem-plugin'
+
+export default {
+  globs: ['src/**/*.{js,ts}'],
+  outdir: '.wcb',
+  plugins: [wcbStaticProps(), wcbJetBrainsPlugin()],
+}
+```
+
+JetBrains discovers the file through the `web-types` field in `package.json` — no editor setting needed:
+
+```json
+{
+  "web-types": ".wcb/web-types.json"
+}
+```
+
+Like `customElements`, you don't write this by hand: `wcbJetBrainsPlugin()` sets the `web-types` field during `cem analyze` (pointing it at its own output and keeping it in sync). Pass `wcbJetBrainsPlugin({ packageJson: false })` to opt out. Just add the file to your package's `files` so it ships — then anyone who installs your library gets tag, attribute, property, and event completion in WebStorm automatically. The generated `name` / `version` mirror your `package.json` (override with `wcbJetBrainsPlugin({ name, version })` if needed).
+
+<Aside type="tip">
+  `wcbVsCodePlugin()` and `wcbJetBrainsPlugin()` are independent — list both to
+  cover VS Code and JetBrains from one `cem analyze`. `npm create wcb@latest`
+  sets up both (with `wcbPluginSet()`), so a scaffolded package publishes editor metadata for both out of the box.
+</Aside>
+
+### Other editors (Neovim, Sublime, Helix, Emacs)
+
+The Route 1 files are Microsoft's [`vscode-html-languageservice`](https://github.com/microsoft/vscode-html-languageservice/blob/main/docs/customData.md) / [`vscode-css-languageservice`](https://github.com/microsoft/vscode-css-languageservice/blob/main/docs/customData.md) custom-data format — a language-server feature, not a VS Code-only one. Any editor running those servers (via `vscode-langservers-extracted`) reads the same `.wcb/*-custom-data.json`; you point the server at them through its LSP `dataPaths` (the `html.customData` / `css.customData` init options) rather than a `.vscode/settings.json`. The wiring is manual and differs per client — check your LSP setup's docs.
 
 ## Storybook
 
-Storybook's web-components renderer builds **autodocs and controls** from a [Custom Elements Manifest](https://github.com/webcomponents/custom-elements-manifest).
-
-### Wire it into Storybook
+Storybook's web-components renderer builds **autodocs and controls** from a Custom Elements Manifest.
 
 ```js
 // .storybook/preview.js
@@ -174,137 +297,12 @@ export const Default = {
 <Aside type="tip">
   Regenerate the manifest before starting Storybook (`cem analyze && storybook
   dev`). `.wcb/custom-elements.json` is a build artifact, so it is usually
-  gitignored and rebuilt on demand.
+  rebuilt on demand.
 </Aside>
 
 For a complete working setup, see [`storybook/`](https://github.com/ayo-run/wcb/tree/main/storybook) in the wcb repo, which runs this configuration against the demo components.
 
-## Code editors
 
-Once `custom-elements.json` exists, editors can offer tag-name and attribute autocomplete for your components, driven by the same `static props` the plugin reads, so the hints can't drift from the code.
-
-<Aside type="caution">
-  VS Code does **not** read `custom-elements.json` natively. Nothing happens
-  just because the file exists. You need one of the two routes below.
-</Aside>
-
-First, declare the manifest file in your `package.json`. [Route 2](#route-2-a-language-server-extension-for-tagged-templates)'s language server
-discovers it through this field, and it's the ecosystem convention other manifest-driven
-tools will look for. Route 1 and JetBrains use their own discovery, covered below:
-
-```json
-{
-  "customElements": ".wcb/custom-elements.json"
-}
-```
-
-You don't have to write this by hand — `cem analyze` sets it for you (it points the field at wherever `outdir` puts the manifest and keeps it in sync). It's shown here so you know what the field is.
-
-### Route 1: native VS Code, no extension
-
-VS Code's built-in HTML and CSS language services read their own [custom data](https://github.com/microsoft/vscode-custom-data) format. `web-component-base/cem-plugin` ships a second plugin, `wcbVsCodePlugin()`, that converts the manifest into it, so the custom-data files come out of the same `cem analyze` run:
-
-```js
-// custom-elements-manifest.config.mjs
-import { wcbStaticProps, wcbVsCodePlugin } from 'web-component-base/cem-plugin'
-
-export default {
-  globs: ['src/**/*.{js,ts}'],
-  outdir: '.wcb',
-  plugins: [wcbStaticProps(), wcbVsCodePlugin()],
-}
-```
-
-```json
-// .vscode/settings.json
-{
-  "html.customData": ["./.wcb/html-custom-data.json"],
-  "css.customData": ["./.wcb/css-custom-data.json"]
-}
-```
-
-It writes two files into `.wcb/` (its default `outdir`): `html-custom-data.json` (a tag per custom element, with its attributes and any `@reference Name - url` links) and `css-custom-data.json` (your `@cssproperty` entries as CSS custom-property completions and `@csspart` entries as `::part(...)` pseudo-elements). Disable either by passing its name as `null`, e.g. `wcbVsCodePlugin({ cssFileName: null })` when your components declare no CSS API.
-
-Those three come from JSDoc on the class — declare them and `wcbVsCodePlugin()` reads them straight out of the manifest:
-
-```ts
-// src/cozy-button.ts
-/**
- * A button with cozy defaults.
- * @reference Design tokens - https://example.com/tokens
- * @cssproperty --cozy-radius - Corner radius. Default `4px`.
- * @csspart label - The button's text span.
- */
-export class CozyButton extends WebComponent<CozyButtonProps> {
-  // ...
-}
-```
-
-<Aside type="caution">
-  `html.customData` / `css.customData` paths resolve from the **workspace
-  root**, not from the settings file — hence the `./.wcb/` prefix above.
-  `wcbVsCodePlugin()` writes to `.wcb/` by default; override with
-  `wcbVsCodePlugin({ outdir: '...' })` (and match the setting) if you keep
-  generated files elsewhere, e.g. when `cem analyze` runs in a subfolder.
-</Aside>
-
-Restart VS Code and `<cozy-` completes in HTML files, with `variant` / `disabled` / `max-count` offered as attributes and their types and defaults on hover.
-
-**The catch:** `html.customData` only applies to `.html` files. wcb components author their markup in `html` tagged templates inside `.js` / `.ts`, and those do not go through the HTML language service. This route helps whoever writes plain HTML pages against your components. It will not light up inside your own templates.
-
-### Route 2: a language server extension, for tagged templates
-
-To get the same completions **inside** tagged templates, you need an extension that understands them. The most current option is the [Custom Elements Manifest Language Server](https://marketplace.visualstudio.com/items?itemName=pwrs.cem-language-server-vscode) (`pwrs.cem-language-server-vscode`). It autocompletes tag names and attributes inside template literals in both JS and TS, adds hover documentation for attributes and defaults, and discovers the manifest through the `customElements` field above, no `.vscode/settings.json` needed.
-
-Two alternatives, both worth knowing the state of:
-
-- [`wc-toolkit/wc-language-server`](https://wc-toolkit.com/integrations/web-components-language-server/): VS Code and JetBrains, also manifest-driven. Self-described as **alpha and experimental**.
-- `Matsuuu.custom-elements-language-server-project`: the one you'll find most often in older write-ups. It is alpha, and **its repository was archived in January 2026**, so prefer one of the two above.
-
-<Aside type="note">
-  This corner of the ecosystem moves quickly and every option is pre-1.0. Route
-  1 is the conservative choice (it is plain VS Code configuration with no
-  extension to go stale) at the cost of not covering tagged templates.
-  Ecosystem state last checked July 2026.
-</Aside>
-
-### JetBrains (WebStorm / IntelliJ)
-
-JetBrains IDEs do **not** read the VS Code custom-data format. They use their own [web-types](https://github.com/JetBrains/web-types) JSON. `web-component-base/cem-plugin` ships `wcbJetBrainsPlugin()` — the JetBrains counterpart to `wcbVsCodePlugin()` — generating `.wcb/web-types.json` from the same manifest:
-
-```js
-// custom-elements-manifest.config.mjs
-import {
-  wcbStaticProps,
-  wcbJetBrainsPlugin,
-} from 'web-component-base/cem-plugin'
-
-export default {
-  globs: ['src/**/*.{js,ts}'],
-  outdir: '.wcb',
-  plugins: [wcbStaticProps(), wcbJetBrainsPlugin()],
-}
-```
-
-JetBrains discovers the file through the `web-types` field in `package.json` — no editor setting needed:
-
-```json
-{
-  "web-types": ".wcb/web-types.json"
-}
-```
-
-Like `customElements`, you don't write this by hand: `wcbJetBrainsPlugin()` sets the `web-types` field during `cem analyze` (pointing it at its own output and keeping it in sync). Pass `wcbJetBrainsPlugin({ packageJson: false })` to opt out. Just add the file to your package's `files` so it ships — then anyone who installs your library gets tag, attribute, property, and event completion in WebStorm automatically. The generated `name` / `version` mirror your `package.json` (override with `wcbJetBrainsPlugin({ name, version })` if needed).
-
-<Aside type="tip">
-  `wcbVsCodePlugin()` and `wcbJetBrainsPlugin()` are independent — list both to
-  cover VS Code and JetBrains from one `cem analyze`. `npm create wcb@latest`
-  sets up both (with `wcbPluginSet()`), so a scaffolded package publishes editor metadata for both out of the box.
-</Aside>
-
-### Other editors (Neovim, Sublime, Helix, Emacs)
-
-The Route 1 files are Microsoft's [`vscode-html-languageservice`](https://github.com/microsoft/vscode-html-languageservice/blob/main/docs/customData.md) / [`vscode-css-languageservice`](https://github.com/microsoft/vscode-css-languageservice/blob/main/docs/customData.md) custom-data format — a language-server feature, not a VS Code-only one. Any editor running those servers (via `vscode-langservers-extracted`) reads the same `.wcb/*-custom-data.json`; you point the server at them through its LSP `dataPaths` (the `html.customData` / `css.customData` init options) rather than a `.vscode/settings.json`. The wiring is manual and differs per client — check your LSP setup's docs.
 
 ## Ship the manifest with a package: `distPaths()`
 
@@ -312,12 +310,12 @@ Publishing your components to npm? The analyzer stamps each module's `path` with
 so with `globs: ['src/**/*.ts']` every `path` in `custom-elements.json` is a
 `.ts` source file. Most packages publish only their built `dist/` output
 (and can't `import` a `.ts` at runtime anyway), so a consumer reading that
-manifest resolves paths that aren't in the tarball.
+manifest resolves paths that aren't in the package.
 
 `wcbPluginSet()` includes `distPaths()`, which rewrites those paths to the
-built output. Zero-config it maps `src/` → `dist/` and TypeScript extensions
+built output. Zero-config it maps `src/` → `dist/` and TypeScript file extensions
 to their emitted JS form (`.ts` → `.js`, `.mts` → `.mjs`, `.cts` → `.cjs`).
-Other extensions pass through, so a `.js` source only has its directory
+Other file extensions pass through, so a `.js` source only has its directory
 swapped. On its own:
 
 ```js
