@@ -13,7 +13,14 @@ for the analyzer and its plugin API, or the [schema and
 specification](https://github.com/webcomponents/custom-elements-manifest) for
 the file format itself.
 
-We provide a CEM Analyzer Plugin `web-component-base/cem-plugin` which allows using the `@custom-elements-manifest/analyzer` by handling wcb's `static props` object. In this guide we show how to use this plugin and the benefits for using it with [Storybook](#storybook) and [code editors](#code-editors).
+The CEM Analyzer (`@custom-elements-manifest/analyzer`), by default, will read
+`static props` as one static field and emits no attributes for it. This causes
+tooling like Storybook and code editors autocomplete to have nothing to read.
+
+Using our `web-component-base/cem-plugin`, the CEM Analyzer will expand each
+prop into a typed manifest attribute and matching public field. The steps below
+will guide you through installing the CEM Analyzer and configuring it so that
+tooling can work with your `wcb` custom elements.
 
 <Aside type="tip" title="Starting a new project?">
   `npm create wcb@latest` scaffolds a project with everything below already
@@ -49,7 +56,7 @@ Then run the analyzer:
 npx cem analyze
 ```
 
-<Aside type="caution" title="LOOK OUT! `cem analyze` fails by hanging, not by erroring">
+<Aside type="caution" title="`cem analyze` fails by hanging, not by erroring">
   Run it **from the directory holding your config and a `package.json`**. Two
   things make it appear to do nothing, neither of which prints an error:
 
@@ -61,40 +68,14 @@ npx cem analyze
 With globs scoped to your source it should finish in well under a second.
 </Aside>
 
-### Prepare to publish a package with `distPaths()`
-
-The analyzer stamps each module's `path` with the exact file it scanned —
-so with `globs: ['src/**/*.ts']` every `path` in `custom-elements.json` is a
-`.ts` source file. Most packages publish only their built `dist/` output
-(and can't `import` a `.ts` at runtime anyway), so a consumer reading that
-manifest resolves paths that aren't in the tarball.
-
-Add `distPaths()` after `wcbStaticProps()` to rewrite those paths to the
-built output. Zero-config it maps `src/` → `dist/` and TypeScript extensions
-to their emitted JS form (`.ts` → `.js`, and `.mts` / `.cts` likewise):
-
-```js
-import { wcbStaticProps, distPaths } from 'web-component-base/cem-plugin'
-
-export default {
-  globs: ['src/**/*.ts'],
-  outdir: '.',
-  plugins: [wcbStaticProps(), distPaths()],
-}
-```
-
-For a different layout, override `rootDir` / `outDir`: `distPaths({ rootDir: 'lib', outDir: 'dist/esm' })`. Run
-`cem analyze` **after** your build so the `dist/` files it points at exist.
-Not publishing the manifest — e.g. a local Storybook or editor setup over
-your own source — needs none of this.
-
-
-
 ## What it produces
 
 Given a component:
 
 ```ts
+// src/cozy-button.ts
+import { WebComponent, html } from 'web-component-base'
+
 type CozyButtonProps = {
   variant: 'primary' | 'ghost'
   disabled: boolean
@@ -135,7 +116,7 @@ Two details worth knowing:
 
 Storybook's web-components renderer builds **autodocs and controls** from a [Custom Elements Manifest](https://github.com/webcomponents/custom-elements-manifest).
 
-## Wire it into Storybook
+### Wire it into Storybook
 
 ```js
 // .storybook/preview.js
@@ -189,7 +170,7 @@ export const Default = {
   gitignored and rebuilt on demand.
 </Aside>
 
-This repo runs exactly this setup against the demo components in `storybook/`. See it there for a working reference.
+For a complete working setup, see [`storybook/`](https://github.com/ayo-run/wcb/tree/main/storybook) in the wcb repo, which runs this configuration against the demo components.
 
 ## Code editors
 
@@ -200,7 +181,9 @@ Once `custom-elements.json` exists, editors can offer tag-name and attribute aut
   just because the file exists. You need one of the two routes below.
 </Aside>
 
-First, point tooling at the manifest from your `package.json`. This is the field every option here uses to discover it:
+First, declare the manifest file in your `package.json`. Route 2's language server
+discovers it through this field, and it's the ecosystem convention other manifest-driven
+tools will look for:
 
 ```json
 {
@@ -260,4 +243,36 @@ Two alternatives, both worth knowing the state of:
   This corner of the ecosystem moves quickly and every option is pre-1.0. Route
   1 is the conservative choice (it is plain VS Code configuration with no
   extension to go stale) at the cost of not covering tagged templates.
+  Ecosystem state last checked July 2026.
 </Aside>
+
+## Ship the manifest with a package: `distPaths()`
+
+Publishing your components to npm? The analyzer stamps each module's `path` with the exact file it scanned —
+so with `globs: ['src/**/*.ts']` every `path` in `custom-elements.json` is a
+`.ts` source file. Most packages publish only their built `dist/` output
+(and can't `import` a `.ts` at runtime anyway), so a consumer reading that
+manifest resolves paths that aren't in the tarball.
+
+Add `distPaths()` after `wcbStaticProps()` to rewrite those paths to the
+built output. Zero-config it maps `src/` → `dist/` and TypeScript extensions
+to their emitted JS form (`.ts` → `.js`, `.mts` → `.mjs`, `.cts` → `.cjs`).
+Other extensions pass through, so a `.js` source only has its directory
+swapped:
+
+```js
+// custom-elements-manifest.config.mjs
+import { wcbStaticProps, distPaths } from 'web-component-base/cem-plugin'
+
+export default {
+  globs: ['src/**/*.ts'],
+  outdir: '.',
+  plugins: [wcbStaticProps(), distPaths()],
+}
+```
+
+For a different layout, override `rootDir` / `outDir`: `distPaths({ rootDir: 'lib', outDir: 'dist/esm' })`. Run
+`cem analyze` **after** your build so the `dist/` files it points at exist. See
+the [API reference](/api/cem-plugin/#distpathsoptions) for the `ext` extension
+remap. Not publishing the manifest — e.g. a local Storybook or editor setup
+over your own source — needs none of this.

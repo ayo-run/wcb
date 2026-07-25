@@ -85,4 +85,5 @@ has its directory swapped. `options.ext` merges over that default map.
 It runs in the analyzer's `packageLinkPhase` (after `wcbStaticProps`'s
 `analyzePhase`), so ordering the two in the `plugins` array does not matter.
 Run `cem analyze` after your build so the files the rewritten paths point at
-exist. See the [publishing note in the guide](/cem-plugin/#configure).
+exist. See the [publishing note in the
+guide](/cem-plugin/#ship-the-manifest-with-a-package-distpaths).
