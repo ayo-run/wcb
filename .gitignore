@@ -25,3 +25,6 @@ storybook/custom-elements.json
 # so `html.customData` in .vscode/settings.json can resolve it
 vscode.html-custom-data.json
 vscode.css-custom-data.json
+
+# `cem analyze` outputs using `wcb` plugins
+.wcb
