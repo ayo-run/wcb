@@ -82,6 +82,11 @@ extensions to their emitted JS form — `.ts` → `.js`, `.mts` → `.mjs`,
 `.cts` → `.cjs`. Other extensions pass through, so a plain `.js` source only
 has its directory swapped. `options.ext` merges over that default map.
 
+References that point back at a module — `exports[].declaration`, `superclass`,
+`mixins[]` — are rewritten along with the paths, so the `module` a consumer
+follows still resolves to a module in the manifest. A reference carrying a
+`package` names another package's layout and is left untouched.
+
 It runs in the analyzer's `packageLinkPhase` (after `wcbStaticProps`'s
 `analyzePhase`), so ordering the two in the `plugins` array does not matter.
 Run `cem analyze` after your build so the files the rewritten paths point at

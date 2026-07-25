@@ -205,6 +205,24 @@ function modulePaths(fileNames, plugins) {
   return manifest.modules.map((m) => m.path)
 }
 
+/**
+ * Analyzes one source file with `wcbStaticProps` + `distPaths` installed and
+ * returns the resulting module doc — `packageLinkPhase` included.
+ * @param {string} fileName the source path stamped on the scanned module
+ * @param {string} source component source to analyze
+ * @returns {any} the module doc from the generated manifest
+ */
+function analyzedModule(fileName, source) {
+  const manifest = create({
+    modules: [
+      ts.createSourceFile(fileName, source, ts.ScriptTarget.ES2015, true),
+    ],
+    plugins: [wcbStaticProps(), distPaths()],
+    context: { dev: false, thirdPartyCEMs: [] },
+  })
+  return manifest.modules[0]
+}
+
 describe('cem-plugin: distPaths', () => {
   it('rewrites src/*.ts paths to dist/*.js by default', () => {
     expect(modulePaths(['src/wcb-button.ts'], [distPaths()])).toEqual([
@@ -254,5 +272,71 @@ describe('cem-plugin: distPaths', () => {
     expect(mod.path).toBe('dist/cozy-button.js')
     const doc = mod.declarations.find((d) => d.name === 'CozyButton')
     expect(doc.attributes.map((a) => a.name)).toContain('max-count')
+  })
+
+  describe('references back to the rewritten modules', () => {
+    const mod = analyzedModule('src/cozy-button.ts', COZY_BUTTON)
+
+    it('rewrites the module every export declaration points at', () => {
+      // A reference left on `src/cozy-button.ts` resolves to no module in the
+      // manifest — and to a file the package does not publish.
+      expect(mod.exports.length).toBeGreaterThan(0)
+      for (const exported of mod.exports)
+        expect(exported.declaration.module).toBe('dist/cozy-button.js')
+    })
+
+    it('keeps every internal reference pointing at a module in the manifest', () => {
+      const paths = [mod.path]
+      for (const exported of mod.exports)
+        expect(paths).toContain(exported.declaration.module)
+    })
+
+    it('leaves references into another package alone', () => {
+      const doc = mod.declarations.find((d) => d.name === 'CozyButton')
+      // `WebComponent` lives in web-component-base, whose layout this plugin
+      // knows nothing about — rewriting it would invent a path.
+      expect(doc.superclass).toMatchObject({
+        name: 'WebComponent',
+        package: 'web-component-base',
+      })
+      expect(doc.superclass.module).toBeUndefined()
+    })
+
+    it('rewrites a same-package reference but not a cross-package one', () => {
+      const manifest = create({
+        modules: [
+          ts.createSourceFile('src/x.ts', '', ts.ScriptTarget.ES2015, true),
+        ],
+        plugins: [
+          // Seeds before distPaths: plugins run a phase in array order.
+          {
+            name: 'seed-refs',
+            packageLinkPhase({ customElementsManifest }) {
+              customElementsManifest.modules[0].declarations = [
+                {
+                  kind: 'class',
+                  name: 'X',
+                  superclass: { name: 'Base', module: 'src/base.ts' },
+                  mixins: [
+                    { name: 'Ext', module: 'src/mix.ts' },
+                    {
+                      name: 'Vendor',
+                      module: 'src/v.ts',
+                      package: 'vendor-ui',
+                    },
+                  ],
+                },
+              ]
+            },
+          },
+          distPaths(),
+        ],
+        context: { dev: false, thirdPartyCEMs: [] },
+      })
+      const [doc] = manifest.modules[0].declarations
+      expect(doc.superclass.module).toBe('dist/base.js')
+      expect(doc.mixins[0].module).toBe('dist/mix.js')
+      expect(doc.mixins[1].module).toBe('src/v.ts')
+    })
   })
 })

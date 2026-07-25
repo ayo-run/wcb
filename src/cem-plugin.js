@@ -215,6 +215,11 @@ export function wcbStaticProps() {
  * extensions to their emitted JS form (`.ts`→`.js`, `.mts`→`.mjs`,
  * `.cts`→`.cjs`); other extensions pass through untouched. Override `rootDir` /
  * `outDir` (named to mirror `tsconfig`) or extend `ext` for other layouts.
+ *
+ * Every internal reference that points back at a module (`exports[].declaration`,
+ * `superclass`, `mixins[]`, …) is rewritten with the module paths, so the
+ * `module` a consumer follows still resolves. References carrying a `package`
+ * name another package's layout and are left alone.
  * @param {object} [options]
  * @param {string} [options.rootDir] source directory prefix to replace (default `'src'`)
  * @param {string} [options.outDir] built-output directory to point at (default `'dist'`)
@@ -233,21 +238,40 @@ export function distPaths(options = {}) {
   const from = withSlash(options.rootDir ?? 'src')
   const to = withSlash(options.outDir ?? 'dist')
   const ext = { '.ts': '.js', '.mts': '.mjs', '.cts': '.cjs', ...options.ext }
+
+  /**
+   * Maps one scanned source path to the built file that ships in its place.
+   * @param {string} path the path the analyzer stamped
+   * @returns {string} the built-output path
+   */
+  const rewrite = (path) => {
+    const swapped = path.startsWith(from) ? to + path.slice(from.length) : path
+    for (const [srcExt, outExt] of Object.entries(ext))
+      if (swapped.endsWith(srcExt))
+        return swapped.slice(0, -srcExt.length) + outExt
+    return swapped
+  }
+
+  /**
+   * Walks a manifest node and rewrites `module` on every reference to a module
+   * in this package, so references keep resolving after the paths move.
+   * @param {any} node a manifest node, array, or leaf value
+   * @returns {void}
+   */
+  const rewriteRefs = (node) => {
+    if (Array.isArray(node)) return node.forEach(rewriteRefs)
+    if (!node || typeof node !== 'object') return
+    if (typeof node.module === 'string' && !node.package)
+      node.module = rewrite(node.module)
+    for (const value of Object.values(node)) rewriteRefs(value)
+  }
+
   return {
     name: 'wcb-dist-paths',
     packageLinkPhase({ customElementsManifest }) {
       for (const mod of customElementsManifest.modules ?? []) {
-        if (!mod.path) continue
-        let path = mod.path.startsWith(from)
-          ? to + mod.path.slice(from.length)
-          : mod.path
-        for (const [srcExt, outExt] of Object.entries(ext)) {
-          if (path.endsWith(srcExt)) {
-            path = path.slice(0, -srcExt.length) + outExt
-            break
-          }
-        }
-        mod.path = path
+        if (mod.path) mod.path = rewrite(mod.path)
+        rewriteRefs(mod)
       }
     },
   }
