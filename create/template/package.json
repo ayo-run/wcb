@@ -37,6 +37,6 @@
     "vite-plugin-dts": "^5.0.3"
   },
   "peerDependencies": {
-    "web-component-base": "^6.1.4"
+    "web-component-base": "^6.1.5"
   }
 }
