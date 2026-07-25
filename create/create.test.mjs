@@ -45,6 +45,7 @@ describe('create-wcb', () => {
       'src/my-button.ts',
       'custom-elements-manifest.config.mjs',
       'vite-lib.config.ts',
+      'tsconfig.json',
       'pnpm-workspace.yaml',
       'README.md',
     ])

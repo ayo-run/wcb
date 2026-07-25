@@ -1,0 +1,21 @@
+// TypeScript config for the component source. `npm run build:lib` runs
+// vite-plugin-dts against this to emit `.d.ts` files next to the bundles.
+//
+// `moduleResolution: "bundler"` is the load-bearing line. Without it tsc falls
+// back to classic resolution, never looks in node_modules, and the
+// `web-component-base` import fails — which in turn makes every `this.props`
+// access an error, because the base class it resolves to is an error type.
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "strict": true,
+    "skipLibCheck": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "dist"
+  },
+  "include": ["src"]
+}
