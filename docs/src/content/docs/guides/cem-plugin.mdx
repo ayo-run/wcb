@@ -23,12 +23,14 @@ will guide you through installing the CEM Analyzer and configuring it so that
 tooling can work with your `wcb` custom elements.
 
 <Aside type="tip" title="Starting a new project?">
-  `npm create wcb@latest` scaffolds a project with everything below already
-  set up: a starter component, this plugin configured in
+  `npm create wcb@latest` scaffolds a project with the install and
+  configuration below already done: a starter component, this plugin and
+  [`distPaths()`](#ship-the-manifest-with-a-package-distpaths) configured in
   `custom-elements-manifest.config.mjs`, an `analyze` script, and the
-  `customElements` field set in `package.json`. The rest of this guide is the
-  manual path: use it to add the manifest to an existing project, or to
-  understand what the scaffold configured.
+  `customElements` field set in `package.json`. Use this guide to add the
+  manifest to an existing project, to understand what the scaffold configured,
+  or to wire the manifest into [Storybook](#storybook) or [your
+  editor](#code-editors) — which the scaffold leaves to you.
 </Aside>
 
 ## Install
