@@ -52,7 +52,7 @@ Everything is in `src/` (entry point `src/index.js` re-exports `WebComponent` an
 
 Any change to observable behavior ships as one unit — code alone is an incomplete change. Land all four together:
 
-1. **Tests** — unit specs in `test/` (or colocated `*.test.mjs`) covering the new contract *and* the old behavior it replaces. Add a `test/e2e/` spec whenever the behavior depends on something happy-dom cannot model faithfully — CSS selector matching, computed styles, custom-element upgrade timing.
+1. **Tests** — unit specs in `test/` covering the new contract *and* the old behavior it replaces. Add a `test/e2e/` spec whenever the behavior depends on something happy-dom cannot model faithfully — CSS selector matching, computed styles, custom-element upgrade timing.
 2. **Demo examples** — a runnable example under `demo/examples/` that demonstrates the behavior, linked from a card in `demo/index.html`. Update any existing example the change affects, including ones that now emit a console warning or model a discouraged pattern.
 3. **Documentation** — the guide under `docs/src/content/docs/guides/` that doubles as the behavioral spec. For a breaking change, also update the `README.md` banner with the migration consumers have to perform.
 4. **Size budget** — `pnpm size-limit` stays green. If an addition genuinely needs more headroom, raise the budget in `package.json` deliberately and say so in the change description; never let it drift silently. Whenever the change moves the base-class bundle, record it as a new row in `size-change-log.md` **and** update the headline size in `docs/src/content/docs/guides/library-size.md` to match that row's new min+brotli figure — the two must never disagree.
@@ -62,7 +62,7 @@ Verify with `pnpm test:all` (unit + types + template + e2e across all engines) b
 ## Testing notes
 
 - Environment is **happy-dom** (set in `vitest.config.mjs`), so real custom-element registration works. Any component under test must be registered with `customElements.define(...)` before instantiation, or the browser throws.
-- Tests live both in `test/` and colocated next to source as `*.test.mjs` (e.g. `src/utils/serialize.test.mjs`). Coverage is restricted to `src`.
+- All specs live under `test/` (`test/utils/` mirrors `src/utils/`); never colocate one next to source. `copy:source` globs `./src/*.js` and `./src/utils/*`, so a spec in `src/` is minified into the published `dist/` — `test/exports.test.mjs` guards against that. Coverage is restricted to `src`.
 - happy-dom does not perfectly match browser semantics (notably custom-element upgrade ordering); be skeptical of behaviors that depend on real-browser timing.
 
 ## State-model invariants (easy to regress)
