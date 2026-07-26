@@ -10,14 +10,15 @@ that teach it to read wcb's `static props` object and turn the resulting
 manifest into the files editors and IDEs read.
 
 ```js
-import {
+// wcbPluginSet — all four plugins at once — is the module's default export,
+// and the way to configure them. The individual plugins are named exports,
+// for the rare config that needs to leave one out.
+import wcbPluginSet, {
   wcbStaticProps,
   distPaths,
   wcbVsCodePlugin,
   wcbJetBrainsPlugin,
 } from 'web-component-base/cem-plugin'
-// wcbPluginSet — all four at once — is the module's default export
-import wcbPluginSet from 'web-component-base/cem-plugin'
 ```
 
 They are dev-time only: they run in Node during `cem analyze` and are never
@@ -28,7 +29,10 @@ integration.
 ## `wcbPluginSet()`
 
 Returns all four plugins as an array, ready to spread into `plugins`. This is
-the module's default export, and what `npm create wcb@latest` scaffolds.
+the module's default export, what `npm create wcb@latest` scaffolds, and the
+recommended way to use every plugin below — each section documents what a
+plugin does and the options you forward to it from here, not a config of its
+own.
 
 ```js
 // custom-elements-manifest.config.mjs
@@ -54,28 +58,18 @@ none, so there is no key for it.
 plugins: [...wcbPluginSet({ vsCode: { cssFileName: null } })]
 ```
 
-To leave a plugin out entirely, list the named exports you want instead of
-spreading the set.
+To leave a plugin out entirely — e.g. a Storybook or editor setup that reads
+your source and never publishes a manifest, so it wants no `distPaths()` — list
+the named exports you want instead of spreading the set.
 
 ## `wcbStaticProps()`
 
-Takes no arguments and returns an analyzer plugin object.
+In `wcbPluginSet()`. Takes no arguments and returns an analyzer plugin object.
 
 | Field          | Type                 |                   |
 | -------------- | -------------------- | ----------------- |
 | `name`         | `string`             | the plugin name   |
 | `analyzePhase` | `(ctx: any) => void` | the analyzer hook |
-
-```js
-// custom-elements-manifest.config.mjs
-import { wcbStaticProps } from 'web-component-base/cem-plugin'
-
-export default {
-  globs: ['src/**/*.js'],
-  outdir: '.wcb',
-  plugins: [wcbStaticProps()],
-}
-```
 
 ### What it does
 
@@ -96,20 +90,10 @@ inline, or in a module-level `const` in the same source file.
 
 ## `distPaths()`
 
-Rewrites each module's `path` in the manifest from the scanned source to the
-built output a package publishes, so a shipped `custom-elements.json` points at
-files consumers can actually import.
-
-```js
-// custom-elements-manifest.config.mjs
-import { wcbStaticProps, distPaths } from 'web-component-base/cem-plugin'
-
-export default {
-  globs: ['src/**/*.ts'],
-  outdir: '.wcb',
-  plugins: [wcbStaticProps(), distPaths()],
-}
-```
+In `wcbPluginSet()`, configured through its `distPaths` key. Rewrites each
+module's `path` in the manifest from the scanned source to the built output a
+package publishes, so a shipped `custom-elements.json` points at files
+consumers can actually import.
 
 | Option    | Type                     | Default   |                                            |
 | --------- | ------------------------ | --------- | ------------------------------------------ |
@@ -135,20 +119,10 @@ guide](/cem-plugin/#ship-the-manifest-with-a-package-distpaths).
 
 ## `wcbVsCodePlugin()`
 
-Generates VS Code [custom data](https://github.com/microsoft/vscode-custom-data)
-files from the manifest, so VS Code's built-in HTML and CSS language services
-offer completions for your components with no editor extension.
-
-```js
-// custom-elements-manifest.config.mjs
-import { wcbStaticProps, wcbVsCodePlugin } from 'web-component-base/cem-plugin'
-
-export default {
-  globs: ['src/**/*.ts'],
-  outdir: '.wcb',
-  plugins: [wcbStaticProps(), wcbVsCodePlugin()],
-}
-```
+In `wcbPluginSet()`, configured through its `vsCode` key. Generates VS Code
+[custom data](https://github.com/microsoft/vscode-custom-data) files from the
+manifest, so VS Code's built-in HTML and CSS language services offer
+completions for your components with no editor extension.
 
 | Option         | Type             | Default                      |                                        |
 | -------------- | ---------------- | ---------------------------- | -------------------------------------- |
@@ -177,21 +151,11 @@ See [Route 1 in the guide](/cem-plugin/#route-1-native-vs-code-no-extension).
 
 ## `wcbJetBrainsPlugin()`
 
-Generates a JetBrains [web-types](https://github.com/JetBrains/web-types) file
-from the manifest, so WebStorm and IntelliJ offer tag, attribute, property and
-event completion. The two formats are unrelated, so a package that wants both
+In `wcbPluginSet()`, configured through its `jetBrains` key. Generates a
+JetBrains [web-types](https://github.com/JetBrains/web-types) file from the
+manifest, so WebStorm and IntelliJ offer tag, attribute, property and event
+completion. The two formats are unrelated, so a package that wants both
 families ships both files.
-
-```js
-// custom-elements-manifest.config.mjs
-import { wcbStaticProps, wcbJetBrainsPlugin } from 'web-component-base/cem-plugin'
-
-export default {
-  globs: ['src/**/*.ts'],
-  outdir: '.wcb',
-  plugins: [wcbStaticProps(), wcbJetBrainsPlugin()],
-}
-```
 
 | Option        | Type             | Default             |                                            |
 | ------------- | ---------------- | ------------------- | ------------------------------------------ |
