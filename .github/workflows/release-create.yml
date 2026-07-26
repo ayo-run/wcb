@@ -1,9 +1,13 @@
-name: Release
+name: Release create-wcb
+
+# `create-wcb` versions independently of the root `web-component-base` package,
+# so it gets its own tag namespace (`create-wcb@X.Y.Z`). That prefix cannot
+# match the root workflow's `v*` filter, so the two releases never cross-trigger.
 
 on:
   push:
     tags:
-      - 'v*'
+      - 'create-wcb@*'
 
 jobs:
   changelog:
@@ -21,16 +25,16 @@ jobs:
         with:
           node-version-file: .nvmrc
 
-      # `create-wcb@*` tags interleave with these `v*` tags. Without an explicit
-      # range changelogithub would walk back to whichever tag came last — a
-      # create-wcb release would silently truncate this changelog.
-      - name: Resolve previous release tag
+      # Left to its own devices changelogithub walks back to the previous tag of
+      # *any* shape, which here would be a root `v*` release. Pin the range to
+      # the previous create-wcb tag so the notes only cover create-wcb commits.
+      - name: Resolve previous create-wcb tag
         id: previous-tag
         run: |
-          PREVIOUS_TAG="$(git tag -l 'v*' --sort=-v:refname \
+          PREVIOUS_TAG="$(git tag -l 'create-wcb@*' --sort=-v:refname \
             | awk -v current_tag="$GITHUB_REF_NAME" \
                 'already_seen_current { print; exit } $0 == current_tag { already_seen_current = 1 }')"
-          echo "Previous release tag: ${PREVIOUS_TAG:-<none, first release>}"
+          echo "Previous create-wcb tag: ${PREVIOUS_TAG:-<none, first release>}"
           echo "previous_tag=$PREVIOUS_TAG" >> "$GITHUB_OUTPUT"
 
       - name: Generate release
@@ -39,13 +43,13 @@ jobs:
           PREVIOUS_TAG: ${{steps.previous-tag.outputs.previous_tag}}
         run: |
           if [ -n "$PREVIOUS_TAG" ]; then
-            npx changelogithub --from "$PREVIOUS_TAG" --to "$GITHUB_REF_NAME"
+            npx changelogithub --from "$PREVIOUS_TAG" --to "$GITHUB_REF_NAME" --name "$GITHUB_REF_NAME"
           else
-            npx changelogithub --to "$GITHUB_REF_NAME"
+            npx changelogithub --to "$GITHUB_REF_NAME" --name "$GITHUB_REF_NAME"
           fi
 
   publish-npm:
-    name: Publish to npm
+    name: Publish create-wcb to npm
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -53,29 +57,31 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: pnpm/action-setup@v4
-
+      # No pnpm install: create-wcb has zero dependencies and no build step —
+      # it publishes `index.js` and `template/` as-is.
       - uses: actions/setup-node@v6
         with:
           node-version-file: .nvmrc
           registry-url: 'https://registry.npmjs.org'
-          cache: pnpm
 
       - name: Ensure npm supports trusted publishing
         run: npm install -g npm@latest
 
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm build
-
       - name: Publish
+        working-directory: create
         run: |
           PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          VERSION_FROM_TAG="${GITHUB_REF_NAME#create-wcb@}"
+          if [ "$PACKAGE_VERSION" != "$VERSION_FROM_TAG" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match create/package.json version $PACKAGE_VERSION"
+            exit 1
+          fi
           # A prerelease version publishes under its own dist-tag, so `latest`
-          # keeps pointing at the newest stable: 7.0.0-beta.1 -> dist-tag `beta`.
+          # keeps pointing at the newest stable: 0.3.0-beta.1 -> dist-tag `beta`.
           if [[ "$PACKAGE_VERSION" == *-* ]]; then
             DIST_TAG="${PACKAGE_VERSION#*-}"; DIST_TAG="${DIST_TAG%%.*}"
           else
             DIST_TAG="latest"
           fi
-          echo "Publishing $PACKAGE_VERSION to dist-tag '$DIST_TAG'"
+          echo "Publishing create-wcb@$PACKAGE_VERSION to dist-tag '$DIST_TAG'"
           npm publish --access public --tag "$DIST_TAG"

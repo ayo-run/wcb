@@ -54,7 +54,11 @@
     "size-limit": "pnpm run build && size-limit",
     "clean": "rm -rf dist",
     "copy:source": "esbuild --minify --bundle ./src/*.js ./src/utils/* --outdir=\"./dist\" --format=\"esm\"",
-    "release": "bumpp && node ./scripts/release.js",
+    "prepack": "pnpm run build",
+    "release": "pnpm run release:check && bumpp && node ./scripts/release.js",
+    "release:check": "pnpm test:all && pnpm size-limit && node ./scripts/check-create-release.js --warn",
+    "release:create": "pnpm run release:create:check && bumpp create/package.json --commit \"chore(create-wcb): release %s\" --tag \"create-wcb@%s\" && git push gh main && git push gh --tags",
+    "release:create:check": "node ./scripts/check-create-release.js && pnpm test:template",
     "format": "prettier . --write",
     "lint": "eslint . --config eslint.config.mjs",
     "prepare": "husky"
