@@ -17,6 +17,8 @@
 >
 > See [Prop Access](https://webcomponent.io/prop-access/#boolean-props) for details.
 
+![counter example code snippet](https://git.ayo.run/ayo/wcb/raw/branch/main/assets/IMG_0682.png)
+
 [![Package information: NPM version](https://img.shields.io/npm/v/web-component-base)](https://npmx.dev/package/web-component-base)
 [![Package information: NPM license](https://img.shields.io/npm/l/web-component-base)](https://npmx.dev/package/web-component-base)
 [![Package information: NPM downloads](https://img.shields.io/npm/dt/web-component-base)](https://npmx.dev/package/web-component-base)
@@ -28,26 +30,31 @@ When you extend the `WebComponent` class for your component, you only have to de
 
 The result is a reactive UI on property changes.
 
-Next actions:
+## Quick start
+
+The fastest way to try wcb is to scaffold a new component:
+
+```bash
+npm create wcb@latest
+```
+
+### Next actions:
 
 1. [Read the docs](https://webcomponent.io)
 2. [View demos with code examples](https://demo.webcomponent.io/)
 3. [Play with a demo on CodePen](https://codepen.io/ayo-run/pen/ZEwoNOz?editors=1010).
 4. [Try it on TypeScript playground](https://www.typescriptlang.org/play/?#code/JYWwDg9gTgLgBAbzgdQKYCMDCFwQHap4wA0cAFjCADZwC+cAZlDnAOQDuGAtAMY6QEiXdAEMAzqlYAoKQHoAVPKlx5cACKoeVEVFRwRcGAE8wehtDhGIAVyhwABmJgiYwHnDDMwY+8tUBJeGAxODwIeF0AR2tgXQATRgt2HnRDCDh2aABrUnRrCJcyVDsRPD84CDAYLmA8OD5wYCpULlcQPWNTODERBlRjDOAYMjgAFRNUMR4oYCrygAEJPQoYbwAuWVlOdAaBQhgAOmAIWU9KrhEeHkmxWQBiSura1om4rjPvGrwX0ymZuZUsiknT0yBSACF8jB8AAFLwhAC8iGUcG06FQVDW3RgMzwAHMUXFgiJ0M04lj0BAIM1SiitG4smIsXhrCB0VApLQZAolCo4ABBbE6GDFer8fD7A5wACiADdikY4FlUIrag4nC43B54fY4MF9HBdJdXPLtZVisZyroGM0eCKEtCDcrROheOJUAkXDjgHkRXBACgEGRmrnxDmGwQOHzEB3pPEZAGp474+dYwHEXJNDEV9DBvb69KUErouLo8HFitG-EDUAAPSCweraMQhMHoSG5-BwWsisstjDYXCCGAAHlb7eheDhlTEAD5kXAha53FGsWOobD4XAkQgUQu0RisaxMFQGXB2qxiLu4ESeqSPViGCIqBJLwuF7HGViAAyvugyBd5OAW5wAAFAAlFuc47m+eoMKBACE4bRlGBw3iSZIQUhkbwjGJ5xmIiYolyKJ4v0hioOA2giuB85vroMC2HUFDUMmMFwMOvoThUeAfgiAAkCBYYBYD0Ghd5xPxglkBGKFiWStAzleMECVhKH7lQ9CBip0nIThH5iLQADrSnsbInH4IpMGsVyxE8NYTg4NKzTtEQ0blgwtSoCBHApMI654BeKAQv5YFSEAA)
 
-![counter example code snippet](https://git.ayo.run/ayo/wcb/raw/branch/main/assets/IMG_0682.png)
-
 ## Want to get in touch?
 
 There are many ways to get in touch:
 
 1. Open a [GitHub issue](https://github.com/ayo-run/wcb/issues/new) or [discussion](https://github.com/ayo-run/wcb/discussions)
-1. Submit a ticket via [SourceHut todo](https://todo.sr.ht/~ayoayco/wcb)
-1. Email me: [hi@ayo.run](mailto:hi@ayo.run)
+1. Submit a ticket on [SourceHut todo](https://todo.sr.ht/~ayoayco/wcb) or via [Email](mailto:~ayoayco/wcb@todo.sr.ht)
 
 ## Inspirations and thanks
 
-1. [Sara Rainsberger](https://rainsberger.ca/) - I never stop singing praises to the Astro documentation team and I use Sarah's ["50 docs tips in 50 days"](https://www.rainsberger.ca/docs-tips/) as a guide in reviewing the [documentation for wcb](https://webcomponent.io). I do not have a team myself, and do not have the level of excellence Sarah brings to reviewing docs. I often need the assistance and have encodified a [docs-review skill](https://github.com/ayo-run/wcb/blob/main/.claude/skills/docs-review/SKILL.md) for it *with permission*.
+1. [Sara Rainsberger](https://rainsberger.ca/) - I never stop singing praises to the Astro documentation team and I use Sarah's ["50 docs tips in 50 days"](https://www.rainsberger.ca/docs-tips/) as a guide in reviewing the [documentation for wcb](https://webcomponent.io). I do not have a team myself, and do not have the level of excellence Sarah brings to reviewing docs. I often need the assistance and have encodified a [docs-review skill](https://github.com/ayo-run/wcb/blob/main/.claude/skills/docs-review/SKILL.md) for it _with permission_.
 1. [htm](https://github.com/developit/htm) - I use it for the `html` function for tagged templates, and take a lot of inspiration in building the rendering implementation. It is highly likely that I will go for what Preact is doing... but we'll see.
 1. [fast](https://github.com/microsoft/fast) - When I found that Microsoft has their own base class I thought it was super cool!
 1. [lit](https://github.com/lit/lit) - `lit-html` continues to amaze me and I worked to make `wcb` generic so I (and others) can continue to use it
