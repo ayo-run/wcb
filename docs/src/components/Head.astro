@@ -1,0 +1,15 @@
+---
+import Default from '@astrojs/starlight/components/Head.astro'
+import { getStructuredData } from '../lib/structured-data'
+
+const site = Astro.site!
+const url = new URL(Astro.url.pathname, site)
+const graph = getStructuredData(Astro.locals.starlightRoute, url, site)
+
+// `</script>` inside the JSON would end the block early; escaping `<` is the
+// standard defence and keeps the value valid JSON.
+const json = JSON.stringify(graph).replace(/</g, '\\u003c')
+---
+
+<Default />
+<script type="application/ld+json" is:inline set:html={json} />

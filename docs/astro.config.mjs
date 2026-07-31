@@ -91,6 +91,7 @@ export default defineConfig({
       ],
       components: {
         Footer: './src/components/Attribution.astro',
+        Head: './src/components/Head.astro',
         Hero: './src/components/Hero.astro',
       },
       head: [
