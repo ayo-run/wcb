@@ -1,6 +1,7 @@
 ---
 title: 生命周期钩子
 slug: 'zh-cn/life-cycle-hooks'
+description: 四个生命周期钩子——onInit、afterViewInit、onChanges 和 onDestroy——各自的触发时机与用途。
 ---
 
 通过提供钩子方法，为组件生命周期中的特定事件被触发时定义相应行为

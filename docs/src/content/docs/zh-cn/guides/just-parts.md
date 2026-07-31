@@ -1,6 +1,7 @@
 ---
 title: 只使用部分能力
 slug: 'zh-cn/just-parts'
+description: 不继承 WebComponent 基类，在原生 HTMLElement 上使用 html、createElement 等内部能力。
 ---
 
 你不必继承整个基类才能使用其中的一些功能。所有内部实现都是单独暴露和可用的，因此你实际上可以在自己的类上自行搭建这些行为。

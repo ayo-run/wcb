@@ -1,6 +1,7 @@
 ---
 title: Sukat ng Library
 slug: 'tl/library-size'
+description: Ang bigat ng WebComponent base class sa min + brotli, kung paano ito sinusukat ng size-limit, at saan naitatala ang bawat pagbabago ng byte.
 ---
 
 Lahat ng function at ang base class sa library ay minimalist ayon sa disenyo at naglalaman lamang ng kinakailangan para sa kanilang layunin.

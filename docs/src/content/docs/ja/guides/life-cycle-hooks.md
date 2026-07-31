@@ -1,6 +1,7 @@
 ---
 title: ライフサイクルフック
 slug: 'ja/life-cycle-hooks'
+description: 4つのライフサイクルフック — onInit、afterViewInit、onChanges、onDestroy — がそれぞれ発火するタイミングと役割。
 ---
 
 フックメソッドを提供することで、コンポーネントのライフサイクル内で特定のイベントが発生したときの挙動を定義できます。

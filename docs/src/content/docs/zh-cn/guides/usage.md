@@ -1,6 +1,7 @@
 ---
 title: 用法
 slug: 'zh-cn/usage'
+description: 声明 static props 和 template getter，然后从 HTML 驱动组件——attribute 就是响应式状态。
 ---
 
 查看实况：[综合功能演示 ↗](https://demo.webcomponent.io/examples/demo/) 将多个功能组合在一起，或查看 [单文件 pen ↗](https://demo.webcomponent.io/examples/pens/counter-toggle.html) 了解最简配置。

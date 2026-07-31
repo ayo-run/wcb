@@ -1,6 +1,7 @@
 ---
 title: Library Size
 slug: library-size
+description: What the WebComponent base class weighs, min + brotli, how size-limit measures it, and where every byte change is recorded.
 ---
 
 All the functions and the base class in the library are minimalist by design and only contains what is needed for their purpose.

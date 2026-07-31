@@ -1,6 +1,7 @@
 ---
 title: 示例
 slug: 'zh-cn/examples'
+description: 可运行的 wcb 示例集，附源码：boolean props、attribute 转换器、模板、Shadow DOM、生命周期等。
 ---
 
 ## 实况演示画廊

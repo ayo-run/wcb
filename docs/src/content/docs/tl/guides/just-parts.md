@@ -1,6 +1,7 @@
 ---
 title: Paggamit lang ng Ilang Bahagi
 slug: 'tl/just-parts'
+description: Gamitin ang html, createElement at iba pang internals sa payak na HTMLElement, nang hindi ini-extend ang WebComponent base class.
 ---
 
 Hindi mo kailangang palawigin ang buong base class para gamitin ang ilang feature. Lahat ng internals ay exposed at magagamit nang hiwa-hiwalay kaya praktikal mong maibubuo ang behavior sa sarili mong mga class.

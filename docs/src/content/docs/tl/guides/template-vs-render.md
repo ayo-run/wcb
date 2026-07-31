@@ -1,6 +1,7 @@
 ---
 title: template kumpara sa render()
 slug: 'tl/template-vs-render'
+description: Kung paano nag-uugnay ang read-only na template getter at ang render(), kailan awtomatikong tumatakbo ang render(), at paano ito i-override.
 ---
 
 Sinusubukan ng mental model na ito na bawasan ang cognitive complexity ng pag-author ng mga component:

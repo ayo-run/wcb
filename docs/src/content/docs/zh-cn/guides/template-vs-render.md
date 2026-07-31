@@ -1,6 +1,7 @@
 ---
 title: template 与 render()
 slug: 'zh-cn/template-vs-render'
+description: 只读的 template getter 与 render() 的关系、render() 何时自动调用，以及如何为其他模板库重写它。
 ---
 
 这一心智模型旨在降低编写组件时的认知复杂度：

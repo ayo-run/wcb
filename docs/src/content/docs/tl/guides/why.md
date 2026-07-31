@@ -1,6 +1,7 @@
 ---
 title: 'Bakit gagamitin ninuman ang WCB?'
 slug: 'tl/why'
+description: Limang dahilan para piliin ang wcb — pinakamurang runtime reactivity, walang build step, HTML-native na attribute — at kung kailan hindi ito bagay.
 ---
 
 Ang `WebComponent` base class ay nagbibigay ng kumpletong component development experience sa pinakamagaan na posibleng bigat: ang minimum code para pahusayin ang productivity.

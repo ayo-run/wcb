@@ -1,6 +1,7 @@
 ---
 title: 'Why would anyone use WCB?'
 slug: why
+description: Five reasons to reach for wcb — the cheapest runtime reactivity, no build step, HTML-native attributes — and when it is the wrong choice.
 ---
 
 The `WebComponent` base class gives a full component development experience at the lightest weight possible: the minimum code to boost productivity.

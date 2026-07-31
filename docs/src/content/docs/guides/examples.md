@@ -1,6 +1,7 @@
 ---
 title: Examples
 slug: examples
+description: 'A gallery of runnable wcb demos with their source: boolean props, attribute converters, templating, shadow DOM, lifecycle and more.'
 ---
 
 ## Live demo gallery

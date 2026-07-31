@@ -1,6 +1,7 @@
 ---
 title: 样式
 slug: 'zh-cn/styling'
+description: 在 wcb 组件中限定样式作用域的两种方式：html 模板上的样式对象，或配合 shadow root 的 constructable stylesheets。
 ---
 
 有两种方式可以安全地实现作用域样式：

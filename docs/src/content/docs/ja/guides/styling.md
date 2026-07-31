@@ -1,6 +1,7 @@
 ---
 title: スタイリング
 slug: 'ja/styling'
+description: 'wcbコンポーネントでスタイルをスコープする2つの方法: htmlテンプレートのstyleオブジェクト、またはshadow rootとconstructable stylesheets。'
 ---
 
 スコープ付きスタイルを安全に実現する方法は2つあります。

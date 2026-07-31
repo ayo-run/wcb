@@ -1,6 +1,7 @@
 ---
 title: Life-Cycle Hooks
 slug: life-cycle-hooks
+description: The four lifecycle hooks — onInit, afterViewInit, onChanges and onDestroy — when each one fires and what belongs in it.
 ---
 
 Define behavior when certain events in the component's life cycle is triggered by providing hook methods

@@ -1,6 +1,7 @@
 ---
 title: template vs render()
 slug: template-vs-render
+description: How the read-only template getter relates to render(), when render() is called for you, and how to override it for another templating library.
 ---
 
 This mental model attempts to reduce the cognitive complexity of authoring components:

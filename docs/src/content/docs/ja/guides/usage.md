@@ -1,6 +1,7 @@
 ---
 title: 使い方
 slug: 'ja/usage'
+description: static propsとtemplateゲッターを定義し、HTMLからコンポーネントを操作する。attributeがそのままリアクティブな状態になる。
 ---
 
 実際に動く様子はこちら: [Kitchen sinkデモ ↗](https://demo.webcomponent.io/examples/demo/)は複数の機能を組み合わせたもの、[単一ファイルのpen ↗](https://demo.webcomponent.io/examples/pens/counter-toggle.html)は最小構成の例です。

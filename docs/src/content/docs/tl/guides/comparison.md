@@ -1,6 +1,7 @@
 ---
 title: 'WCB at Katulad na mga Library'
 slug: 'tl/comparison'
+description: Sinukat na bundle sizes at talahanayan ng features para sa web-component-base, Lit, Elena at FAST, kasama ang paraan para ulitin ang sukat.
 ---
 
 Ang mga release simula sa v5 ay nagbigay sa `WebComponent` base class ng mas mahigpit na pagsunod sa custom elements specifications, mga pagpapahusay sa quality of life, at pangkalahatang robustness sa pamamagitan ng pagsasama ng mga inaasahan sa JS component authoring at matatag na HTML behaviors. Mayroon na tayong in-place re-rendering, HTML boolean semantics, at overrideable attribute converters, kasama ang iba pang mga pagpapahusay.

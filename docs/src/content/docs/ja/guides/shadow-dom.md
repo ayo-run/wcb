@@ -1,6 +1,7 @@
 ---
 title: Shadow DOMを使う
 slug: 'ja/shadow-dom'
+description: static shadowRootInitでコンポーネントごとにShadow DOMを有効にする方法と、ShadowRootInitのオプションによる違い。
 ---
 
 コンポーネント全体でShadow DOMを使うようにオプトインするには、`ShadowRootInit` 型のオブジェクト値を持つ静的プロパティ `shadowRootInit` を追加します（[MDNのオプション一覧](https://developer.mozilla.org/en-US/docs/Web/API/Element/attachShadow#options)を参照）。

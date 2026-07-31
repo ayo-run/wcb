@@ -1,6 +1,7 @@
 ---
 title: Mga Halimbawa
 slug: 'tl/examples'
+description: 'Gallery ng mga tumatakbong wcb demo kasama ang source: boolean props, attribute converters, templating, Shadow DOM, lifecycle at iba pa.'
 ---
 
 ## Live demo gallery

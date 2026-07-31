@@ -1,6 +1,7 @@
 ---
 title: Paggamit ng Shadow DOM
 slug: 'tl/shadow-dom'
+description: Paganahin ang Shadow DOM sa isang component gamit ang static shadowRootInit, at kung ano ang binabago ng mga opsyon ng ShadowRootInit.
 ---
 
 Magdagdag ng static property na `shadowRootInit` na may object value ng uri `ShadowRootInit` (tingnan ang [mga option sa MDN](https://developer.mozilla.org/en-US/docs/Web/API/Element/attachShadow#options)) para mag-opt-in sa paggamit ng shadow dom para sa buong component.

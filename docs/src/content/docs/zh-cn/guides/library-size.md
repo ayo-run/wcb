@@ -1,6 +1,7 @@
 ---
 title: 库体积
 slug: 'zh-cn/library-size'
+description: WebComponent 基类的 min + brotli 体积、size-limit 的测量方式，以及每次字节变化的记录位置。
 ---
 
 库中所有的函数和基类在设计上都力求极简，只包含实现其目的所必需的内容。

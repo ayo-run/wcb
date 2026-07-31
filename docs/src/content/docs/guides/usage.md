@@ -1,6 +1,7 @@
 ---
 title: Usage
 slug: usage
+description: Declare static props and a template getter, then drive the component from HTML — attributes are the reactive state.
 ---
 
 See it live: [Kitchen sink demo ↗](https://demo.webcomponent.io/examples/demo/) puts several features together, or [Single-file pen ↗](https://demo.webcomponent.io/examples/pens/counter-toggle.html) for the smallest possible setup.

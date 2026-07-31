@@ -1,6 +1,7 @@
 ---
 title: サンプル
 slug: 'ja/examples'
+description: boolean props、attributeコンバーター、テンプレート、Shadow DOM、ライフサイクルなど、ソース付きで動くwcbデモ集。
 ---
 
 ## ライブデモギャラリー

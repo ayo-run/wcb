@@ -1,6 +1,7 @@
 ---
 title: Pag-istilo
 slug: 'tl/styling'
+description: 'Dalawang paraan para i-scope ang styles sa isang wcb component: style objects sa html template, o constructable stylesheets na may shadow root.'
 ---
 
 May dalawang paraan tayo para ligtas na magkaroon ng scoped styles:

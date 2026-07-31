@@ -1,6 +1,7 @@
 ---
 title: Using the Shadow DOM
 slug: shadow-dom
+description: Opt a component into shadow DOM with static shadowRootInit, and what the ShadowRootInit options change.
 ---
 
 Add a static property `shadowRootInit` with object value of type `ShadowRootInit` (see [options on MDN](https://developer.mozilla.org/en-US/docs/Web/API/Element/attachShadow#options)) to opt-in to using shadow dom for the whole component.

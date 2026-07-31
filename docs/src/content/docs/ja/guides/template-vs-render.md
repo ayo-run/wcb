@@ -1,6 +1,7 @@
 ---
 title: template vs render()
 slug: 'ja/template-vs-render'
+description: 読み取り専用のtemplateゲッターとrender()の関係、render()が自動で呼ばれるタイミング、他のテンプレートライブラリ用に上書きする方法。
 ---
 
 このメンタルモデルは、コンポーネントを作成する際の認知的な複雑さを減らすことを目指しています。

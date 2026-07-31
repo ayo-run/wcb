@@ -1,6 +1,7 @@
 ---
 title: Exports
 slug: exports
+description: 'Every import path the package offers: the WebComponent and html main exports and the utilities, bundled together or as separate modules.'
 ---
 
 You can import everything separately, or in a single file each for the main exports and utilities.

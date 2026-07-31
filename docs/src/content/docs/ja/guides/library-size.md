@@ -1,6 +1,7 @@
 ---
 title: ライブラリサイズ
 slug: 'ja/library-size'
+description: WebComponentベースクラスのmin + brotliサイズ、size-limitによる計測方法、バイト数の変化を記録している場所。
 ---
 
 このライブラリ内のすべての関数とベースクラスは、設計上ミニマリストであり、その目的に必要なものしか含んでいません。

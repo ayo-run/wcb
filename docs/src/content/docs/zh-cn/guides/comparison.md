@@ -1,6 +1,7 @@
 ---
 title: 'WCB 与同类库'
 slug: 'zh-cn/comparison'
+description: web-component-base、Lit、Elena 与 FAST 的实测打包体积和功能对照表，以及复现这些数字的方法。
 ---
 
 自 v5 以来的历次发布，让 `WebComponent` 基类在遵循自定义元素规范方面更加严格，带来了体验上的提升，并通过结合 JS 组件开发的预期与稳定的 HTML 行为，整体上更加健壮。现在我们有了原地重新渲染、HTML 布尔语义以及可重写的属性转换器等多项改进。

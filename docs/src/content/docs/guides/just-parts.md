@@ -1,6 +1,7 @@
 ---
 title: Using Just Some Parts
 slug: 'just-parts'
+description: Use html, createElement and the other internals on a plain HTMLElement, without extending the WebComponent base class.
 ---
 
 You don't have to extend the whole base class to use some features. All internals are exposed and usable separately so you can practically build the behavior on your own classes.

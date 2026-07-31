@@ -1,6 +1,7 @@
 ---
 title: 'WCB & Similar Libraries'
 slug: comparison
+description: Measured bundle sizes and a feature-by-feature table for web-component-base, Lit, Elena and FAST, with the method to reproduce the numbers.
 ---
 
 The releases since v5 gave the `WebComponent` base class a stricter compliance with custom elements specifications, quality of life improvements, and overall robustness by combining JS components authoring expectations and stable HTML behaviors. We now have in-place re-rendering, HTML boolean semantics and overrideable attribute converters, among other improvements.

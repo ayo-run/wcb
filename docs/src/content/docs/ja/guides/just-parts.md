@@ -1,6 +1,7 @@
 ---
 title: 一部だけを使う
 slug: 'ja/just-parts'
+description: WebComponentベースクラスを継承せずに、html、createElementなどの内部機能を素のHTMLElementで使う。
 ---
 
 一部の機能を使うために、ベースクラス全体を拡張する必要はありません。すべての内部機能は個別に公開・利用可能なので、自分のクラスの上で実質的にその挙動を構築することができます。

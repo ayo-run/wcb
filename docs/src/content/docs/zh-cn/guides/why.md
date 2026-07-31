@@ -1,6 +1,7 @@
 ---
 title: '为什么会有人使用 WCB？'
 slug: 'zh-cn/why'
+description: 选择 WCB 的五个理由 —— 最轻量的运行时响应式、无需构建、HTML 原生的 attribute —— 以及它不适用的场景。
 ---
 
 `WebComponent` 基类以尽可能轻的重量提供完整的组件开发体验：用最少的代码提升生产力。

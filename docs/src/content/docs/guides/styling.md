@@ -1,6 +1,7 @@
 ---
 title: Styling
 slug: styling
+description: 'Two ways to scope styles in a wcb component: style objects on the html template, or constructable stylesheets with a shadow root.'
 ---
 
 There are two ways we can safely have scoped styles:

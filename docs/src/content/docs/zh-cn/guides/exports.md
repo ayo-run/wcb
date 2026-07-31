@@ -1,6 +1,7 @@
 ---
 title: 导出
 slug: 'zh-cn/exports'
+description: 包提供的全部导入路径：WebComponent 与 html 主导出，以及工具函数，可整体导入或分模块导入。
 ---
 
 你可以分别单独导入各项内容，也可以为主要导出项和工具函数各使用一个统一文件导入。

@@ -1,6 +1,7 @@
 ---
 title: Life-Cycle Hooks
 slug: 'tl/life-cycle-hooks'
+description: Ang apat na lifecycle hooks — onInit, afterViewInit, onChanges at onDestroy — kung kailan tumatakbo ang bawat isa at ano ang nararapat dito.
 ---
 
 Tukuyin ang behavior kapag may na-trigger na tiyak na event sa life cycle ng component sa pamamagitan ng pagbibigay ng hook methods

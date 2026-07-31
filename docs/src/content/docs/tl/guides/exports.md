@@ -1,6 +1,7 @@
 ---
 title: Mga Export
 slug: 'tl/exports'
+description: 'Lahat ng import path na inaalok ng package: ang WebComponent at html na pangunahing exports at ang mga utility, sabay o hiwa-hiwalay.'
 ---
 
 Maaari mong i-import ang lahat nang hiwa-hiwalay, o sa iisang file para sa main exports at utilities.
