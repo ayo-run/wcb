@@ -20,7 +20,7 @@ npm create wcb@latest
 
 Nagse-set up ito ng publishable custom element, handa nang i-develop:
 
-- **Isang starter component** sa TypeScript gamit ang [`static props`](/prop-access/) convention. Ang class, tag, at file names ay hinango mula sa pangalan ng iyong project (`my-button` → `MyButton` / `<my-button>`), kaya walang rename-me TODOs
+- **Isang starter component** sa TypeScript gamit ang [`static props`](/tl/prop-access/) convention. Ang class, tag, at file names ay hinango mula sa pangalan ng iyong project (`my-button` → `MyButton` / `<my-button>`), kaya walang rename-me TODOs
 - **Vite setup**: isang dev server na may demo page, kasama ang library build (`npm run build:lib`) na naglalabas ng ESM + UMD bundles at `.d.ts` types, na may `web-component-base` bilang peerDependency
 - **`custom-elements.json` generation**: ang CEM analyzer na naka-configure na gamit ang plugin ng wcb, isang `npm run analyze` script, ang `customElements` field sa `package.json`, at isang `prepack` hook para isama ang manifest sa loob ng na-publish na package
 
@@ -34,7 +34,7 @@ npm run dev
 
 Ipi-print ni Vite ang isang local URL. Buksan ito para makita ang `<my-button>` na naka-render sa demo page. I-edit ang `src/MyButton.ts` at mao-update ang page habang nagse-save ka.
 
-Tingnan ang [gabay sa CEM Analyzer Plugin](/cem-plugin/) para sa mas detalyadong impormasyon tungkol sa manifest at kung paano ito gamitin kasama ang Storybook at mga code editor.
+Tingnan ang [gabay sa CEM Analyzer Plugin](/tl/cem-plugin/) para sa mas detalyadong impormasyon tungkol sa manifest at kung paano ito gamitin kasama ang Storybook at mga code editor.
 
 Mas gusto mong magsimula sa GitHub? Ang [`ayo-run/web-component`](https://github.com/ayo-run/web-component) na template repository ay may parehong layunin sa pamamagitan ng "Use this template".
 
@@ -54,10 +54,10 @@ Pagkatapos, i-import ang base class gamit ang bare package name:
 import { WebComponent } from 'web-component-base'
 ```
 
-Magpatuloy sa [Paggamit](/usage) para tukuyin ang iyong unang component.
+Magpatuloy sa [Paggamit](/tl/usage) para tukuyin ang iyong unang component.
 
 :::tip[Mas gusto mo ang CDN?]
-Maaari mo ring i-import ang wcb direkta mula sa CDN sa vanilla JS o HTML files. Tingnan ang [mga halimbawa sa CodePen](/examples/#codepen-examples) para sa mga gumaganang setup.
+Maaari mo ring i-import ang wcb direkta mula sa CDN sa vanilla JS o HTML files. Tingnan ang [mga halimbawa sa CodePen](/tl/examples/#mga-halimbawa-sa-codepen) para sa mga gumaganang setup.
 :::
 
 ## Paghingi ng tulong

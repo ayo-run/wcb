@@ -5,7 +5,7 @@ description: html 标签模板函数及其生成的 vnode 结构。
 ---
 
 一个标签模板函数，将标记转换为一棵 vnode 树，用作组件的
-[`template`](/api/web-component/#template)。
+[`template`](/zh-cn/api/web-component/#template)。
 
 ```js
 import { html } from 'web-component-base'
@@ -54,7 +54,7 @@ html`<p class="a">hi</p>`
 
 ## props 是如何被应用的
 
-`props` 中的每个条目都由 [`applyProp`](/api/utils/#applypropel-prop-value)
+`props` 中的每个条目都由 [`applyProp`](/zh-cn/api/utils/#applypropel-prop-value)
 按以下顺序应用：
 
 1. `style` 对象会逐条规则应用
@@ -78,5 +78,5 @@ html`<div style=${{ color: 'red', padding: '1em' }}>x</div>`
 
 返回一棵 vnode 树即选用了原地协调：同标签的元素会被复用，只有发生变化的
 props 和文本会被更改，多余的节点会被裁剪。关于这会保留哪些内容以及非
-keyed 匹配的注意事项，参见 [Template vs Render](/template-vs-render/)。
+keyed 匹配的注意事项，参见 [Template vs Render](/zh-cn/template-vs-render/)。
 查看实况：[渲染协调演示 ↗](https://demo.webcomponent.io/examples/render-reconciliation/)

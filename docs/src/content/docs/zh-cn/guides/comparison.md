@@ -39,7 +39,7 @@ slug: 'zh-cn/comparison'
 | 样式作用域                        | ✅ `static styles` + 可构造样式表（需要 shadow root）                | ✅ Shadow 作用域 CSS                                      | ✅ 无需 Shadow DOM 的作用域样式          | ✅ Shadow 作用域 + 设计令牌                        |
 | SSR / 水合方案                    | ✅ 属性驱动的状态可由任意服务端渲染                                  | ✅ `@lit-labs/ssr` + 水合                                 | ✅ 服务端渲染标记 + 水合工具              | ⚠️ 实验性 SSR                                      |
 | 支持零构建工具链                  | ✅ 从 CDN 导入，无需编译器                                          | ✅（可无构建使用，装饰器需要工具链）                        | ✅                                       | ⚠️ 实际使用需要工具链                              |
-| 编辑器/IDE 工具支持               | ✅ 类型化 props + [CEM 分析器插件](/cem-plugin/)                    | ✅ 广泛支持（分析器、TS 装饰器、IDE 插件）                  | ✅ 以 CEM 为核心                         | ✅ TS 优先                                         |
+| 编辑器/IDE 工具支持               | ✅ 类型化 props + [CEM 分析器插件](/zh-cn/cem-plugin/)                    | ✅ 广泛支持（分析器、TS 装饰器、IDE 插件）                  | ✅ 以 CEM 为核心                         | ✅ TS 优先                                         |
 | 生命周期钩子                      | `onInit`、`afterViewInit`、`onChanges`、`onDestroy`                 | 完整的响应式更新生命周期                                    | `willUpdate`、`firstUpdated`、`updated` | 完整生命周期 + 行为（behaviors）                    |
 | 支持方/生态                       | 个人维护，小体量                                                    | OpenJS 基金会（2025 年由 Google 捐赠），大型生态             | 新项目（2026 年），个人作者              | 微软，为 Fluent UI 提供支持                         |
 
@@ -47,7 +47,7 @@ slug: 'zh-cn/comparison'
 WebC 是一个编译时工具：它在 Eleventy 构建过程中解析组件，最终产出没有客户端运行时的纯 HTML。上表中的每一行讨论的都是一个库*在浏览器运行时*所做的事情，因此并排对比会是在比较两种不同的东西。如果你的组件在构建时是静态的，WebC 解决的是另一个问题。
 :::
 
-关于这些数字和能力最终意味着什么（以及什么时候不适用），参见 [为什么会有人使用 WCB？](/why/)。
+关于这些数字和能力最终意味着什么（以及什么时候不适用），参见 [为什么会有人使用 WCB？](/zh-cn/why/)。
 
 ---
 

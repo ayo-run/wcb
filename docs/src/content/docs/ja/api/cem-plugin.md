@@ -12,7 +12,7 @@ import { wcbStaticProps, distPaths } from 'web-component-base/cem-plugin'
 import wcbStaticProps from 'web-component-base/cem-plugin'
 ```
 
-セットアップ、Storybookおよびエディタとの統合については、[CEMアナライザープラグインガイド](/cem-plugin/)を参照してください。
+セットアップ、Storybookおよびエディタとの統合については、[CEMアナライザープラグインガイド](/ja/cem-plugin/)を参照してください。
 
 ## `wcbStaticProps()`
 
@@ -75,4 +75,4 @@ export default {
 `mixins[]`）もパスと一緒に書き換えられるため、消費者がたどる `module` は引き続きマニフェスト内のモジュールに解決されます。`package` を持つ参照は別のパッケージのレイアウトを指しているため、変更されずそのまま残されます。
 
 これはアナライザーの `packageLinkPhase`（`wcbStaticProps` の
-`analyzePhase` の後）で実行されるため、`plugins` 配列内での2つの順序は問題になりません。書き換えられたパスが指すファイルが存在するよう、ビルドの**後に** `cem analyze` を実行してください。[ガイド内の公開に関する注記](/cem-plugin/#パッケージにマニフェストを同梱するdistpaths)も参照してください。
+`analyzePhase` の後）で実行されるため、`plugins` 配列内での2つの順序は問題になりません。書き換えられたパスが指すファイルが存在するよう、ビルドの**後に** `cem analyze` を実行してください。[ガイド内の公開に関する注記](/ja/cem-plugin/#パッケージにマニフェストを同梱する-distpaths)も参照してください。

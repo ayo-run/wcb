@@ -160,7 +160,7 @@ export const Default = {
   文件是从 `lit` 导入 `html`，其中的模板使用的是 **lit 自己的绑定语法**——
   上面的 `?disabled=${disabled}` 前缀是 lit 中“添加或移除该布尔属性”的写法
   （直接写 `disabled=${false}` 会写出 `disabled="false"`，而 wcb 会将其
-  [解析为 `true`](/prop-access/#boolean-props)）。这些都不影响你的组件本身：
+  [解析为 `true`](/zh-cn/prop-access/#布尔型-props)）。这些都不影响你的组件本身：
   它依旧使用 wcb 自己的 `html` 标签、没有任何特殊的绑定前缀，而 lit 只是
   Storybook 配置的一个开发依赖，从不会随组件一起发布。
 </Aside>
@@ -281,5 +281,5 @@ export default {
 
 如果目录结构不同，可以重写 `rootDir` / `outDir`：`distPaths({ rootDir: 'lib', outDir: 'dist/esm' })`。
 请在构建之后**再**运行 `cem analyze`，以确保重写路径所指向的 `dist/` 文件确实存在。
-关于 `ext` 扩展名重映射，参见 [API 参考](/api/cem-plugin/#distpathsoptions)。如果不需要
+关于 `ext` 扩展名重映射，参见 [API 参考](/zh-cn/api/cem-plugin/#distpathsoptions)。如果不需要
 发布清单文件——例如只是在本地针对自己的源码使用 Storybook 或编辑器——则完全不需要这些配置。

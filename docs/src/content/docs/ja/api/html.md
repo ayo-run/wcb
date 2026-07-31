@@ -4,7 +4,7 @@ slug: 'ja/api/html'
 description: html タグ付きテンプレート関数と、それが生成するvnodeの形状。
 ---
 
-マークアップをvnodeツリーに変換するタグ付きテンプレート関数で、コンポーネントの[`template`](/api/web-component/#template)として使用します。
+マークアップをvnodeツリーに変換するタグ付きテンプレート関数で、コンポーネントの[`template`](/ja/api/web-component/#template)として使用します。
 
 ```js
 import { html } from 'web-component-base'
@@ -49,7 +49,7 @@ html`<p class="a">hi</p>`
 
 ## propの適用方法
 
-`props` の各エントリは、[`applyProp`](/api/utils/#applypropel-prop-value)によって、次の順序で適用されます。
+`props` の各エントリは、[`applyProp`](/ja/api/utils/#applypropel-prop-value)によって、次の順序で適用されます。
 
 1. `style` オブジェクトはルールごとに適用される
 2. 要素がその名前を**DOMプロパティ**として持っている場合は、そのプロパティに代入される。これにより、イベントハンドラー（`onclick=${fn}`）や文字列以外の値もその型を保つ
@@ -68,4 +68,4 @@ html`<div style=${{ color: 'red', padding: '1em' }}>x</div>`
 
 ## 再レンダリング
 
-vnodeツリーを返すことで、インプレースな調整をオプトインします。同じタグの要素は再利用され、変更されたpropとテキストのみが操作され、余った子要素は削除されます。それが何を保持するか、そして非キーマッチングの注意点については、[Template vs Render](/template-vs-render/)を参照してください。実際に動く様子はこちら: [レンダリング調整デモ ↗](https://demo.webcomponent.io/examples/render-reconciliation/)
+vnodeツリーを返すことで、インプレースな調整をオプトインします。同じタグの要素は再利用され、変更されたpropとテキストのみが操作され、余った子要素は削除されます。それが何を保持するか、そして非キーマッチングの注意点については、[Template vs Render](/ja/template-vs-render/)を参照してください。実際に動く様子はこちら: [レンダリング調整デモ ↗](https://demo.webcomponent.io/examples/render-reconciliation/)

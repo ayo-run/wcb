@@ -14,7 +14,7 @@ import { wcbStaticProps, distPaths } from 'web-component-base/cem-plugin'
 import wcbStaticProps from 'web-component-base/cem-plugin'
 ```
 
-关于安装配置、Storybook 和编辑器集成，参见 [CEM 分析器插件指南](/cem-plugin/)。
+关于安装配置、Storybook 和编辑器集成，参见 [CEM 分析器插件指南](/zh-cn/cem-plugin/)。
 
 ## `wcbStaticProps()`
 
@@ -87,4 +87,4 @@ export default {
 它运行在分析器的 `packageLinkPhase` 中（在 `wcbStaticProps` 的
 `analyzePhase` 之后），因此在 `plugins` 数组中两者的顺序无关紧要。请在
 构建之后运行 `cem analyze`，以确保重写路径所指向的文件确实存在。参见
-[指南中关于发布的说明](/cem-plugin/#ship-the-manifest-with-a-package-distpaths)。
+[指南中关于发布的说明](/zh-cn/cem-plugin/#随包发布清单文件distpaths)。

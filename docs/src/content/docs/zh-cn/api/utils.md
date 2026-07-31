@@ -91,7 +91,7 @@ props 通过 `applyProp()` 应用，子节点则递归创建。
 ### `applyProp(el, prop, value)`
 
 将单个 vnode prop 应用到一个元素上，遵循
-[html](/api/html/#how-props-are-applied) 中所描述的规则。
+[html](/zh-cn/api/html/#props-是如何被应用的) 中所描述的规则。
 
 | 参数      | 类型      |                                    |
 | --------- | --------- | ---------------------------------- |
@@ -104,7 +104,7 @@ props 通过 `applyProp()` 应用，子节点则递归创建。
 
 ## 协调器
 
-这些函数支撑着 [Template vs Render](/template-vs-render/) 中所描述的原地
+这些函数支撑着 [Template vs Render](/zh-cn/template-vs-render/) 中所描述的原地
 重新渲染。匹配方式是**基于索引且非 keyed** 的。
 
 ### `patchChildren(parent, oldChildren, newChildren)`

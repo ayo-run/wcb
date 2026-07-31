@@ -55,7 +55,7 @@ customElements.define('styled-elements', StyledElement)
 
 ## Paggamit ng Shadow DOM at Constructable Stylesheets
 
-Kung [ginagamit mo ang Shadow DOM](/shadow-dom), maaari kang magdagdag ng `static styles` property na idaragdag sa [`adoptedStylesheets`](https://developer.mozilla.org/en-US/docs/Web/API/Document/adoptedStyleSheets) ng `shadowRoot`. Tumatanggap ito ng string, isang `CSSStyleSheet`, o isang array ng alinman sa mga ito.
+Kung [ginagamit mo ang Shadow DOM](/tl/shadow-dom), maaari kang magdagdag ng `static styles` property na idaragdag sa [`adoptedStylesheets`](https://developer.mozilla.org/en-US/docs/Web/API/Document/adoptedStyleSheets) ng `shadowRoot`. Tumatanggap ito ng string, isang `CSSStyleSheet`, o isang array ng alinman sa mga ito.
 
 Subukan ito ngayon gamit ang [halimbawang ito sa CodePen ↗](https://codepen.io/ayoayco-the-styleful/pen/JojmeEe?editors=1010), o tingnan ito nang live: [Constructable styles demo ↗](https://demo.webcomponent.io/examples/constructed-styles/)
 

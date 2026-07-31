@@ -160,7 +160,7 @@ export const Default = {
   `html` mula sa `lit` at ang mga template sa mga ito ay gumagamit ng **binding syntax ng lit** — ang
   `?disabled=${disabled}` prefix sa itaas ay lit para sa "idagdag o tanggalin ang boolean
   attribute" (ang plain na `disabled=${false}` ay magsusulat ng `disabled="false"`,
-  na [pina-parse ng wcb bilang `true`](/prop-access/#boolean-props)). Wala sa mga ito ang
+  na [pina-parse ng wcb bilang `true`](/tl/prop-access/#boolean-props)). Wala sa mga ito ang
   nag-a-apply sa iyong component: pinananatili nito ang sariling `html` tag ng wcb na walang espesyal na
   binding prefixes, at ang lit ay isang devDependency ng Storybook setup, hindi kailanman naipadadala
   kasama ng component.
@@ -275,6 +275,6 @@ export default {
 
 Para sa ibang layout, i-override ang `rootDir` / `outDir`: `distPaths({ rootDir: 'lib', outDir: 'dist/esm' })`. Patakbuhin ang
 `cem analyze` **pagkatapos** ng iyong build para umiral ang mga `dist/` file na itinuturo nito. Tingnan
-ang [API reference](/api/cem-plugin/#distpathsoptions) para sa `ext` extension
+ang [API reference](/tl/api/cem-plugin/#distpathsoptions) para sa `ext` extension
 remap. Ang hindi pagpu-publish ng manifest — hal., isang lokal na Storybook o editor setup
 sa ibabaw ng sarili mong source — ay hindi nangangailangan ng kahit ano rito.

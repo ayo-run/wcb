@@ -5,7 +5,7 @@ description: Ang html tagged template function at ang vnode shape na ginagawa ni
 ---
 
 Isang tagged template function na ginagawang vnode tree ang markup, para gamitin bilang
-[`template`](/api/web-component/#template) ng isang component.
+[`template`](/tl/api/web-component/#template) ng isang component.
 
 ```js
 import { html } from 'web-component-base'
@@ -56,7 +56,7 @@ Tingnan ito nang live: [Templating demo ↗](https://demo.webcomponent.io/exampl
 
 ## Kung paano ina-apply ang mga props
 
-Ang bawat entry sa `props` ay ina-apply ng [`applyProp`](/api/utils/#applypropel-prop-value),
+Ang bawat entry sa `props` ay ina-apply ng [`applyProp`](/tl/api/utils/#applypropel-prop-value),
 sa pagkakasunod-sunod na ito:
 
 1. ang `style` object ay ina-apply rule by rule
@@ -81,5 +81,5 @@ Tingnan ito nang live: [Style objects demo ↗](https://demo.webcomponent.io/exa
 
 Ang pagbabalik ng vnode tree ay nag-o-opt sa in-place reconciliation: ang mga element ng parehong
 tag ay muling ginagamit, ang mga nagbagong prop at text lamang ang nagagalaw, at ang mga natirang node ay
-tinatabas. Tingnan ang [Template vs Render](/template-vs-render/) para sa kung ano ang napapanatili nito
+tinatabas. Tingnan ang [Template vs Render](/tl/template-vs-render/) para sa kung ano ang napapanatili nito
 at ang non-keyed matching caveat. Tingnan ito nang live: [Render reconciliation demo ↗](https://demo.webcomponent.io/examples/render-reconciliation/)

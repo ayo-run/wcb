@@ -79,3 +79,5 @@ The v6 state-correctness work has **landed** — the behaviors described above a
 ## Docs
 
 The public documentation site is an Astro + Starlight app in `docs/` (published to webcomponent.io). Guide content is Markdown/MDX under `docs/src/content/docs/guides/`; it doubles as the behavioral spec for the library.
+
+Translations live in one folder per locale (`docs/src/content/docs/ja/`, `zh-cn/`, `tl/`), mirroring the English layout. Starlight does **not** rewrite links per locale, so a translated page must carry the locale in both its `slug` frontmatter (`slug: 'ja/getting-started'`) and every internal link it contains (`](/ja/prop-access/)`, `link: /ja/getting-started`) — a bare `/prop-access/` drops the reader back into English and loses their language for the rest of the visit. Cross-page anchors have to use the *translated* heading's slug. `test/docs-i18n-links.test.mjs` guards the slug and link prefixes; anchors are only caught by building the site.

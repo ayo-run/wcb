@@ -55,7 +55,7 @@ customElements.define('styled-elements', StyledElement)
 
 ## Shadow DOMとConstructableスタイルシートを使う
 
-[Shadow DOMを使う](/shadow-dom)場合、`static styles` プロパティを追加できます。これは `shadowRoot` の[`adoptedStylesheets`](https://developer.mozilla.org/en-US/docs/Web/API/Document/adoptedStyleSheets)に追加されます。文字列、`CSSStyleSheet`、またはそのいずれかの配列を受け付けます。
+[Shadow DOMを使う](/ja/shadow-dom)場合、`static styles` プロパティを追加できます。これは `shadowRoot` の[`adoptedStylesheets`](https://developer.mozilla.org/en-US/docs/Web/API/Document/adoptedStyleSheets)に追加されます。文字列、`CSSStyleSheet`、またはそのいずれかの配列を受け付けます。
 
 今すぐこの[CodePenの例 ↗](https://codepen.io/ayoayco-the-styleful/pen/JojmeEe?editors=1010)で試すか、実際に動く様子はこちら: [Constructableスタイルデモ ↗](https://demo.webcomponent.io/examples/constructed-styles/)
 

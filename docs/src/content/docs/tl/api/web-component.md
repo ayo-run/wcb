@@ -148,7 +148,7 @@ Walang ginagawa ang pag-assign ng value na hawak na nito.
 
 Read-only na getter na nagbabalik ng ire-render ng component. Dalawang uri ang suportado:
 
-- isang [`html`](/api/html/) tagged template: isang vnode tree, na ini-reconcile in place
+- isang [`html`](/tl/api/html/) tagged template: isang vnode tree, na ini-reconcile in place
   sa bawat re-render
 - isang **string**: ina-assign sa `innerHTML` ng render target
 
@@ -171,7 +171,7 @@ sa bawat pagbabago ng prop o attribute; bihira mo itong tawagin mismo.
 
 Para sa vnode template, ang bagong tree ay inihahambing laban sa nauna at
 **pina-patch ng re-render ang umiiral na DOM in place**. Tingnan ang
-[Template vs Render](/template-vs-render/) para sa kung ano ang napapanatili nito at ang
+[Template vs Render](/tl/template-vs-render/) para sa kung ano ang napapanatili nito at ang
 non-keyed matching caveat.
 
 ## Mga Lifecycle hook
@@ -199,7 +199,7 @@ Ang `onChanges()` ay tumatanggap ng:
 | `previousValue` | `any`    | value bago ang pagbabago                      |
 | `currentValue`  | `any`    | value pagkatapos ng pagbabago                 |
 
-Tingnan ang [Life-cycle Hooks](/life-cycle-hooks/) para sa mga worked example. Tingnan ito nang live: [Lifecycle order demo ↗](https://demo.webcomponent.io/examples/lifecycle-order/) at [onChanges payload demo ↗](https://demo.webcomponent.io/examples/on-changes/)
+Tingnan ang [Life-cycle Hooks](/tl/life-cycle-hooks/) para sa mga worked example. Tingnan ito nang live: [Lifecycle order demo ↗](https://demo.webcomponent.io/examples/lifecycle-order/) at [onChanges payload demo ↗](https://demo.webcomponent.io/examples/on-changes/)
 
 ## Mga Attribute converter
 
@@ -209,7 +209,7 @@ tawagin ang `super` para sa mga prop na hindi mo hinahawakan.
 Ina-round-trip ng default na conversion ang mga value sa pamamagitan ng JSON. Ang mga type na hindi maibabalik ng JSON
 (`Date`, `Map`, `Set`, `URL`, class instances) ay nangangailangan ng na-override na
 converters para manatili sa `static props`; tingnan ang
-[Custom attribute conversion](/prop-access/#custom-attribute-conversion) para sa
+[Custom attribute conversion](/tl/prop-access/#custom-na-attribute-conversion) para sa
 mga worked example, kasama ang mga non-serializable na kaso.
 
 ### `toAttribute(name, value)`

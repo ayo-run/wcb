@@ -20,7 +20,7 @@ npm create wcb@latest
 
 它会搭建好一个可发布的自定义元素，随时可以开始开发：
 
-- **一个 TypeScript 编写的初始组件**，遵循 [`static props`](/prop-access/) 约定。类名、标签名和文件名均由你的项目名派生（`my-button` → `MyButton` / `<my-button>`），因此没有需要重命名的 TODO
+- **一个 TypeScript 编写的初始组件**，遵循 [`static props`](/zh-cn/prop-access/) 约定。类名、标签名和文件名均由你的项目名派生（`my-button` → `MyButton` / `<my-button>`），因此没有需要重命名的 TODO
 - **一套 Vite 配置**：带演示页面的开发服务器，以及一个库构建任务（`npm run build:lib`），可生成 ESM + UMD 打包产物和 `.d.ts` 类型，并将 `web-component-base` 设为 peerDependency
 - **`custom-elements.json` 生成**：已配置好使用 wcb 插件的 CEM 分析器、一个 `npm run analyze` 脚本、`package.json` 中的 `customElements` 字段，以及一个 `prepack` 钩子，确保清单文件随发布包一起发出
 
@@ -34,7 +34,7 @@ npm run dev
 
 Vite 会打印一个本地 URL。打开它即可在演示页面上看到渲染出的 `<my-button>`。编辑 `src/MyButton.ts` 后，保存即可看到页面更新。
 
-更多关于清单文件及其在 Storybook 与代码编辑器中使用方法的细节，参见 [CEM 分析器插件指南](/cem-plugin/)。
+更多关于清单文件及其在 Storybook 与代码编辑器中使用方法的细节，参见 [CEM 分析器插件指南](/zh-cn/cem-plugin/)。
 
 更喜欢从 GitHub 开始？[`ayo-run/web-component`](https://github.com/ayo-run/web-component) 模板仓库提供了同样的功能，通过 "Use this template" 即可使用。
 
@@ -54,10 +54,10 @@ npm i web-component-base
 import { WebComponent } from 'web-component-base'
 ```
 
-继续阅读 [Usage](/usage) 来定义你的第一个组件。
+继续阅读 [Usage](/zh-cn/usage) 来定义你的第一个组件。
 
 :::tip[更喜欢用 CDN？]
-你也可以在原生 JS 或 HTML 文件中直接从 CDN 导入 wcb。可用配置参见 [CodePen 示例](/examples/#codepen-examples)。
+你也可以在原生 JS 或 HTML 文件中直接从 CDN 导入 wcb。可用配置参见 [CodePen 示例](/zh-cn/examples/#codepen-示例)。
 :::
 
 ## 获取帮助

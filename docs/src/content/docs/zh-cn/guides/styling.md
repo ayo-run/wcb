@@ -55,7 +55,7 @@ customElements.define('styled-elements', StyledElement)
 
 ## 使用 Shadow DOM 和可构造样式表
 
-如果你[使用 Shadow DOM](/shadow-dom)，可以添加一个 `static styles` 属性，它会被加入到 `shadowRoot` 的 [`adoptedStylesheets`](https://developer.mozilla.org/en-US/docs/Web/API/Document/adoptedStyleSheets) 中。它接受一个字符串、一个 `CSSStyleSheet`，或两者组成的数组。
+如果你[使用 Shadow DOM](/zh-cn/shadow-dom)，可以添加一个 `static styles` 属性，它会被加入到 `shadowRoot` 的 [`adoptedStylesheets`](https://developer.mozilla.org/en-US/docs/Web/API/Document/adoptedStyleSheets) 中。它接受一个字符串、一个 `CSSStyleSheet`，或两者组成的数组。
 
 现在就用这个 [CodePen 示例 ↗](https://codepen.io/ayoayco-the-styleful/pen/JojmeEe?editors=1010) 试试，或查看实况：[可构造样式演示 ↗](https://demo.webcomponent.io/examples/constructed-styles/)
 

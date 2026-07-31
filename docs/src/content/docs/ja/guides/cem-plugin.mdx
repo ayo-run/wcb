@@ -136,7 +136,7 @@ export const Default = {
 <Aside type="note" title="story内の `html` はwcbのものではなく、litのもの">
   Storybookのweb-componentsレンダラーは
   [lit-html](https://lit.dev/docs/templates/overview/)でstoryをレンダリングするため、storyファイルは `lit` から `html` をインポートし、その中のテンプレートは**litのバインディング構文**を使用します。上記の
-  `?disabled=${disabled}` という接頭辞は、litにおける「boolean属性を追加または削除する」という意味です（単なる `disabled=${false}` は `disabled="false"` を書き込んでしまい、これはwcbでは[`true`としてパースされます](/prop-access/#boolean-props)）。これはあなたのコンポーネント自体には一切関係ありません。コンポーネント側は特別なバインディング接頭辞のないwcb自身の `html` タグを使い続け、litはStorybookセットアップのdevDependencyであって、コンポーネントと一緒に配布されることはありません。
+  `?disabled=${disabled}` という接頭辞は、litにおける「boolean属性を追加または削除する」という意味です（単なる `disabled=${false}` は `disabled="false"` を書き込んでしまい、これはwcbでは[`true`としてパースされます](/ja/prop-access/#boolean-props)）。これはあなたのコンポーネント自体には一切関係ありません。コンポーネント側は特別なバインディング接頭辞のないwcb自身の `html` タグを使い続け、litはStorybookセットアップのdevDependencyであって、コンポーネントと一緒に配布されることはありません。
 </Aside>
 
 <Aside type="tip">
@@ -229,4 +229,4 @@ export default {
 }
 ```
 
-異なるレイアウトの場合は、`rootDir` / `outDir` をオーバーライドしてください: `distPaths({ rootDir: 'lib', outDir: 'dist/esm' })`。書き換えられたパスが指す `dist/` ファイルが実際に存在するよう、ビルドの**後に** `cem analyze` を実行してください。`ext` の拡張子リマップについては[APIリファレンス](/api/cem-plugin/#distpathsoptions)を参照してください。マニフェストを公開しない場合（例えば、自分自身のソースに対するローカルのStorybookやエディタのセットアップなど）は、これらは一切不要です。
+異なるレイアウトの場合は、`rootDir` / `outDir` をオーバーライドしてください: `distPaths({ rootDir: 'lib', outDir: 'dist/esm' })`。書き換えられたパスが指す `dist/` ファイルが実際に存在するよう、ビルドの**後に** `cem analyze` を実行してください。`ext` の拡張子リマップについては[APIリファレンス](/ja/api/cem-plugin/#distpathsoptions)を参照してください。マニフェストを公開しない場合（例えば、自分自身のソースに対するローカルのStorybookやエディタのセットアップなど）は、これらは一切不要です。

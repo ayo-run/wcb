@@ -39,7 +39,7 @@ Ano ang ibinibigay sa iyo ng bawat library kaysa sa direktang pagpalawig mula sa
 | Scoped styles                     | ✅ `static styles` + constructable stylesheets (kailangan ng shadow root) | ✅ shadow-scoped CSS                               | ✅ scoped nang walang shadow DOM        | ✅ shadow-scoped + design tokens                 |
 | SSR / kwento ng hydration         | ✅ attribute-driven na state na nagre-render mula sa kahit anong server | ✅ `@lit-labs/ssr` + hydration                     | ✅ server-rendered markup + hydration utilities | ⚠️ experimental na SSR                    |
 | Gumagana nang walang build tooling | ✅ import mula sa CDN, walang compiler                             | ✅ (posible ang buildless, ang decorators ay kailangan ng tooling) | ✅                              | ⚠️ praktikal na may tooling                      |
-| Editor/IDE tooling                | ✅ typed props + [CEM analyzer plugin](/cem-plugin/)                | ✅ malawak (analyzer, TS decorators, IDE plugins)        | ✅ CEM-focused                          | ✅ TS-first                                      |
+| Editor/IDE tooling                | ✅ typed props + [CEM analyzer plugin](/tl/cem-plugin/)                | ✅ malawak (analyzer, TS decorators, IDE plugins)        | ✅ CEM-focused                          | ✅ TS-first                                      |
 | Lifecycle hooks                   | `onInit`, `afterViewInit`, `onChanges`, `onDestroy`                 | kumpletong reactive update lifecycle                     | `willUpdate`, `firstUpdated`, `updated` | kumpletong lifecycle + behaviors                 |
 | Suporta / ecosystem               | iisang maintainer, maliit na surface                                | OpenJS Foundation (idinonate ng Google noong 2025), malaking ecosystem | bago (2026), iisang may-akda | Microsoft, pinapatakbo ang Fluent UI             |
 
@@ -47,7 +47,7 @@ Ano ang ibinibigay sa iyo ng bawat library kaysa sa direktang pagpalawig mula sa
 Ang WebC ay isang compile-time tool: nire-resolve nito ang mga component habang naka-build ang Eleventy at naglalabas ng plain HTML na walang client runtime. Ang bawat row sa itaas ay tungkol sa ginagawa ng isang library _sa browser habang tumatakbo_, kaya ang isang side-by-side na paghahambing ay parang sinusukat ang dalawang magkaibang bagay. Kung static ang iyong mga component sa build time, ibang problema ang sinasagot ng WebC.
 :::
 
-Para sa kung ano ang kabuluhan ng mga numero at kakayahang ito (at kung kailan hindi), tingnan ang [Bakit gagamitin ninuman ang WCB?](/why/).
+Para sa kung ano ang kabuluhan ng mga numero at kakayahang ito (at kung kailan hindi), tingnan ang [Bakit gagamitin ninuman ang WCB?](/tl/why/).
 
 ---
 

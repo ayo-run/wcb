@@ -85,7 +85,7 @@ vnodeツリーから実際のDOMを構築します。
 
 ### `applyProp(el, prop, value)`
 
-[html](/api/html/#propの適用方法)で説明されているルールを使い、単一のvnode propを要素に適用します。
+[html](/ja/api/html/#propの適用方法)で説明されているルールを使い、単一のvnode propを要素に適用します。
 
 | パラメータ | 型      |                                    |
 | --------- | --------- | ---------------------------------- |
@@ -97,7 +97,7 @@ reconcilerと共有されているため、パッチされた要素も新規作�
 
 ## Reconciler
 
-これらは、[Template vs Render](/template-vs-render/)で説明されているインプレースの再レンダリングを支えています。マッチングは**インデックスベースで非キー**です。
+これらは、[Template vs Render](/ja/template-vs-render/)で説明されているインプレースの再レンダリングを支えています。マッチングは**インデックスベースで非キー**です。
 
 ### `patchChildren(parent, oldChildren, newChildren)`
 

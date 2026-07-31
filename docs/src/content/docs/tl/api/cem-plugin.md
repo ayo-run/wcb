@@ -14,7 +14,7 @@ import { wcbStaticProps, distPaths } from 'web-component-base/cem-plugin'
 import wcbStaticProps from 'web-component-base/cem-plugin'
 ```
 
-Tingnan ang [gabay sa CEM Analyzer Plugin](/cem-plugin/) para sa setup, Storybook, at
+Tingnan ang [gabay sa CEM Analyzer Plugin](/tl/cem-plugin/) para sa setup, Storybook, at
 editor integration.
 
 ## `wcbStaticProps()`
@@ -90,4 +90,4 @@ consumer ay nagre-resolve pa rin sa isang module sa manifest. Ang isang referenc
 Tumatakbo ito sa `packageLinkPhase` ng analyzer (pagkatapos ng `analyzePhase` ng `wcbStaticProps`),
 kaya hindi mahalaga ang pagkakasunod-sunod ng dalawa sa `plugins` array.
 Patakbuhin ang `cem analyze` pagkatapos ng iyong build para umiral ang mga file na itinuturo ng muling isinulat na mga path. Tingnan ang [publishing note sa
-gabay](/cem-plugin/#ship-the-manifest-with-a-package-distpaths).
+gabay](/tl/cem-plugin/#ipadala-ang-manifest-kasama-ng-isang-package-distpaths).

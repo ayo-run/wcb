@@ -74,7 +74,7 @@ class CozyButton extends WebComponent<CozyButtonProps> {
 この注釈は、以降の代入に型チェックを適用します。同時にデフォルト値自体もその型と照合してチェックされるため、キーの欠落やユニオンの範囲外のデフォルト値もコンパイルエラーになります。
 
 <Aside type="tip" title="実行時の型ガードが欲しい場合は `static strictType` を使う">
-実行時には、propに異なる型を代入しても静かに失敗するだけです。[`static strictProps`](/api/web-component/#static-strictprops) を `true` に設定すると、誤った型が代入されたときに `TypeError` がスローされます。
+実行時には、propに異なる型を代入しても静かに失敗するだけです。[`static strictProps`](/ja/api/web-component/#static-strictprops) を `true` に設定すると、誤った型が代入されたときに `TypeError` がスローされます。
 </Aside>
 
 ### Boolean props
@@ -262,7 +262,7 @@ class DataTable extends WebComponent {
 }
 ```
 
-プレーンなプロパティを監視するものは何もないため、その変更でビューを更新する必要があるときは、自分で[`this.render()`](/template-vs-render/)を呼び出してください。
+プレーンなプロパティを監視するものは何もないため、その変更でビューを更新する必要があるときは、自分で[`this.render()`](/ja/template-vs-render/)を呼び出してください。
 
 大まかな目安としては、`static props` は消費者がマークアップから設定したり、attributeセレクターでスタイリングしたりする値のためのものであり、クラスプロパティ（公開または `#private`）はそれ以外のすべて、つまり大きなデータ、関数、タイマーや `AbortController` のような、そもそもattributeを往復できないハンドルのためのものです。「これがattributeとして表れてほしくない」と思ったら、それはクラスプロパティにすべきであり、propにすべきではない、というサインです。
 

@@ -139,7 +139,7 @@ this.props.count += 1
 
 一个只读的 getter，返回组件所渲染的内容。支持两种形式：
 
-- 一个 [`html`](/api/html/) 标签模板：一棵 vnode 树，会在重新渲染时原地协调
+- 一个 [`html`](/zh-cn/api/html/) 标签模板：一棵 vnode 树，会在重新渲染时原地协调
 - 一个**字符串**：被赋值给渲染目标的 `innerHTML`
 
 两者都渲染到同一个目标：如果设置了 `shadowRootInit`，则渲染到 shadow root，
@@ -160,7 +160,7 @@ this.props.count += 1
 
 对于 vnode 模板，新的树会与前一棵树进行比较，重新渲染会**原地 patch 现有的 DOM**。
 关于这会保留哪些内容以及非 keyed 匹配的注意事项，参见
-[Template vs Render](/template-vs-render/)。
+[Template vs Render](/zh-cn/template-vs-render/)。
 
 ## 生命周期钩子
 
@@ -186,7 +186,7 @@ this.props.count += 1
 | `previousValue`  | `any`    | 变化前的值                                     |
 | `currentValue`   | `any`    | 变化后的值                                     |
 
-关于实践示例参见 [生命周期钩子](/life-cycle-hooks/)。查看实况：
+关于实践示例参见 [生命周期钩子](/zh-cn/life-cycle-hooks/)。查看实况：
 [生命周期顺序演示 ↗](https://demo.webcomponent.io/examples/lifecycle-order/)
 和 [onChanges 载荷演示 ↗](https://demo.webcomponent.io/examples/on-changes/)
 
@@ -197,7 +197,7 @@ this.props.count += 1
 
 默认的转换会将值通过 JSON 进行往返转换。JSON 无法还原的类型（`Date`、`Map`、
 `Set`、`URL`、类实例）需要重写转换器才能存在于 `static props` 上；参见
-[自定义属性转换](/prop-access/#custom-attribute-conversion) 了解实践示例，
+[自定义属性转换](/zh-cn/prop-access/#自定义属性转换) 了解实践示例，
 包括不可序列化的情形。
 
 ### `toAttribute(name, value)`

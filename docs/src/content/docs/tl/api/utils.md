@@ -95,7 +95,7 @@ nang recursive.
 ### `applyProp(el, prop, value)`
 
 Ina-apply ang isang solong vnode prop sa isang element, gamit ang panuntunang inilarawan sa
-[html](/api/html/#how-props-are-applied).
+[html](/tl/api/html/#kung-paano-ina-apply-ang-mga-props).
 
 | Parameter | Type      |                                    |
 | --------- | --------- | ---------------------------------- |
@@ -109,7 +109,7 @@ parehong panuntunan tulad ng isang bagong likhang element.
 ## Reconciler
 
 Pinapagana ng mga ito ang in-place na re-render na inilarawan sa
-[Template vs Render](/template-vs-render/). Ang matching ay **index-based at
+[Template vs Render](/tl/template-vs-render/). Ang matching ay **index-based at
 non-keyed**.
 
 ### `patchChildren(parent, oldChildren, newChildren)`

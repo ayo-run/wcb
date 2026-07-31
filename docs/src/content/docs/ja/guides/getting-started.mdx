@@ -20,7 +20,7 @@ npm create wcb@latest
 
 これにより、すぐに開発を始められる、公開可能なカスタム要素がセットアップされます。
 
-- **TypeScript製のスターターコンポーネント**: [`static props`](/prop-access/) の慣習を使用します。クラス名・タグ名・ファイル名はプロジェクト名から導出されるため（`my-button` → `MyButton` / `<my-button>`）、名前を変え忘れるTODOはありません
+- **TypeScript製のスターターコンポーネント**: [`static props`](/ja/prop-access/) の慣習を使用します。クラス名・タグ名・ファイル名はプロジェクト名から導出されるため（`my-button` → `MyButton` / `<my-button>`）、名前を変え忘れるTODOはありません
 - **Viteセットアップ**: デモページ付きの開発サーバーと、ESM + UMDバンドルおよび `.d.ts` 型を出力するライブラリビルド（`npm run build:lib`）。`web-component-base` はpeerDependencyとして扱われます
 - **`custom-elements.json` の生成**: wcbのプラグインを設定済みのCEMアナライザー、`npm run analyze` スクリプト、`package.json` の `customElements` フィールド、そして公開パッケージにマニフェストを同梱するための `prepack` フック
 
@@ -34,7 +34,7 @@ npm run dev
 
 Viteがローカルの URL を表示します。それを開くと、デモページに `<my-button>` がレンダリングされているのが確認できます。`src/MyButton.ts` を編集すると、保存するたびにページが更新されます。
 
-マニフェストの詳細や、StorybookやコードエディタでのCEMマニフェストの使い方については、[CEMアナライザープラグインガイド](/cem-plugin/)を参照してください。
+マニフェストの詳細や、StorybookやコードエディタでのCEMマニフェストの使い方については、[CEMアナライザープラグインガイド](/ja/cem-plugin/)を参照してください。
 
 GitHubから始めたい方へ。[`ayo-run/web-component`](https://github.com/ayo-run/web-component) テンプレートリポジトリも「Use this template」から同じ目的で利用できます。
 
@@ -54,10 +54,10 @@ npm i web-component-base
 import { WebComponent } from 'web-component-base'
 ```
 
-最初のコンポーネントを定義するには、[使い方](/usage)に進んでください。
+最初のコンポーネントを定義するには、[使い方](/ja/usage)に進んでください。
 
 :::tip[CDNを使いたい場合]
-バニラJSやHTMLファイルから、CDN経由で直接wcbをインポートすることもできます。実際に動作するセットアップは[CodePenの例](/examples/#codepen-examples)を参照してください。
+バニラJSやHTMLファイルから、CDN経由で直接wcbをインポートすることもできます。実際に動作するセットアップは[CodePenの例](/ja/examples/#codepenの例)を参照してください。
 :::
 
 ## ヘルプを得るには

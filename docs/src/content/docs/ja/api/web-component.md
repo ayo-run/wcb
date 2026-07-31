@@ -126,7 +126,7 @@ this.props.count += 1
 
 コンポーネントがレンダリングする内容を返す、読み取り専用のgetterです。2種類がサポートされています。
 
-- [`html`](/api/html/)タグ付きテンプレート: vnodeツリーで、再レンダリング時にその場で調整されます
+- [`html`](/ja/api/html/)タグ付きテンプレート: vnodeツリーで、再レンダリング時にその場で調整されます
 - **文字列**: レンダリング対象の `innerHTML` に代入されます
 
 どちらも同じ対象にレンダリングされます。`shadowRootInit` が設定されている場合はシャドウルート、そうでなければ要素自身です。`` html`` ``（これは `undefined` になります）または
@@ -142,7 +142,7 @@ this.props.count += 1
 
 `template` をレンダリング対象にレンダリングします。接続時、およびprop・attributeが変更されるたびに自動的に呼び出されるため、自分で呼び出すことはめったにありません。
 
-vnodeテンプレートの場合、新しいツリーは前のツリーと比較され、再レンダリングは**既存のDOMをその場でパッチします**。それが何を保持するか、そして非キーマッチングの注意点については、[Template vs Render](/template-vs-render/)を参照してください。
+vnodeテンプレートの場合、新しいツリーは前のツリーと比較され、再レンダリングは**既存のDOMをその場でパッチします**。それが何を保持するか、そして非キーマッチングの注意点については、[Template vs Render](/ja/template-vs-render/)を参照してください。
 
 ## ライフサイクルフック
 
@@ -167,13 +167,13 @@ vnodeテンプレートの場合、新しいツリーは前のツリーと比較
 | `previousValue` | `any`    | 変更前の値                                    |
 | `currentValue`  | `any`    | 変更後の値                                    |
 
-具体的な使用例は[ライフサイクルフック](/life-cycle-hooks/)を参照してください。実際に動く様子はこちら: [ライフサイクルの順序デモ ↗](https://demo.webcomponent.io/examples/lifecycle-order/)と[onChangesのペイロードデモ ↗](https://demo.webcomponent.io/examples/on-changes/)
+具体的な使用例は[ライフサイクルフック](/ja/life-cycle-hooks/)を参照してください。実際に動く様子はこちら: [ライフサイクルの順序デモ ↗](https://demo.webcomponent.io/examples/lifecycle-order/)と[onChangesのペイロードデモ ↗](https://demo.webcomponent.io/examples/on-changes/)
 
 ## Attributeコンバーター
 
 1つのpropがprop/attributeの境界をどのように横断するかを制御するには、これらをオーバーライドし、扱わないpropについては `super` を呼び出してください。
 
-デフォルトの変換は、値をJSONを介してラウンドトリップします。JSONが復元できない型（`Date`、`Map`、`Set`、`URL`、クラスインスタンス）を `static props` に置くには、オーバーライドされたコンバーターが必要です。シリアライズ不可能なケースを含む実例については、[カスタムattribute変換](/prop-access/#カスタムattribute変換)を参照してください。
+デフォルトの変換は、値をJSONを介してラウンドトリップします。JSONが復元できない型（`Date`、`Map`、`Set`、`URL`、クラスインスタンス）を `static props` に置くには、オーバーライドされたコンバーターが必要です。シリアライズ不可能なケースを含む実例については、[カスタムattribute変換](/ja/prop-access/#カスタムattribute変換)を参照してください。
 
 ### `toAttribute(name, value)`
 
