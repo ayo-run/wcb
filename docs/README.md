@@ -23,6 +23,8 @@ docs/
 ├── public/               # served as-is: favicons, robots.txt
 └── src/
     ├── components/       # Starlight component overrides + SizeChart
+    ├── lib/              # helpers for the generated endpoints
+    ├── pages/            # llms.txt and llms-full.txt (Starlight owns every other route)
     ├── content/
     │   ├── docs/         # every page — guides/, api/, and one folder per locale
     │   └── i18n/         # UI string overrides for locales Starlight ships no translation for
@@ -36,6 +38,8 @@ A page's route comes from its `slug` frontmatter, not its path. Adding a page to
 **Every page needs a `description`.** Starlight has no fallback: a page without one ships with no `<meta name="description">` and no `og:description` at all, which is what search results and link previews read. One line, specific about what the page covers. `test/docs-descriptions.test.mjs` enforces this.
 
 **Translated pages carry their locale in every link.** Starlight does not rewrite links per locale, so a bare `/prop-access/` on a `/ja/` page drops the reader back into English for the rest of the visit. Both the `slug` (`slug: 'ja/prop-access'`) and every internal link (`](/ja/prop-access/)`) need the prefix, and cross-page anchors have to use the _translated_ heading's slug. `test/docs-i18n-links.test.mjs` enforces the first two; anchors are only caught by building.
+
+**`/llms.txt` and `/llms-full.txt` are generated, never hand-edited.** They are built from the docs collection in sidebar order, so a new guide appears in both as soon as it is added to the sidebar — and a guide left out of the sidebar reaches neither. `test/docs-llms-txt.test.mjs` fails on a page the sidebar does not list. Both cover English only.
 
 **Figures come from `size-change-log.md`.** The headline size in `guides/library-size.md` tracks the latest row's min + brotli figure. The two must never disagree — see the root `AGENTS.md`.
 
