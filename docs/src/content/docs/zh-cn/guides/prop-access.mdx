@@ -1,0 +1,324 @@
+---
+title: Prop 访问
+slug: 'zh-cn/prop-access'
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+`WebComponent` 接口的 `props` 属性用于方便地读写*任意*被观察属性的驼峰式（camelCase）对应项。
+
+```js
+class HelloWorld extends WebComponent {
+  static props = {
+    myProp: 'World',
+  }
+  get template() {
+    return html` <h1>Hello ${this.props.myProp}</h1> `
+  }
+}
+```
+
+为某个被观察属性的 `props.camelCase` 对应项赋值，将触发“属性变化”钩子。
+
+例如，像这样赋值：
+
+```
+this.props.myName = 'hello'
+```
+
+……相当于调用：
+
+```
+this.setAttribute('my-name','hello');
+```
+
+因此，如果该属性是我们通过 `static props` 明确提供的组件被观察属性之一，这将告知浏览器界面需要重新渲染；
+
+<Aside type="note">
+`WebComponent` 的 `props` 属性的工作方式类似 `HTMLElement.dataset`，区别在于 `dataset` 只适用于以 `data-` 为前缀的属性。而使用 `props` 的驼峰式对应项，可以读写任意属性，无论是否带有 `data-` 前缀。
+
+相比 `HTMLElement.dataset` 的另一个优势是，`WebComponent.props` 可以保存 'number'、'boolean'、'object' 和 'string' 等原始类型。
+
+</Aside>
+
+### 在 TypeScript 中选用带类型的 props
+
+查看实况：[编译期 prop 类型演示 ↗](https://demo.webcomponent.io/examples/typed-props/) 和 [带类型的 props 演示 ↗](https://demo.webcomponent.io/examples/type-restore/)
+
+默认情况下，`this.props` 是一个宽松的 `{ [name: string]: any }` 映射。在 TypeScript 中，你可以为已声明的 props 获得编译期类型检查。将形状声明为一个具名类型，将其作为类的类型参数传入，并在初始化时用它标注 `static props`：
+
+```ts
+type CozyButtonProps = {
+  variant: 'primary' | 'ghost'
+  disabled: boolean
+}
+
+class CozyButton extends WebComponent<CozyButtonProps> {
+  static props: CozyButtonProps = {
+    variant: 'primary',
+    disabled: false,
+  }
+
+  get template() {
+    this.props.variant // 'primary' | 'ghost'
+    this.props.disabled // boolean
+    this.props.notAProp // ❌ 编译错误：未声明
+
+    this.props.disabled = 'yes' // ❌ 编译错误：字符串不是 boolean
+    this.props.variant = 'plaid' // ❌ 编译错误：不在联合类型中
+    return html`<button class=${this.props.variant}></button>`
+  }
+}
+```
+
+这个类型标注会将类型检查应用到后续的赋值上，同时默认值本身也会依据该类型被检查，因此缺少某个键或默认值超出联合类型范围同样会产生编译错误。
+
+<Aside type="tip" title="如果需要运行时类型保护，使用 `static strictType`">
+在运行时，为 prop 赋予不同类型的值会静默失败。将 [`static strictProps`](/api/web-component/#static-strictprops) 设为 true，会在赋值类型错误时抛出 `TypeError`。
+</Aside>
+
+### 布尔型 props
+
+布尔型 props 遵循 HTML 布尔属性的约定，与原生的
+`disabled` 和 `required` 完全一致：**存在即为 `true`，不存在即为 `false`。**
+
+查看实况：[布尔 props 演示 ↗](https://demo.webcomponent.io/examples/boolean-props/)
+
+```js
+class FlagBox extends WebComponent {
+  static props = { flag: false }
+}
+```
+
+```html
+<!-- props.flag === false -->
+<flag-box></flag-box>
+
+<!-- props.flag === true -->
+<flag-box flag></flag-box>
+
+<!-- props.flag === true -->
+<flag-box flag=""></flag-box>
+```
+
+反向反射的方式与之相同。`true` 会设置一个不带值的裸属性，
+`false` 会将其彻底移除：
+
+```js
+el.props.flag = true // <flag-box flag>
+el.props.flag = false // <flag-box>
+```
+
+因为 `false` 表现为属性*不存在*而不是 `flag="false"`，所以平台自身的
+API 和 CSS 存在性选择器都会按预期工作：
+
+```js
+el.toggleAttribute('flag', true) // prop 同步，组件重新渲染
+```
+
+```css
+:host([flag]) {
+  /* 仅当该 prop 确实为 true 时才匹配 */
+}
+```
+
+<Aside type="caution" title="任何存在的值都为 true">
+  正如原生的 `disabled="false"` 仍然是禁用状态一样，**`flag="false"` 会被解析
+  为 `true`**。存在性优先，不存在针对字面字符串的特殊处理。因此写
+  `setAttribute('flag', String(someBool))` 总会得到 `true`；应改用
+  `toggleAttribute('flag', someBool)`。当 wcb 检测到某个布尔属性被写为
+  `"true"` 或 `"false"` 时，会打印 `console.warn`，因此这不会静默出错。
+</Aside>
+
+像 `contenteditable` 和 `aria-*` 这样的枚举属性是例外情况。
+它们是真正的字符串，其中 `"false"` 是有意义的，因此应将其声明为**字符串**
+类型的 props 而非布尔型。字符串按字面量序列化且从不会被移除，因此在
+运行时无需任何特殊处理；在 TypeScript 中，可以将其收窄为你接受的取值，
+写入你的 [props 类型](#typed-props-in-typescript)：
+
+```ts
+type ToggleProps = {
+  ariaChecked: 'true' | 'false'
+}
+```
+
+<Aside type="tip" title="将布尔型 props 的默认值设为 false">
+  HTML 没有默认为 true 的布尔属性：不存在必须同时表示“false”和“默认值”，
+  这只有在两者一致时才成立。要建模一个默认开启的标志位，应使用反义命名
+  （用 `disabled`，而不是 `enabled`）。wcb 会针对 `true` 默认值每个类只警告一次，
+  并且对于这类 prop，移除属性后会落到 `false`，而不是回到所声明的默认值。
+</Aside>
+
+### 自定义属性转换
+
+查看实况：[自定义属性转换器演示 ↗](https://demo.webcomponent.io/examples/attribute-converters/)
+
+以上规则覆盖了常见情形。当某个 prop 需要自己的序列化方式（`Date`、
+分隔列表、`"false"` 有意义的枚举属性）时，重写 `toAttribute` 和
+`fromAttribute`，并将其余情况委托给 `super`：
+
+```js
+class EventCard extends WebComponent {
+  static props = { when: new Date(0), title: '' }
+
+  toAttribute(name, value) {
+    if (name === 'when') return value.toISOString().slice(0, 10)
+    return super.toAttribute(name, value)
+  }
+
+  fromAttribute(name, value) {
+    if (name === 'when') return new Date(`${value}T00:00:00Z`)
+    return super.fromAttribute(name, value)
+  }
+}
+```
+
+```html
+<!-- props.when 是一个 Date -->
+<event-card when="2026-07-20"></event-card>
+```
+
+两者接受的都是**驼峰式的 prop 键名**，与你在 `static props` 中的声明
+以及 `onChanges` 的 `property` 一致，而不是短横线式的属性名。
+
+`toAttribute` 返回 **`null` 会移除该属性**。这正是 `false` 布尔值
+变为不存在属性的方式，且适用于任何 prop：
+
+```js
+toAttribute(name, value) {
+  // 对该 prop 来说，空字符串意味着“完全没有该属性”
+  return value === '' ? null : super.toAttribute(name, value)
+}
+```
+
+#### 转换只在属性变化时触发
+
+  当为 prop 赋值时，wcb **不会**通过 `fromAttribute` 反向检查和解析属性。
+  你所赋的 prop 值本身就是真源，而文本形式的属性可能是精度较低的表示。
+  在上面的示例中，即使属性只携带日期，`props.when` 也会保留完整的时间戳。
+  `render()` 和 `onChanges` 仍会照常触发。`fromAttribute` 转换只会针对从组件
+  *外部*通过标记、`setAttribute` 或 `toggleAttribute` 写入的属性被调用。
+
+<Aside type="caution" title="所声明的类型依然适用">
+  一个 prop 的运行时类型来自其默认值的 `typeof`，props 代理会拒绝违反该类型
+  的写入。因此，一个值为 `Date` 类型的 prop 需要一个真正的 `Date` 默认值
+  （`new Date(0)`），而不是 `''`。否则该 prop 会被视为 `string` 类型，
+  你解析出的 `Date` 会被拒绝。
+</Aside>
+
+#### 处理不可序列化的数据类型
+
+默认的转换器会将 prop 值通过 JSON 进行往返转换，这能精确还原数字、
+布尔值和普通对象/数组。JSON 无法表示的类型则无法在往返中存活：
+`Date` 会变回一个普通字符串，`Map` 或 `Set` 会坍缩为 `"{}"`。
+
+这类类型仍然可以作为一等的 props 使用。你可以为其声明一个该类型的
+真实默认值（见上方的警告），并重写转换器。上面的 `EventCard` 示例正是
+通过为其 `Date` prop 使用自定义转换逻辑来处理这一点。
+
+另一种做法是改用专为此设计的库。你可以选择将像
+[devalue](https://github.com/sveltejs/devalue) 这样的序列化库作为组件的依赖，
+它可以序列化和解析 `Map`、`Set`、`Date`、`RegExp`、`BigInt`、`undefined`，
+甚至循环引用。这样一对通用的重写就能覆盖所有结构化的 props。
+
+下面是用它重写后的 `EventCard`，并新增了一个类型为 `Set` 的 `tags` prop：
+
+```js
+import { parse, stringify } from 'devalue'
+
+class EventCard extends WebComponent {
+  static props = {
+    when: new Date(0),
+    tags: new Set(),
+    title: '',
+  }
+
+  toAttribute(name, value) {
+    // 处理 `when` 和 `tags`
+    if (value instanceof Object) return stringify(value)
+    return super.toAttribute(name, value)
+  }
+
+  fromAttribute(name, value) {
+    if (this.constructor.props[name] instanceof Object) return parse(value)
+    return super.fromAttribute(name, value)
+  }
+}
+```
+
+这两个判断是故意不对称的：`toAttribute` 看到的是实时的值，但
+`fromAttribute` 只能看到一个字符串，因此它需要参考所声明的默认值
+（使用 `this.constructor.props`）来判断该属性是否是 devalue 编码的。
+`title` 不满足这两个判断条件，因此会照常按普通字符串反射。
+
+编码后的属性不像手写的 `when="2026-07-20"` 那样易读，但它仍然是纯文本：
+
+```html
+<!-- props.when 是一个真正的 Date，props.tags 是一个真正的 Set -->
+<event-card
+  when='[["Date","2026-07-20T09:30:00.000Z"]]'
+  tags='[["Set",1,2],"alpha","bravo"]'
+></event-card>
+```
+
+<Aside type="caution" title="重新赋值，而不是原地修改">
+  props 代理只能观察到*赋值*操作。`this.props.tags.add('x')` 是在代理背后
+  直接修改了这个 Set：不会触发反射、不会重新渲染，属性也会变得过期。
+  应改为赋一个全新的实例：`this.props.tags = new
+  Set(this.props.tags).add('x')`。
+</Aside>
+
+转换器可以覆盖任何具有合理**文本形式**的值：可以是像 ISO 日期这样定制化的，
+也可以是像 devalue 编码这样通用的。而完全没有文本形式的值（一个函数、
+一个元素引用、一个诸如 `AbortController` 之类的活动句柄）并不是转换器
+能解决的问题：即便是 devalue 也会拒绝它（`Cannot stringify a function`），
+它本来就不应该出现在 `static props` 中。应将其保留为普通的类属性。
+参见下方的 [未被观察的属性](#unobserved-properties)。wcb 正是出于这个原因，
+在检测到某个声明的默认值是 `function` 或 `symbol` 时，会针对每个类警告一次。
+
+
+### 未被观察的属性
+
+`static props` 中声明的一切都会被观察和反射：每个键都会对应一个属性，
+写入会触发 `render()` 和 `onChanges()`，且默认值会在首次连接时出现在 DOM 中。
+这对于组件面向 DOM 的公共 API 而言是正确的约定，但对内部状态来说则是不必要的。
+
+对于不需要出现在 DOM 中的状态，应使用普通的类属性。`WebComponent` 本质上
+仍是一个继承自 `HTMLElement` 的类，因此普通属性的工作方式与任何元素上的
+普通属性完全一样，且对 props 机制完全不可见（没有属性、不会被观察、
+不会自动渲染）：
+
+```js
+class DataTable extends WebComponent {
+  static props = { compact: false } // 公共 API：<data-table compact>
+
+  rows = [] // 内部状态，永远不会成为属性
+  #controller = new AbortController() // 不可序列化的值在这里没问题
+
+  async onInit() {
+    const res = await fetch('/rows', { signal: this.#controller.signal })
+    this.rows = await res.json()
+    this.render() // 未被观察的变化需要你自己触发渲染
+  }
+
+  onDestroy() {
+    this.#controller.abort()
+  }
+}
+```
+
+因为没有任何机制在监视普通属性，所以当某个变化应当更新视图时，
+需要你自己调用 [`this.render()`](/template-vs-render/)。
+
+经验法则是：`static props` 用于消费者会通过标记设置、或通过属性选择器进行
+样式匹配的值；类属性（公有或 `#private`）则用于其他一切情况：大型数据、
+函数，以及像计时器或 `AbortController` 这样本来就无法经由属性往返的句柄。
+如果你发现自己在想“我不想让它出现为一个属性”，那正是它应该是类属性而不是
+prop 的信号。
+
+### 替代方案
+
+目前的替代方案是使用 `HTMLElement` 开箱即用提供的能力，包括：
+
+1. 对于以 `data-*` 为前缀的属性，使用 `HTMLElement.dataset`。更多内容参见 [MDN 文档](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/dataset)。
+1. 读写属性值的方法：`setAttribute(...)` 和 `getAttribute(...)`；请注意，随着代码增长，将属性名以字符串形式管理会变得困难。

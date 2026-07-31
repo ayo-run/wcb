@@ -1,0 +1,274 @@
+---
+title: Propへのアクセス
+slug: 'ja/prop-access'
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+`WebComponent` インターフェースの `props` プロパティは、_あらゆる_観測対象attributeに対応するcamelCaseの値へ、簡単に読み書きアクセスできるように提供されています。
+
+```js
+class HelloWorld extends WebComponent {
+  static props = {
+    myProp: 'World',
+  }
+  get template() {
+    return html` <h1>Hello ${this.props.myProp}</h1> `
+  }
+}
+```
+
+観測対象attributeに対応する `props.camelCase` に値を代入すると、「attribute変更」フックがトリガーされます。
+
+例えば、次のように値を代入すると:
+
+```
+this.props.myName = 'hello'
+```
+
+...これは次を呼び出すのと同じです:
+
+```
+this.setAttribute('my-name','hello');
+```
+
+したがって、そのattributeが `static props` で明示的に宣言されたコンポーネントの観測対象attributeのひとつであれば、これによりブラウザにUIのレンダリングが必要であることが伝わります。
+
+<Aside type="note">
+`WebComponent` の `props` プロパティは `HTMLElement.dataset` のように動作しますが、`dataset` が `data-` 接頭辞の付いたattributeのみを対象とするのに対し、`props` を使ったcamelCaseの値は、`data-` 接頭辞の有無にかかわらず、あらゆるattributeへの読み書きアクセスを提供します。
+
+`HTMLElement.dataset` に対するもう一つの利点は、`WebComponent.props` がプリミティブ型の 'number'、'boolean'、'object'、'string' を保持できることです。
+
+</Aside>
+
+### TypeScriptでのオプトインな型付きprops
+
+実際に動く様子はこちら: [コンパイル時prop型デモ ↗](https://demo.webcomponent.io/examples/typed-props/)と[型付きpropsデモ ↗](https://demo.webcomponent.io/examples/type-restore/)
+
+デフォルトでは `this.props` は寛容な `{ [name: string]: any }` マップです。TypeScriptでは、宣言したpropsにコンパイル時の型を付けることができます。形状を名前付きの型として宣言し、それをクラスの型引数として渡し、初期化時に `static props` にその型を注釈します。
+
+```ts
+type CozyButtonProps = {
+  variant: 'primary' | 'ghost'
+  disabled: boolean
+}
+
+class CozyButton extends WebComponent<CozyButtonProps> {
+  static props: CozyButtonProps = {
+    variant: 'primary',
+    disabled: false,
+  }
+
+  get template() {
+    this.props.variant // 'primary' | 'ghost'
+    this.props.disabled // boolean
+    this.props.notAProp // ❌ コンパイルエラー: 宣言されていない
+
+    this.props.disabled = 'yes' // ❌ コンパイルエラー: stringはbooleanではない
+    this.props.variant = 'plaid' // ❌ コンパイルエラー: ユニオンに含まれない
+    return html`<button class=${this.props.variant}></button>`
+  }
+}
+```
+
+この注釈は、以降の代入に型チェックを適用します。同時にデフォルト値自体もその型と照合してチェックされるため、キーの欠落やユニオンの範囲外のデフォルト値もコンパイルエラーになります。
+
+<Aside type="tip" title="実行時の型ガードが欲しい場合は `static strictType` を使う">
+実行時には、propに異なる型を代入しても静かに失敗するだけです。[`static strictProps`](/api/web-component/#static-strictprops) を `true` に設定すると、誤った型が代入されたときに `TypeError` がスローされます。
+</Aside>
+
+### Boolean props
+
+Boolean propsは、ネイティブの `disabled` や `required` とまったく同じように、HTMLのboolean attributeの慣習に従います。**存在すれば`true`、存在しなければ`false`です。**
+
+実際に動く様子はこちら: [Boolean propsデモ ↗](https://demo.webcomponent.io/examples/boolean-props/)
+
+```js
+class FlagBox extends WebComponent {
+  static props = { flag: false }
+}
+```
+
+```html
+<!-- props.flag === false -->
+<flag-box></flag-box>
+
+<!-- props.flag === true -->
+<flag-box flag></flag-box>
+
+<!-- props.flag === true -->
+<flag-box flag=""></flag-box>
+```
+
+反映は逆方向でも同じように機能します。`true` は裸のattributeをセットし、`false` はattributeを完全に削除します。
+
+```js
+el.props.flag = true // <flag-box flag>
+el.props.flag = false // <flag-box>
+```
+
+`false` が `flag="false"` ではなく、attributeが_存在しない_状態であるため、プラットフォーム自身のAPIやCSSの存在セレクターの両方が期待どおりに動作します。
+
+```js
+el.toggleAttribute('flag', true) // propが同期し、コンポーネントが再レンダリングされる
+```
+
+```css
+:host([flag]) {
+  /* propが実際にtrueのときだけマッチする */
+}
+```
+
+<Aside type="caution" title="存在する値はどれもtrueになる">
+  ネイティブの `disabled="false"` が依然として無効状態を意味するのと同様に、**`flag="false"` も `true` と解釈されます**。存在すること自体が優先され、リテラルな文字列に対する特別扱いはありません。したがって `setAttribute('flag', String(someBool))` は常に
+  `true` になります。代わりに `toggleAttribute('flag', someBool)` を使ってください。wcbは、boolean属性が `"true"` や `"false"` として書かれたのを検知すると
+  `console.warn` を出力するため、これが静かに失敗することはありません。
+</Aside>
+
+`contenteditable` や `aria-*` のような列挙型属性は例外です。これらは `"false"` が意味を持つ本物の文字列なので、booleanではなく**string**のpropとして宣言してください。文字列はそのままシリアライズされ、決して削除されることがないため、実行時に特別な処理は不要です。TypeScriptでは、受け入れる値に絞り込んで[propsの型](#typescriptでのオプトインな型付きprops)を定義してください。
+
+```ts
+type ToggleProps = {
+  ariaChecked: 'true' | 'false'
+}
+```
+
+<Aside type="tip" title="Boolean propsのデフォルトはfalseにする">
+  HTMLには真がデフォルトのboolean属性は存在しません。つまり不在は「false」と「デフォルト」の両方を意味しなければならず、それはこの2つが一致するときにしか成り立ちません。デフォルトでオンにしたいフラグは、反転した名前（`enabled` ではなく `disabled`）でモデル化してください。wcbはクラスごとに一度だけ `true` のデフォルトについて警告し、そのようなpropに対してattributeを削除すると、宣言されたデフォルトではなく `false` になります。
+</Aside>
+
+### カスタムattribute変換
+
+実際に動く様子はこちら: [カスタムattributeコンバーターデモ ↗](https://demo.webcomponent.io/examples/attribute-converters/)
+
+上記のルールは一般的なケースをカバーしています。propが独自のシリアライズ（`Date`、区切り文字付きリスト、`"false"` が意味を持つ列挙型属性など）を必要とする場合は、`toAttribute` と `fromAttribute` をオーバーライドし、それ以外はすべて `super` に委譲してください。
+
+```js
+class EventCard extends WebComponent {
+  static props = { when: new Date(0), title: '' }
+
+  toAttribute(name, value) {
+    if (name === 'when') return value.toISOString().slice(0, 10)
+    return super.toAttribute(name, value)
+  }
+
+  fromAttribute(name, value) {
+    if (name === 'when') return new Date(`${value}T00:00:00Z`)
+    return super.fromAttribute(name, value)
+  }
+}
+```
+
+```html
+<!-- props.when は Date です -->
+<event-card when="2026-07-20"></event-card>
+```
+
+どちらも、`onChanges` の `property` と同様、attribute名のkebab-caseではなく、`static props` の宣言に一致する**camelCaseのpropキー**を受け取ります。
+
+`toAttribute` が **`null` を返すとattributeが削除されます**。これはまさに `false` のbooleanがattribute不在になる仕組みであり、どのpropに対しても利用できます。
+
+```js
+toAttribute(name, value) {
+  // このpropでは空文字列は「attributeが全く存在しない」ことを意味する
+  return value === '' ? null : super.toAttribute(name, value)
+}
+```
+
+#### 変換はattributeの変更時にのみトリガーされる
+
+  propに値を代入するとき、wcbは`fromAttribute` を通してattributeを逆にチェック・パースすることは**しません**。代入したpropはすでに正となる値であり、テキスト形式のattributeはそれよりも精度の低い表現になり得るからです。上記の例では、`props.when` はattributeが日付のみを持つ場合でも、完全なタイムスタンプを保持し続けます。`render()` と
+  `onChanges` は通常どおり発火します。`fromAttribute` の変換が呼び出されるのは、マークアップ、`setAttribute`、または `toggleAttribute` によってコンポーネントの*外部*から書き込まれたattributeに対してのみです。
+
+<Aside type="caution" title="宣言された型は依然として適用される">
+  propの実行時の型はデフォルト値の `typeof` から決まり、propsプロキシはそれに違反する書き込みを拒否します。したがって `Date` 型のpropには、`''` ではなく実際の `Date` のデフォルト値（`new Date(0)`）が必要です。そうしないと、そのpropは `string` 型として扱われ、パースされた `Date` は拒否されます。
+</Aside>
+
+#### シリアライズ不可能なデータ型の扱い
+
+デフォルトのコンバーターはprop値をJSONを介してラウンドトリップさせ、number、boolean、プレーンなobject/arrayを正確に復元します。JSONで表現できない型はこの往復を生き延びません。`Date` はプレーンな文字列として返り、`Map` や `Set` は `"{}"` に潰れてしまいます。
+
+そのような型でも、依然として第一級のpropとして扱えます。その型の実際のデフォルト値を宣言し（上記の注意事項を参照）、コンバーターをオーバーライドすればよいのです。上記の `EventCard` の例では、`Date` propに対してカスタムの変換ロジックを使うことでこれを処理しています。
+
+もう一つの方法は、この目的のために作られたライブラリを使うことです。[devalue](https://github.com/sveltejs/devalue) のようなシリアライザーをコンポーネントの依存関係としてオプトインで使うことができます。これは `Map`、`Set`、`Date`、`RegExp`、`BigInt`、`undefined`、さらには循環参照までシリアライズ・パースできます。汎用的な1組のオーバーライドで、構造化されたあらゆるpropをカバーできます。
+
+以下は、それを使って書き直した `EventCard` に、`Set` 型の追加のprop `tags` を加えたものです。
+
+```js
+import { parse, stringify } from 'devalue'
+
+class EventCard extends WebComponent {
+  static props = {
+    when: new Date(0),
+    tags: new Set(),
+    title: '',
+  }
+
+  toAttribute(name, value) {
+    // `when` と `tags` を処理する
+    if (value instanceof Object) return stringify(value)
+    return super.toAttribute(name, value)
+  }
+
+  fromAttribute(name, value) {
+    if (this.constructor.props[name] instanceof Object) return parse(value)
+    return super.fromAttribute(name, value)
+  }
+}
+```
+
+この2つのガードは意図的に非対称です。`toAttribute` はライブの値を見ますが、`fromAttribute` は文字列しか見ることができないため、宣言されたデフォルト値（`this.constructor.props` を使用）を参照して、そのattributeがdevalueでエンコードされているかどうかを判断します。`title` はどちらのガードにも該当しないため、以前とまったく同じようにプレーンな文字列として反映されます。
+
+エンコードされたattributeは、独自に作った `when="2026-07-20"` ほど読みやすくはありませんが、それでもプレーンテキストです。
+
+```html
+<!-- props.when は本物の Date、props.tags は本物の Set -->
+<event-card
+  when='[["Date","2026-07-20T09:30:00.000Z"]]'
+  tags='[["Set",1,2],"alpha","bravo"]'
+></event-card>
+```
+
+<Aside type="caution" title="変更せず、再代入する">
+  propsプロキシは*代入*しか検知できません。`this.props.tags.add('x')` はプロキシの背後でSetを変更してしまい、反映もレンダリングも行われず、attributeは古いままになります。代わりに新しいインスタンスを代入してください: `this.props.tags = new
+  Set(this.props.tags).add('x')`。
+</Aside>
+
+コンバーターは、意味のある**テキスト形式**を持つあらゆる値をカバーできます。ISO日付のような独自の形式でも、devalueのエンコーディングのような汎用的な形式でも構いません。テキスト形式が全く存在しない値（関数、要素の参照、`AbortController` のようなライブなハンドルなど）はコンバーターの問題ではありません。devalueでさえそれを拒否しますし（`Cannot stringify a function`）、そもそも `static props` に置くべきではありません。代わりにプレーンなクラスプロパティとして保持してください。下記の[観測対象外のプロパティ](#観測対象外のプロパティ)を参照してください。wcbはまさにこの理由から、宣言されたデフォルト値が `function` や `symbol` である場合、クラスごとに一度だけ警告します。
+
+
+### 観測対象外のプロパティ
+
+`static props` で宣言されたものはすべて観測・反映されます。各キーはattributeを持ち、書き込みは `render()` と `onChanges()` をトリガーし、デフォルト値は最初の接続時にDOMに現れます。これはコンポーネントの公開された、DOM向けのAPIにとっては正しい契約ですが、内部状態にとっては不要です。
+
+DOMに属さない状態には、プレーンなクラスプロパティを使ってください。`WebComponent` はあくまで `HTMLElement` を拡張したクラスに過ぎないため、通常のプロパティはどんな要素でもそうであるようにそのまま機能し、propsの仕組みからは見えません（attributeなし、観測なし、自動レンダリングなし）。
+
+```js
+class DataTable extends WebComponent {
+  static props = { compact: false } // 公開API: <data-table compact>
+
+  rows = [] // 内部状態、決してattributeにはならない
+  #controller = new AbortController() // シリアライズ不可能な値もここでは問題ない
+
+  async onInit() {
+    const res = await fetch('/rows', { signal: this.#controller.signal })
+    this.rows = await res.json()
+    this.render() // 観測対象外の変更は、自分で指示したときにレンダリングされる
+  }
+
+  onDestroy() {
+    this.#controller.abort()
+  }
+}
+```
+
+プレーンなプロパティを監視するものは何もないため、その変更でビューを更新する必要があるときは、自分で[`this.render()`](/template-vs-render/)を呼び出してください。
+
+大まかな目安としては、`static props` は消費者がマークアップから設定したり、attributeセレクターでスタイリングしたりする値のためのものであり、クラスプロパティ（公開または `#private`）はそれ以外のすべて、つまり大きなデータ、関数、タイマーや `AbortController` のような、そもそもattributeを往復できないハンドルのためのものです。「これがattributeとして表れてほしくない」と思ったら、それはクラスプロパティにすべきであり、propにすべきではない、というサインです。
+
+### 代替手段
+
+現在の代替手段は、`HTMLElement` が標準で提供するものを使うことです。具体的には次のとおりです。
+
+1. `data-*` 接頭辞の付いたattributeには `HTMLElement.dataset` を使う。詳しくは[MDN](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/dataset)を参照してください。
+1. attribute値の読み書きには `setAttribute(...)` と `getAttribute(...)` メソッドを使う。ただし、コードが大きくなるにつれ、attribute名を文字列として管理するのは難しくなる点に注意してください。

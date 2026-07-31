@@ -1,0 +1,30 @@
+---
+title: 极简自定义 HTML 元素
+description: 只包含你需要的复杂度，由你决定。
+template: splash
+hero:
+  tagline: 通过可选的渐进式升级，你只需要承担你需要的复杂度，一切由你决定。
+  # image:
+  #   file: ../../assets/houston.webp
+  actions:
+    - text: 开始使用
+      link: /getting-started
+      icon: right-arrow
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+<CardGrid stagger>
+	<Card title="简洁。" icon="star">
+		编写自定义元素时跳过重复性的工作
+	</Card>
+	<Card title="轻量。" icon="add-document">
+		只保留提升效率所需的最少代码
+	</Card>
+	<Card title="易用。" icon="heart">
+		合理的生命周期钩子，让你理解并记住
+	</Card>
+	<Card title="熟悉。" icon="open-book">
+		用于 DOM 操作和事件处理的声明式模板
+	</Card>
+</CardGrid>

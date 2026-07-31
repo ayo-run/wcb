@@ -11,6 +11,25 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'WCB',
+      defaultLocale: 'root',
+      locales: {
+        root: {
+          label: 'English',
+          lang: 'en',
+        },
+        ja: {
+          label: '日本語',
+          lang: 'ja',
+        },
+        'zh-cn': {
+          label: '简体中文',
+          lang: 'zh-CN',
+        },
+        tl: {
+          label: 'Tagalog',
+          lang: 'tl',
+        },
+      },
       social: [
         {
           icon: 'npm',
@@ -31,6 +50,11 @@ export default defineConfig({
       sidebar: [
         {
           label: 'Guides',
+          translations: {
+            ja: 'ガイド',
+            'zh-cn': '指南',
+            tl: 'Mga Gabay',
+          },
           items: [
             // Each item here is one entry in the navigation menu.
             'getting-started',
@@ -51,6 +75,11 @@ export default defineConfig({
         },
         {
           label: 'API Reference',
+          translations: {
+            ja: 'APIリファレンス',
+            'zh-cn': 'API 参考',
+            tl: 'Sanggunian ng API',
+          },
           items: [
             'api/web-component',
             'api/html',

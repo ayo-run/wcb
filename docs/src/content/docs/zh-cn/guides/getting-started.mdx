@@ -1,0 +1,65 @@
+---
+title: 快速上手
+slug: 'zh-cn/getting-started'
+---
+
+**Web Component Base (WCB)** 是一个零依赖、体积极小的 JS 基类，用于创建响应式 [自定义元素](https://developer.mozilla.org/en-US/docs/Web/API/Web_Components/Using_custom_elements)。
+
+当你为自定义元素继承 WebComponent 类时，只需要定义模板和属性。被观察属性的值一旦发生变化，组件界面就会自动重新渲染。
+
+## 快速开始
+
+**前提条件：** [Node.js](https://nodejs.org)（当前 LTS 版本），其中已包含 npm。
+
+试用 wcb 最快的方式是脚手架生成一个新组件：
+
+```bash
+npm create wcb@latest
+# 或者直接指定名称：npm create wcb@latest my-button
+```
+
+它会搭建好一个可发布的自定义元素，随时可以开始开发：
+
+- **一个 TypeScript 编写的初始组件**，遵循 [`static props`](/prop-access/) 约定。类名、标签名和文件名均由你的项目名派生（`my-button` → `MyButton` / `<my-button>`），因此没有需要重命名的 TODO
+- **一套 Vite 配置**：带演示页面的开发服务器，以及一个库构建任务（`npm run build:lib`），可生成 ESM + UMD 打包产物和 `.d.ts` 类型，并将 `web-component-base` 设为 peerDependency
+- **`custom-elements.json` 生成**：已配置好使用 wcb 插件的 CEM 分析器、一个 `npm run analyze` 脚本、`package.json` 中的 `customElements` 字段，以及一个 `prepack` 钩子，确保清单文件随发布包一起发出
+
+运行演示页面查看初始组件的渲染效果：
+
+```bash
+cd my-button
+npm install
+npm run dev
+```
+
+Vite 会打印一个本地 URL。打开它即可在演示页面上看到渲染出的 `<my-button>`。编辑 `src/MyButton.ts` 后，保存即可看到页面更新。
+
+更多关于清单文件及其在 Storybook 与代码编辑器中使用方法的细节，参见 [CEM 分析器插件指南](/cem-plugin/)。
+
+更喜欢从 GitHub 开始？[`ayo-run/web-component`](https://github.com/ayo-run/web-component) 模板仓库提供了同样的功能，通过 "Use this template" 即可使用。
+
+## 通过 npm 安装
+
+如果要将 wcb 添加到已有项目中，而不是新建脚手架项目，请从 [npm](https://npmx.dev/package/web-component-base) 安装：
+
+```bash
+npm i web-component-base
+```
+
+该包发布为标准的 ECMAScript 模块（ESM），因此既可配合打包工具使用，也可通过指向 `node_modules/web-component-base` 的 import map 使用。
+
+然后使用裸包名导入基类：
+
+```js
+import { WebComponent } from 'web-component-base'
+```
+
+继续阅读 [Usage](/usage) 来定义你的第一个组件。
+
+:::tip[更喜欢用 CDN？]
+你也可以在原生 JS 或 HTML 文件中直接从 CDN 导入 wcb。可用配置参见 [CodePen 示例](/examples/#codepen-examples)。
+:::
+
+## 获取帮助
+
+如有问题或需求，请提交 [GitHub issue](https://github.com/ayo-run/wcb/issues/new) 或 [discussion](https://github.com/ayo-run/wcb/discussions)。你也可以在 [SourceHut](https://todo.sr.ht/~ayoayco/wcb) 提交工单，或通过 [邮件](mailto:~ayoayco/wcb@todo.sr.ht) 联系。

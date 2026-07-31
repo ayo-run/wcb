@@ -1,0 +1,65 @@
+---
+title: Pagsisimula
+slug: 'tl/getting-started'
+---
+
+**Web Component Base (WCB)** ay isang zero-dependency, maliit na JS base class para sa paggawa ng reactive [custom elements](https://developer.mozilla.org/en-US/docs/Web/API/Web_Components/Using_custom_elements).
+
+Kapag pinalawig mo (extend) ang WebComponent class para sa iyong custom element, ang kailangan mo lang gawin ay tukuyin ang template at mga property. Anumang pagbabago sa value ng isang observed property ay awtomatikong magpapa-render ng UI ng component.
+
+## Mabilisang pagsisimula
+
+**Mga kinakailangan:** [Node.js](https://nodejs.org) (kasalukuyang LTS), na kasama na ang npm.
+
+Ang pinakamabilis na paraan para subukan ang wcb ay ang pag-scaffold ng bagong component:
+
+```bash
+npm create wcb@latest
+# o bigyan ito ng pangalan direkta: npm create wcb@latest my-button
+```
+
+Nagse-set up ito ng publishable custom element, handa nang i-develop:
+
+- **Isang starter component** sa TypeScript gamit ang [`static props`](/prop-access/) convention. Ang class, tag, at file names ay hinango mula sa pangalan ng iyong project (`my-button` → `MyButton` / `<my-button>`), kaya walang rename-me TODOs
+- **Vite setup**: isang dev server na may demo page, kasama ang library build (`npm run build:lib`) na naglalabas ng ESM + UMD bundles at `.d.ts` types, na may `web-component-base` bilang peerDependency
+- **`custom-elements.json` generation**: ang CEM analyzer na naka-configure na gamit ang plugin ng wcb, isang `npm run analyze` script, ang `customElements` field sa `package.json`, at isang `prepack` hook para isama ang manifest sa loob ng na-publish na package
+
+Patakbuhin ang demo page para makita ang starter component na nagre-render:
+
+```bash
+cd my-button
+npm install
+npm run dev
+```
+
+Ipi-print ni Vite ang isang local URL. Buksan ito para makita ang `<my-button>` na naka-render sa demo page. I-edit ang `src/MyButton.ts` at mao-update ang page habang nagse-save ka.
+
+Tingnan ang [gabay sa CEM Analyzer Plugin](/cem-plugin/) para sa mas detalyadong impormasyon tungkol sa manifest at kung paano ito gamitin kasama ang Storybook at mga code editor.
+
+Mas gusto mong magsimula sa GitHub? Ang [`ayo-run/web-component`](https://github.com/ayo-run/web-component) na template repository ay may parehong layunin sa pamamagitan ng "Use this template".
+
+## I-install sa pamamagitan ng npm
+
+Para idagdag ang wcb sa isang umiiral nang project sa halip na mag-scaffold ng bago, i-install ito mula sa [npm](https://npmx.dev/package/web-component-base):
+
+```bash
+npm i web-component-base
+```
+
+Ang package ay naglalabas ng standard ECMAScript Modules (ESM), kaya gumagana ito kasama ng mga bundler pati na rin ng import maps na nakaturo sa `node_modules/web-component-base`.
+
+Pagkatapos, i-import ang base class gamit ang bare package name:
+
+```js
+import { WebComponent } from 'web-component-base'
+```
+
+Magpatuloy sa [Paggamit](/usage) para tukuyin ang iyong unang component.
+
+:::tip[Mas gusto mo ang CDN?]
+Maaari mo ring i-import ang wcb direkta mula sa CDN sa vanilla JS o HTML files. Tingnan ang [mga halimbawa sa CodePen](/examples/#codepen-examples) para sa mga gumaganang setup.
+:::
+
+## Paghingi ng tulong
+
+Magbukas ng [GitHub issue](https://github.com/ayo-run/wcb/issues/new) o [discussion](https://github.com/ayo-run/wcb/discussions) para sa mga problema o kahilingan. Maaari ka ring magsumite ng ticket sa [SourceHut](https://todo.sr.ht/~ayoayco/wcb) o sa pamamagitan ng [Email](mailto:~ayoayco/wcb@todo.sr.ht).

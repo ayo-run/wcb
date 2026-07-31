@@ -1,0 +1,334 @@
+---
+title: Prop Access
+slug: 'tl/prop-access'
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+Ang `props` property ng `WebComponent` interface ay ibinibigay para sa madaling read/write access sa camelCase counterpart ng _kahit anong_ observed attribute.
+
+```js
+class HelloWorld extends WebComponent {
+  static props = {
+    myProp: 'World',
+  }
+  get template() {
+    return html` <h1>Hello ${this.props.myProp}</h1> `
+  }
+}
+```
+
+Ang pag-assign ng value sa `props.camelCase` counterpart ng isang observed attribute ay magpapagana ng "attribute change" hook.
+
+Halimbawa, ang pag-assign ng value nang ganito:
+
+```
+this.props.myName = 'hello'
+```
+
+...ay katulad ng pagtawag sa sumusunod:
+
+```
+this.setAttribute('my-name','hello');
+```
+
+Kaya, sasabihin nito sa browser na kailangan ng UI ng render kung ang attribute ay isa sa mga observed attribute ng component na malinaw nating ibinigay gamit ang `static props`;
+
+<Aside type="note">
+Ang `props` property ng `WebComponent` ay gumagana tulad ng `HTMLElement.dataset`, maliban na ang `dataset` ay para lang sa mga attribute na may `data-` prefix. Ang camelCase counterpart gamit ang `props` ay magbibigay ng read/write access sa kahit anong attribute, may `data-` prefix man o wala.
+
+Isa pang bentahe kumpara sa `HTMLElement.dataset` ay maaaring hawakan ng `WebComponent.props` ang mga primitive type na 'number', 'boolean', 'object', at 'string'.
+
+</Aside>
+
+### Opt-in na typed props sa TypeScript
+
+Tingnan ito nang live: [Compile-time prop types demo ↗](https://demo.webcomponent.io/examples/typed-props/) at [Typed props demo ↗](https://demo.webcomponent.io/examples/type-restore/)
+
+Bilang default, ang `this.props` ay isang permissive na `{ [name: string]: any }` map. Sa TypeScript, makakakuha ka ng compile-time types sa mga na-declare mong props. I-declare ang shape bilang isang named type, ipasa ito bilang class type argument, at i-annotate ang `static props` gamit ito sa initialization:
+
+```ts
+type CozyButtonProps = {
+  variant: 'primary' | 'ghost'
+  disabled: boolean
+}
+
+class CozyButton extends WebComponent<CozyButtonProps> {
+  static props: CozyButtonProps = {
+    variant: 'primary',
+    disabled: false,
+  }
+
+  get template() {
+    this.props.variant // 'primary' | 'ghost'
+    this.props.disabled // boolean
+    this.props.notAProp // ❌ compile error: not declared
+
+    this.props.disabled = 'yes' // ❌ compile error: string is not boolean
+    this.props.variant = 'plaid' // ❌ compile error: not in the union
+    return html`<button class=${this.props.variant}></button>`
+  }
+}
+```
+
+Ang annotation na ito ay nag-a-apply ng type-check sa mga susunod na assignment habang ang mga default mismo ay sinusuri laban sa type, kaya ang isang missing key o isang default na wala sa union ay isa ring compile error.
+
+<Aside type="tip" title="Gamitin ang `static strictType` kung gusto mo ng runtime type guards">
+Sa runtime, ang pag-assign ng ibang type sa isang prop ay tahimik na nabibigo. Ang pag-set ng [`static strictProps`](/api/web-component/#static-strictprops) sa true ay magtatapon ng `TypeError` kapag may na-assign na maling type.
+</Aside>
+
+### Boolean props
+
+Ang mga boolean prop ay sumusunod sa HTML boolean-attribute convention, katulad mismo ng native
+na `disabled` at `required`: **ang presence ay nangangahulugang `true`, ang absence ay nangangahulugang `false`.**
+
+Tingnan ito nang live: [Boolean props demo ↗](https://demo.webcomponent.io/examples/boolean-props/)
+
+```js
+class FlagBox extends WebComponent {
+  static props = { flag: false }
+}
+```
+
+```html
+<!-- props.flag === false -->
+<flag-box></flag-box>
+
+<!-- props.flag === true -->
+<flag-box flag></flag-box>
+
+<!-- props.flag === true -->
+<flag-box flag=""></flag-box>
+```
+
+Ang reflection ay gumagana sa parehong paraan sa kabaligtaran. Ang `true` ay nagse-set ng bare attribute,
+tinatanggal ito nang tuluyan ng `false`:
+
+```js
+el.props.flag = true // <flag-box flag>
+el.props.flag = false // <flag-box>
+```
+
+Dahil ang `false` ay isang _absent_ na attribute sa halip na `flag="false"`, kapwa
+kumikilos ang API mismo ng platform at ang CSS presence selectors ayon sa inaasahan mo:
+
+```js
+el.toggleAttribute('flag', true) // prop syncs, component re-renders
+```
+
+```css
+:host([flag]) {
+  /* matches only when the prop is actually true */
+}
+```
+
+<Aside type="caution" title="Anumang present na value ay true">
+  Tulad mismo ng native na `disabled="false"` na disabled pa rin, **ang `flag="false"` ay pina-parse
+  bilang `true`**. Nananalo ang presence, walang special case para sa literal na string.
+  Kaya ang pagsulat ng `setAttribute('flag', String(someBool))` ay palaging nagbubunga ng
+  `true`; gamitin sa halip ang `toggleAttribute('flag', someBool)`. Nag-lo-log ang wcb ng
+  `console.warn` kapag nakita nitong may boolean attribute na naisulat bilang `"true"` o
+  `"false"` para hindi ito tahimik na mabigo.
+</Aside>
+
+Ang mga enumerated attribute tulad ng `contenteditable` at ang mga `aria-*` attribute ay ang
+eksepsyon. Mga tunay na string ang mga ito kung saan makabuluhan ang `"false"`, kaya i-declare
+ang mga ito bilang **string** props sa halip na boolean. Nagsi-serialize ang mga string nang literal at
+hindi kailanman tinatanggal, kaya walang kailangang espesyal sa runtime; sa TypeScript,
+paliitin ang mga ito sa mga value na tinatanggap mo sa iyong
+[props type](#typed-props-in-typescript):
+
+```ts
+type ToggleProps = {
+  ariaChecked: 'true' | 'false'
+}
+```
+
+<Aside type="tip" title="Gawing false ang default ng boolean props">
+  Walang true-default na boolean attribute ang HTML: kailangang mangahulugan ng absence ng kapwa "false"
+  at "default", na gumagana lang kapag nagtutugma ang mga ito. I-model ang isang on-by-default
+  na flag gamit ang inverted na pangalan (`disabled`, hindi `enabled`). Nagbabala ang wcb nang isang beses bawat
+  class sa isang `true` na default, at para sa ganitong prop, ang pagtanggal ng attribute ay dadapo
+  sa `false`, hindi babalik sa na-declare na default.
+</Aside>
+
+### Custom na attribute conversion
+
+Tingnan ito nang live: [Custom attribute converters demo ↗](https://demo.webcomponent.io/examples/attribute-converters/)
+
+Sinasaklaw ng mga panuntunan sa itaas ang karaniwang mga kaso. Kapag kailangan ng isang prop ng sarili nitong
+serialization (isang `Date`, isang delimited list, isang enumerated attribute kung saan
+makabuluhan ang `"false"`) i-override ang `toAttribute` at `fromAttribute`, at
+i-delegate ang lahat ng iba pa sa `super`:
+
+```js
+class EventCard extends WebComponent {
+  static props = { when: new Date(0), title: '' }
+
+  toAttribute(name, value) {
+    if (name === 'when') return value.toISOString().slice(0, 10)
+    return super.toAttribute(name, value)
+  }
+
+  fromAttribute(name, value) {
+    if (name === 'when') return new Date(`${value}T00:00:00Z`)
+    return super.fromAttribute(name, value)
+  }
+}
+```
+
+```html
+<!-- props.when is a Date -->
+<event-card when="2026-07-20"></event-card>
+```
+
+Kapwa kumukuha ang mga ito ng **camelCase prop key**, na tumutugma sa iyong `static props` declaration
+at sa `property` ng `onChanges`, hindi ang kebab-case attribute name.
+
+Ang pagbabalik ng `toAttribute` ng **`null` ay nagtatanggal ng attribute**. Ganito rin mismo nagiging
+absent attribute ang isang `false` na boolean, at magagamit ito para sa kahit anong prop:
+
+```js
+toAttribute(name, value) {
+  // an empty string means "no attribute at all" for this prop
+  return value === '' ? null : super.toAttribute(name, value)
+}
+```
+
+#### Ang conversion ay tinatawag lamang sa mga pagbabago sa attribute
+
+  Kapag nag-a-assign ng value sa isang prop, ang wcb ay **hindi** sumusuri at nagpa-parse pabalik sa
+  attribute sa pamamagitan ng `fromAttribute`. Ang prop na in-assign mo ay siya nang
+  source of truth at ang text form na attribute ay maaaring mas hindi eksaktong
+  representasyon. Sa halimbawa sa itaas, pinapanatili ng `props.when` ang buo nitong
+  timestamp kahit na ang attribute ay may dalang petsa lamang. Nagpapagana pa rin ang `render()` at
+  `onChanges` nang normal. Ang `fromAttribute` conversion ay tinatawag lamang
+  para sa mga attribute na isinulat mula *sa labas* ng component sa pamamagitan ng markup, `setAttribute`,
+  o `toggleAttribute`.
+
+<Aside type="caution" title="Ang na-declare na type ay ina-apply pa rin">
+  Ang runtime type ng isang prop ay nagmumula sa `typeof` ng default nito, at tinatanggihan ng
+  props proxy ang mga write na lumalabag dito. Kaya ang isang `Date`-valued na prop ay nangangailangan ng
+  totoong `Date` na default (`new Date(0)`), hindi `''`. Kung hindi, ang prop ay tini-type bilang
+  `string` at tinatanggihan ang iyong na-parse na `Date`.
+</Aside>
+
+#### Paghawak sa mga non-serializable na data type
+
+Ina-round-trip ng default na converters ang mga prop value sa pamamagitan ng JSON, na nagpapanumbalik
+sa mga numero, boolean, at plain objects/arrays nang eksakto. Ang mga type na hindi kayang katawanin ng JSON ay hindi nabubuhay sa
+biyahe: ang isang `Date` ay bumabalik bilang plain string, at ang isang
+`Map` o `Set` ay bumabagsak sa `"{}"`.
+
+Ang mga ganitong type ay first-class na props pa rin. Maaari kang mag-declare ng totoong default ng type na iyon (tingnan ang babala sa itaas) at i-override ang converters. Hinahawakan ito ng halimbawang `EventCard` sa itaas sa pamamagitan ng paggamit ng custom na conversion logic para sa `Date` prop nito.
+
+Ang isa pang paraan para gawin ito ay ang paggamit sa halip ng library na ginawa para sa trabahong ito.
+Maaari mong piliing gumamit ng serializer tulad ng [devalue](https://github.com/sveltejs/devalue) bilang dependency ng iyong component, na kayang mag-serialize at mag-parse ng `Map`, `Set`, `Date`, `RegExp`, `BigInt`, `undefined`, at maging cyclic references. Isang
+generic na pares ng overrides ang sumasaklaw na sa bawat structured prop.
+
+Narito ang `EventCard` na muling isinulat gamit ito, na may karagdagang prop na `tags` na uri ng `Set`:
+
+```js
+import { parse, stringify } from 'devalue'
+
+class EventCard extends WebComponent {
+  static props = {
+    when: new Date(0),
+    tags: new Set(),
+    title: '',
+  }
+
+  toAttribute(name, value) {
+    // handles `when` and `tags`
+    if (value instanceof Object) return stringify(value)
+    return super.toAttribute(name, value)
+  }
+
+  fromAttribute(name, value) {
+    if (this.constructor.props[name] instanceof Object) return parse(value)
+    return super.fromAttribute(name, value)
+  }
+}
+```
+
+Ang dalawang guard ay sadyang asymmetric: nakikita ng `toAttribute` ang live value,
+ngunit ang `fromAttribute` ay lagi na lang nakakakita ng string, kaya kinukonsulta nito ang na-declare
+na default (gamit ang `this.constructor.props`) para malaman kung ang attribute ay
+devalue-encoded. Naliligtaan ng `title` ang dalawang guard at nagre-reflect bilang plain string,
+eksakto tulad ng dati.
+
+Ang encoded na attribute ay hindi kasing-readable ng isang bespoke na `when="2026-07-20"`,
+ngunit plain text pa rin ito:
+
+```html
+<!-- props.when is a real Date, props.tags a real Set -->
+<event-card
+  when='[["Date","2026-07-20T09:30:00.000Z"]]'
+  tags='[["Set",1,2],"alpha","bravo"]'
+></event-card>
+```
+
+<Aside type="caution" title="Mag-reassign, huwag mag-mutate">
+  Ang props proxy ay nakakakita lamang ng *mga assignment*. Ang `this.props.tags.add('x')` ay nag-mu-mutate
+  sa Set sa likod ng proxy: walang reflection, walang render, at nagiging stale ang attribute.
+  Sa halip, mag-assign ng bagong instance: `this.props.tags = new
+  Set(this.props.tags).add('x')`.
+</Aside>
+
+Sinasaklaw ng converters ang anumang value na may makatwirang **textual form**: bespoke tulad ng
+ISO date, o generic tulad ng encoding ng devalue. Ang value na walang textual form
+(isang function, isang element reference, isang live handle tulad ng
+`AbortController`) ay hindi problema sa converter: kahit ang devalue ay tumatanggi rito
+(`Cannot stringify a function`), at hindi ito dapat nasa `static props` sa
+umpisa pa lang. Sa halip, panatilihin itong isang plain class property. Tingnan
+ang [Unobserved properties](#unobserved-properties) sa ibaba. Nagbabala ang wcb nang isang beses bawat
+class kapag ang isang na-declare na default ay isang `function` o `symbol` para sa eksaktong dahilang ito.
+
+
+### Mga Unobserved property
+
+Lahat ng na-declare sa `static props` ay observed at reflected: ang bawat key ay nakakakuha ng
+attribute, ang mga write ay nagpapagana ng `render()` at `onChanges()`, at lumalabas ang default
+sa DOM sa unang connect. Iyan ang tamang kontrata para sa public, DOM-facing na API
+ng isang component, at hindi kailangan para sa internal state.
+
+Para sa state na hindi dapat nasa DOM, gumamit ng plain class property. Ang isang
+`WebComponent` ay isa pa ring class na nagpapalawig sa `HTMLElement`, kaya ang mga ordinaryong
+property ay gumagana nang eksakto tulad ng sa kahit anong element at hindi nakikita ng props
+machinery (walang attribute, walang observation, walang awtomatikong render):
+
+```js
+class DataTable extends WebComponent {
+  static props = { compact: false } // public API: <data-table compact>
+
+  rows = [] // internal state, never becomes an attribute
+  #controller = new AbortController() // non-serializable values are fine here
+
+  async onInit() {
+    const res = await fetch('/rows', { signal: this.#controller.signal })
+    this.rows = await res.json()
+    this.render() // unobserved changes render when you say so
+  }
+
+  onDestroy() {
+    this.#controller.abort()
+  }
+}
+```
+
+Dahil walang bumabantay sa plain property, tawagin mismo ang
+[`this.render()`](/template-vs-render/) kapag dapat mag-update ng view ang pagbabago sa isa.
+
+Ang rule of thumb: ang `static props` ay para sa mga value na ise-set ng consumer mula sa markup o
+kung saan mag-i-istilo laban sa attribute selectors; ang class property (public o
+`#private`) ay para sa lahat ng iba pa: malaking data, mga function, at mga handle tulad ng
+timers o `AbortController`s na hindi kailanman makaka-round-trip sa attribute
+kung tutuusin. Kung napansin mong iniisip mo, "ayaw kong lumabas ito bilang
+attribute", iyan ang senyales na dapat itong maging class property, hindi prop.
+
+### Mga Alternatibo
+
+Ang mga kasalukuyang alternatibo ay ang paggamit sa ibinibigay na ng `HTMLElement` out-of-the-box, na kung saan:
+
+1. `HTMLElement.dataset` para sa mga attribute na may `data-*` prefix. Magbasa pa tungkol dito [sa MDN](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/dataset).
+1. Mga method para sa pagbasa/pagsulat ng attribute values: `setAttribute(...)` at `getAttribute(...)`; tandaan na ang pamamahala sa attribute names bilang strings ay maaaring maging mahirap habang lumalaki ang code.

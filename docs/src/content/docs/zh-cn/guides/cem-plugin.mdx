@@ -1,0 +1,285 @@
+---
+title: CEM 分析器插件
+slug: 'zh-cn/cem-plugin'
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+CEM（`custom-elements.json`）是一份标准化的描述文件，用来说明一个包所定义的元素
+（它们的标签、属性、成员、事件和插槽），使得工具无需执行代码就能读取你的组件信息。
+更多内容参见 [custom-elements-manifest.open-wc.org](https://custom-elements-manifest.open-wc.org/)
+了解该分析器及其插件 API，或参见[该文件格式本身的模式与规范](https://github.com/webcomponents/custom-elements-manifest)。
+
+CEM 分析器（`@custom-elements-manifest/analyzer`）默认会将 `static props` 读作
+一个单独的静态字段，不会为其生成任何属性。这导致 Storybook 和代码编辑器自动补全
+这类工具无法读到任何有用信息。
+
+使用我们的 `web-component-base/cem-plugin`，CEM 分析器会将每个 prop 展开为一个
+带类型的清单属性，以及一个与之匹配的公共字段。以下步骤将指导你安装 CEM 分析器
+并进行配置，使工具能够正常处理你的 `wcb` 自定义元素。
+
+<Aside type="tip" title="正在开始一个新项目？">
+  `npm create wcb@latest` 会搭建一个项目，其中已经完成了下面的安装与配置：
+  一个初始组件、这个插件，以及在
+  `custom-elements-manifest.config.mjs` 中配置好的
+  [`distPaths()`](#ship-the-manifest-with-a-package-distpaths)、一个 `analyze`
+  脚本，以及在 `package.json` 中设置好的 `customElements` 字段。使用本指南可以
+  将清单文件添加到已有项目中、了解脚手架都配置了什么，或将清单接入
+  [Storybook](#storybook) 或[你的编辑器](#code-editors)——这些是脚手架留给你自己完成的部分。
+</Aside>
+
+## 安装
+
+```sh
+npm i -D @custom-elements-manifest/analyzer
+```
+
+## 配置
+
+```js
+// custom-elements-manifest.config.mjs
+import { wcbStaticProps } from 'web-component-base/cem-plugin'
+
+export default {
+  globs: ['src/**/*.{js,ts}'],
+  outdir: '.',
+  plugins: [wcbStaticProps()],
+}
+```
+
+然后运行分析器：
+
+```sh
+npx cem analyze
+```
+
+<Aside type="caution" title="`cem analyze` 的失败方式是挂起，而不是报错">
+  请在**包含你的配置文件和一个 `package.json` 的目录中**运行它。有两种情况会让它看起来
+  像什么都没做，而且都不会打印任何错误：
+
+- **未找到配置文件**：它会回退到默认的 glob 模式 `**/*.{js,ts,tsx}`，而这个模式*不会*
+  排除 `node_modules`。在真实项目中，这意味着数万个文件都要经过 TypeScript 解析器处理。
+- **目录中没有 `package.json`**：它会直接挂起。
+
+只要将 glob 限定到你的源码范围，运行时间应远低于一秒。
+</Aside>
+
+## 它会生成什么
+
+给定一个组件：
+
+```ts
+// src/cozy-button.ts
+import { WebComponent, html } from 'web-component-base'
+
+type CozyButtonProps = {
+  variant: 'primary' | 'ghost'
+  disabled: boolean
+  maxCount: number
+}
+
+export class CozyButton extends WebComponent<CozyButtonProps> {
+  static props: CozyButtonProps = {
+    variant: 'primary',
+    disabled: false,
+    maxCount: 3,
+  }
+  static shadowRootInit = { mode: 'open' }
+  static styles = ':host { display: inline-block }'
+  get template() {
+    return html`<button>${this.props.variant}</button>`
+  }
+}
+customElements.define('cozy-button', CozyButton)
+```
+
+`custom-elements.json` 中会为每个 prop 新增一个带类型的属性以及一个匹配的公共字段：
+
+| 属性        | 类型      | 字段       | 默认值      |
+| ----------- | --------- | ---------- | ----------- |
+| `variant`   | `string`  | `variant`  | `'primary'` |
+| `disabled`  | `boolean` | `disabled` | `false`     |
+| `max-count` | `number`  | `maxCount` | `3`         |
+
+……并且 `props`、`shadowRootInit`、`styles`、`strictProps`、`observedAttributes`
+和 `template` 会从公共接口中被剔除。
+
+有两个细节值得了解：
+
+- **类型来自默认值的字面量**：`true`/`false` → `boolean`，数字 → `number`，
+  对象/数组 → `object`，其余一律 → `string`。TypeScript 的类型标注不会被参考，
+  因此 `variant` 的联合类型在清单中仍然会体现为 `string`。
+- **属性名来自 wcb 自身的 `getKebabCase`**，与 `observedAttributes` 所使用的
+  是同一个函数，因此清单中的名称不会与组件实际观察的内容产生偏差。
+
+## Storybook
+
+Storybook 的 web-components 渲染器会根据 [Custom Elements Manifest](https://github.com/webcomponents/custom-elements-manifest)
+构建 **autodocs 和控件（controls）**。
+
+### 将其接入 Storybook
+
+```js
+// .storybook/preview.js
+import { setCustomElementsManifest } from '@storybook/web-components-vite'
+import manifest from '../custom-elements.json'
+
+setCustomElementsManifest(manifest)
+
+export default { tags: ['autodocs'] }
+```
+
+将一个 story 绑定到标签名，Storybook 就会推断出其余部分，为 `variant` 生成
+文本输入框，为 `disabled` 生成开关，为 `maxCount` 生成数字输入框：
+
+```js
+// cozy-button.stories.js
+import { html } from 'lit'
+import '../src/cozy-button.ts'
+
+export default {
+  title: 'Cozy/Button',
+  component: 'cozy-button', // ← 无需 argTypes
+  render: ({ variant, disabled, maxCount }) => html`
+    <cozy-button
+      variant=${variant}
+      ?disabled=${disabled}
+      max-count=${maxCount}
+    ></cozy-button>
+  `,
+}
+
+export const Default = {
+  args: { variant: 'primary', disabled: false, maxCount: 3 },
+}
+```
+
+<Aside type="note" title="story 文件里的 `html` 是 lit 的，不是 wcb 的">
+  Storybook 的 web-components 渲染器使用
+  [lit-html](https://lit.dev/docs/templates/overview/) 渲染 story，因此 story
+  文件是从 `lit` 导入 `html`，其中的模板使用的是 **lit 自己的绑定语法**——
+  上面的 `?disabled=${disabled}` 前缀是 lit 中“添加或移除该布尔属性”的写法
+  （直接写 `disabled=${false}` 会写出 `disabled="false"`，而 wcb 会将其
+  [解析为 `true`](/prop-access/#boolean-props)）。这些都不影响你的组件本身：
+  它依旧使用 wcb 自己的 `html` 标签、没有任何特殊的绑定前缀，而 lit 只是
+  Storybook 配置的一个开发依赖，从不会随组件一起发布。
+</Aside>
+
+<Aside type="tip">
+  在启动 Storybook 前重新生成清单文件（`cem analyze && storybook
+  dev`）。`custom-elements.json` 是一个构建产物，通常会被 gitignore 并按需重新生成。
+</Aside>
+
+完整可运行的配置示例，参见 wcb 仓库中的 [`storybook/`](https://github.com/ayo-run/wcb/tree/main/storybook)，它针对 demo 组件运行了这套配置。
+
+## 代码编辑器
+
+一旦 `custom-elements.json` 存在，编辑器就可以为你的组件提供标签名和属性自动补全，
+这些补全依据的正是插件所读取的同一份 `static props`，因此提示内容不会与代码产生偏差。
+
+<Aside type="caution">
+  VS Code **不会**原生读取 `custom-elements.json`。仅仅有这个文件存在并不会自动
+  发生任何事情。你需要使用下面两条路径之一。
+</Aside>
+
+首先，在你的 `package.json` 中声明该清单文件。路线 2 中的语言服务器
+会通过这个字段发现它，这也是其他依赖清单的工具会去查找的生态系统约定：
+
+```json
+{
+  "customElements": "custom-elements.json"
+}
+```
+
+### 路线 1：原生 VS Code，无需扩展
+
+VS Code 内置的 HTML 语言服务读取的是它自己的 [custom data](https://github.com/microsoft/vscode-custom-data)
+格式。第二个分析器插件可以将清单转换为该格式，因此这两个文件可以由同一次
+`cem analyze` 运行生成：
+
+```sh
+npm i -D cem-plugin-vs-code-custom-data-generator
+```
+
+```js
+// custom-elements-manifest.config.mjs
+import { wcbStaticProps } from 'web-component-base/cem-plugin'
+import { generateCustomData } from 'cem-plugin-vs-code-custom-data-generator'
+
+export default {
+  globs: ['src/**/*.{js,ts}'],
+  outdir: '.',
+  plugins: [wcbStaticProps(), generateCustomData()],
+}
+```
+
+```json
+// .vscode/settings.json
+{
+  "html.customData": ["./vscode.html-custom-data.json"]
+}
+```
+
+<Aside type="caution">
+  `html.customData` 中的路径是从**工作区根目录**解析的，而不是从设置文件所在位置解析。
+  如果你在子文件夹中运行 `cem analyze`，要么指向
+  `./that-folder/vscode.html-custom-data.json`，要么为生成器指定它自己的
+  `outdir`（`generateCustomData({ outdir: '..' })`），使文件落在设置所期望的位置。
+</Aside>
+
+重启 VS Code 后，在 HTML 文件中输入 `<cozy-` 即可自动补全，`variant` / `disabled` /
+`max-count` 会作为属性被提供，并且在悬停时显示其类型和默认值。
+
+**注意事项：** `html.customData` 只适用于 `.html` 文件。wcb 组件是在 `.js` / `.ts`
+内部的 `html` 标签模板中编写标记的，这些不会经过 HTML 语言服务。这条路径
+适用于那些直接编写纯 HTML 页面来使用你的组件的人，而不会在你自己的模板内生效。
+
+### 路线 2：语言服务器扩展，适用于标签模板
+
+要在标签模板**内部**获得同样的补全，你需要一个能理解标签模板的扩展。目前最新的选择是
+[Custom Elements Manifest Language Server](https://marketplace.visualstudio.com/items?itemName=pwrs.cem-language-server-vscode)
+（`pwrs.cem-language-server-vscode`）。它可以在 JS 和 TS 的模板字面量内为标签名和属性
+提供自动补全，为属性和默认值添加悬停文档，并通过上面提到的 `customElements` 字段
+发现清单文件，无需任何 `.vscode/settings.json` 配置。
+
+还有两个替代方案，同样值得了解它们的现状：
+
+- [`wc-toolkit/wc-language-server`](https://wc-toolkit.com/integrations/web-components-language-server/)：支持
+  VS Code 和 JetBrains，同样以清单文件为驱动。官方将其自称为 **alpha 和实验性**。
+- `Matsuuu.custom-elements-language-server-project`：在较旧的文章中最常见到的一个。
+  它处于 alpha 阶段，且**其仓库已于 2026 年 1 月被归档**，因此建议优先选择上面两者之一。
+
+<Aside type="note">
+  这个生态角落发展很快，且每个选项都还处于 1.0 之前的阶段。路线 1 是更保守的选择
+  （它是纯粹的 VS Code 配置，没有可能过时的扩展），代价是无法覆盖标签模板。
+  生态现状最后核实于 2026 年 7 月。
+</Aside>
+
+## 随包发布清单文件：`distPaths()`
+
+要将你的组件发布到 npm？分析器会为每个模块的 `path` 打上它所扫描到的确切文件路径——
+因此如果 `globs: ['src/**/*.ts']`，那么 `custom-elements.json` 中的每个 `path` 都会是
+一个 `.ts` 源文件。而大多数包只发布它们构建后的 `dist/` 产物（而且运行时本来也无法
+`import` 一个 `.ts` 文件），因此读取该清单的消费者最终解析出的路径可能根本不在
+发布的压缩包中。
+
+在 `wcbStaticProps()` 之后添加 `distPaths()`，即可将这些路径重写为构建后的产物路径。
+零配置情况下，它会将 `src/` 映射为 `dist/`，并将 TypeScript 扩展名映射为其编译后的
+JS 形式（`.ts` → `.js`、`.mts` → `.mjs`、`.cts` → `.cjs`）。其他扩展名会原样通过，
+因此 `.js` 源文件只会替换其目录部分：
+
+```js
+// custom-elements-manifest.config.mjs
+import { wcbStaticProps, distPaths } from 'web-component-base/cem-plugin'
+
+export default {
+  globs: ['src/**/*.ts'],
+  outdir: '.',
+  plugins: [wcbStaticProps(), distPaths()],
+}
+```
+
+如果目录结构不同，可以重写 `rootDir` / `outDir`：`distPaths({ rootDir: 'lib', outDir: 'dist/esm' })`。
+请在构建之后**再**运行 `cem analyze`，以确保重写路径所指向的 `dist/` 文件确实存在。
+关于 `ext` 扩展名重映射，参见 [API 参考](/api/cem-plugin/#distpathsoptions)。如果不需要
+发布清单文件——例如只是在本地针对自己的源码使用 Storybook 或编辑器——则完全不需要这些配置。

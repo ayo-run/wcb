@@ -1,0 +1,232 @@
+---
+title: CEMアナライザープラグイン
+slug: 'ja/cem-plugin'
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+CEM（`custom-elements.json`）とは、パッケージが定義する要素（タグ、attribute、property、イベント、slot）を標準的な形式で記述したものであり、これによりツールはコンポーネントを実行することなく読み取ることができます。アナライザーとそのプラグインAPIについては[custom-elements-manifest.open-wc.org](https://custom-elements-manifest.open-wc.org/)を、ファイル形式そのものについては[スキーマと仕様](https://github.com/webcomponents/custom-elements-manifest)を参照してください。
+
+CEMアナライザー（`@custom-elements-manifest/analyzer`）は、デフォルトでは `static props` を1つの静的フィールドとして読み取り、それに対してattributeを出力しません。これにより、Storybookやコードエディタの自動補完のようなツールには読み取るものが何もなくなってしまいます。
+
+私たちの `web-component-base/cem-plugin` を使うと、CEMアナライザーは各propを型付きのマニフェストattributeと対応する公開フィールドに展開します。以下の手順では、CEMアナライザーをインストールし、ツールが `wcb` のカスタム要素を扱えるように設定する方法を説明します。
+
+<Aside type="tip" title="新しいプロジェクトを始める場合">
+  `npm create wcb@latest` は、以下のインストールと設定がすでに完了した状態のプロジェクトをスキャフォールドします。スターターコンポーネント、このプラグイン、そして `custom-elements-manifest.config.mjs` に設定済みの[`distPaths()`](#パッケージにマニフェストを同梱するdistpaths)、`analyze` スクリプト、`package.json` に設定済みの `customElements` フィールドです。このガイドは、既存プロジェクトにマニフェストを追加する場合、スキャフォールドが何を設定したかを理解する場合、あるいはマニフェストを[Storybook](#storybook)や[エディタ](#コードエディタ)に組み込む場合（これらはスキャフォールドではあなた自身に委ねられています）に活用してください。
+</Aside>
+
+## インストール
+
+```sh
+npm i -D @custom-elements-manifest/analyzer
+```
+
+## 設定
+
+```js
+// custom-elements-manifest.config.mjs
+import { wcbStaticProps } from 'web-component-base/cem-plugin'
+
+export default {
+  globs: ['src/**/*.{js,ts}'],
+  outdir: '.',
+  plugins: [wcbStaticProps()],
+}
+```
+
+そしてアナライザーを実行します。
+
+```sh
+npx cem analyze
+```
+
+<Aside type="caution" title="`cem analyze` はエラーではなく、ハングして失敗する">
+  設定ファイルと `package.json` がある**ディレクトリから**実行してください。何もしていないように見える原因は2つあり、どちらもエラーを出力しません。
+
+- **設定が見つからない場合**: デフォルトのglob `**/*.{js,ts,tsx}` にフォールバックしますが、これは `node_modules` を除外**しません**。実際のプロジェクトでは、これは何万ものファイルがTypeScriptパーサーを通ることを意味します。
+- **ディレクトリに `package.json` がない場合**: 完全にハングします。
+
+globをソースに絞り込めば、1秒未満で完了するはずです。
+</Aside>
+
+## 生成されるもの
+
+次のようなコンポーネントがあるとします。
+
+```ts
+// src/cozy-button.ts
+import { WebComponent, html } from 'web-component-base'
+
+type CozyButtonProps = {
+  variant: 'primary' | 'ghost'
+  disabled: boolean
+  maxCount: number
+}
+
+export class CozyButton extends WebComponent<CozyButtonProps> {
+  static props: CozyButtonProps = {
+    variant: 'primary',
+    disabled: false,
+    maxCount: 3,
+  }
+  static shadowRootInit = { mode: 'open' }
+  static styles = ':host { display: inline-block }'
+  get template() {
+    return html`<button>${this.props.variant}</button>`
+  }
+}
+customElements.define('cozy-button', CozyButton)
+```
+
+`custom-elements.json` は、propごとに型付きのattributeと対応する公開フィールドを得ます。
+
+| attribute   | 型        | フィールド  | デフォルト値 |
+| ----------- | --------- | ---------- | ----------- |
+| `variant`   | `string`  | `variant`  | `'primary'` |
+| `disabled`  | `boolean` | `disabled` | `false`     |
+| `max-count` | `number`  | `maxCount` | `3`         |
+
+...そして `props`、`shadowRootInit`、`styles`、`strictProps`、`observedAttributes`、`template` は公開サーフェスから取り除かれます。
+
+知っておく価値のある2つの詳細があります。
+
+- **型はデフォルトのリテラルから決まります**: `true`/`false` → `boolean`、数値 → `number`、object/array → `object`、それ以外はすべて → `string`。TypeScriptの型注釈は参照されないため、`variant` のユニオン型もマニフェストでは `string` になります。
+- **attribute名はwcb自身の `getKebabCase` から生成されます**。これは `observedAttributes` が使うのと同じ関数なので、マニフェスト上の名前がコンポーネントの実際の観測対象からずれることはありません。
+
+## Storybook
+
+Storybookのweb-componentsレンダラーは、[Custom Elements Manifest](https://github.com/webcomponents/custom-elements-manifest)から**autodocsとcontrols**を構築します。
+
+### Storybookへの組み込み
+
+```js
+// .storybook/preview.js
+import { setCustomElementsManifest } from '@storybook/web-components-vite'
+import manifest from '../custom-elements.json'
+
+setCustomElementsManifest(manifest)
+
+export default { tags: ['autodocs'] }
+```
+
+storyをタグ名に紐づけると、Storybookは残りを推測し、`variant` にはテキストフィールド、`disabled` にはトグル、`maxCount` には数値入力を提供します。
+
+```js
+// cozy-button.stories.js
+import { html } from 'lit'
+import '../src/cozy-button.ts'
+
+export default {
+  title: 'Cozy/Button',
+  component: 'cozy-button', // ← argTypesは不要
+  render: ({ variant, disabled, maxCount }) => html`
+    <cozy-button
+      variant=${variant}
+      ?disabled=${disabled}
+      max-count=${maxCount}
+    ></cozy-button>
+  `,
+}
+
+export const Default = {
+  args: { variant: 'primary', disabled: false, maxCount: 3 },
+}
+```
+
+<Aside type="note" title="story内の `html` はwcbのものではなく、litのもの">
+  Storybookのweb-componentsレンダラーは
+  [lit-html](https://lit.dev/docs/templates/overview/)でstoryをレンダリングするため、storyファイルは `lit` から `html` をインポートし、その中のテンプレートは**litのバインディング構文**を使用します。上記の
+  `?disabled=${disabled}` という接頭辞は、litにおける「boolean属性を追加または削除する」という意味です（単なる `disabled=${false}` は `disabled="false"` を書き込んでしまい、これはwcbでは[`true`としてパースされます](/prop-access/#boolean-props)）。これはあなたのコンポーネント自体には一切関係ありません。コンポーネント側は特別なバインディング接頭辞のないwcb自身の `html` タグを使い続け、litはStorybookセットアップのdevDependencyであって、コンポーネントと一緒に配布されることはありません。
+</Aside>
+
+<Aside type="tip">
+  Storybookを起動する前にマニフェストを再生成してください（`cem analyze && storybook
+  dev`）。`custom-elements.json` はビルド成果物であるため、通常はgitignoreされ、必要に応じて再ビルドされます。
+</Aside>
+
+完全に動作するセットアップについては、wcbリポジトリ内の[`storybook/`](https://github.com/ayo-run/wcb/tree/main/storybook)を参照してください。これはデモコンポーネントに対してこの設定を実際に実行しています。
+
+## コードエディタ
+
+`custom-elements.json` が存在すれば、エディタはプラグインが読み取るのと同じ `static props` に基づいて、コンポーネントのタグ名やattributeの自動補完を提供できます。そのため、ヒントがコードからずれることはありません。
+
+<Aside type="caution">
+  VS Codeは `custom-elements.json` を**ネイティブには**読み取りません。ファイルが存在するだけでは何も起こりません。以下の2つのルートのいずれかが必要です。
+</Aside>
+
+まず、`package.json` にマニフェストファイルを宣言します。ルート2の言語サーバーはこのフィールドを通してそれを検出しますし、これは他のマニフェスト駆動のツールが探すエコシステムの慣習でもあります。
+
+```json
+{
+  "customElements": "custom-elements.json"
+}
+```
+
+### ルート1: 拡張機能なしのネイティブVS Code
+
+VS Codeの組み込みHTML言語サービスは、独自の[custom data](https://github.com/microsoft/vscode-custom-data)形式を読み取ります。第2のアナライザープラグインがマニフェストをこの形式に変換するため、両方のファイルを1回の `cem analyze` 実行から得られます。
+
+```sh
+npm i -D cem-plugin-vs-code-custom-data-generator
+```
+
+```js
+// custom-elements-manifest.config.mjs
+import { wcbStaticProps } from 'web-component-base/cem-plugin'
+import { generateCustomData } from 'cem-plugin-vs-code-custom-data-generator'
+
+export default {
+  globs: ['src/**/*.{js,ts}'],
+  outdir: '.',
+  plugins: [wcbStaticProps(), generateCustomData()],
+}
+```
+
+```json
+// .vscode/settings.json
+{
+  "html.customData": ["./vscode.html-custom-data.json"]
+}
+```
+
+<Aside type="caution">
+  `html.customData` のパスは、設定ファイルからではなく**ワークスペースのルート**から解決されます。サブフォルダ内で `cem analyze`
+  を実行する場合は、`./that-folder/vscode.html-custom-data.json` を指すようにするか、生成ツールに独自の
+  `outdir` を与えてください（`generateCustomData({ outdir: '..' })`）。これにより、設定が期待する場所にファイルが置かれます。
+</Aside>
+
+VS Codeを再起動すると、HTMLファイル内で `<cozy-` を入力すると補完され、`variant` / `disabled` / `max-count` がattributeとして提示され、ホバー時にはその型とデフォルト値が表示されます。
+
+**注意点:** `html.customData` は `.html` ファイルにしか適用されません。wcbのコンポーネントは `.js` / `.ts` 内の `html` タグ付きテンプレートでマークアップを記述しますが、これらはHTML言語サービスを通りません。このルートは、あなたのコンポーネントに対してプレーンなHTMLページを書く人にとっては役立ちますが、あなた自身のテンプレート内では機能しません。
+
+### ルート2: タグ付きテンプレート向けの言語サーバー拡張機能
+
+タグ付きテンプレートの**内側**で同じ補完を得るには、それらを理解できる拡張機能が必要です。現時点で最も現行に沿った選択肢は[Custom Elements Manifest Language Server](https://marketplace.visualstudio.com/items?itemName=pwrs.cem-language-server-vscode)（`pwrs.cem-language-server-vscode`）です。これはJSとTSの両方でテンプレートリテラル内のタグ名とattributeを自動補完し、attributeやデフォルト値のホバードキュメントを追加し、`.vscode/settings.json` を必要とせず、上記の `customElements` フィールドを通じてマニフェストを検出します。
+
+もう2つの選択肢があり、それぞれの現状を知っておく価値があります。
+
+- [`wc-toolkit/wc-language-server`](https://wc-toolkit.com/integrations/web-components-language-server/): VS CodeとJetBrainsに対応し、こちらもマニフェスト駆動です。自称**アルファ版かつ実験的**とのことです。
+- `Matsuuu.custom-elements-language-server-project`: 古い記事で最もよく見かけるものです。アルファ版であり、**そのリポジトリは2026年1月にアーカイブされました**。そのため、上記の2つのいずれかを優先してください。
+
+<Aside type="note">
+  このエコシステムのこの領域は動きが速く、どの選択肢もまだ1.0未満です。ルート1は保守的な選択肢です（プレーンなVS Code設定のみで、古くなる可能性のある拡張機能に依存しません）が、その代わりタグ付きテンプレートをカバーしません。エコシステムの状況は2026年7月に最終確認されています。
+</Aside>
+
+## パッケージにマニフェストを同梱する: `distPaths()`
+
+コンポーネントをnpmに公開する予定ですか？ アナライザーは各モジュールの `path` を、スキャンした正確なファイルで刻印します。つまり `globs: ['src/**/*.ts']` の場合、`custom-elements.json` 内のすべての `path` は `.ts` ソースファイルになります。ほとんどのパッケージはビルド済みの `dist/` 出力のみを公開します（そもそも実行時に `.ts` を `import` することもできません）。そのため、そのマニフェストを読み取る消費者は、tarballに含まれていないパスを解決してしまうことになります。
+
+`wcbStaticProps()` の後に `distPaths()` を追加すると、それらのパスをビルド済み出力に書き換えます。ゼロコンフィグでは `src/` → `dist/` にマッピングし、TypeScriptの拡張子を出力されたJS形式に変換します（`.ts` → `.js`、`.mts` → `.mjs`、`.cts` → `.cjs`）。それ以外の拡張子はそのまま通過するため、`.js` のソースはディレクトリだけが入れ替わります。
+
+```js
+// custom-elements-manifest.config.mjs
+import { wcbStaticProps, distPaths } from 'web-component-base/cem-plugin'
+
+export default {
+  globs: ['src/**/*.ts'],
+  outdir: '.',
+  plugins: [wcbStaticProps(), distPaths()],
+}
+```
+
+異なるレイアウトの場合は、`rootDir` / `outDir` をオーバーライドしてください: `distPaths({ rootDir: 'lib', outDir: 'dist/esm' })`。書き換えられたパスが指す `dist/` ファイルが実際に存在するよう、ビルドの**後に** `cem analyze` を実行してください。`ext` の拡張子リマップについては[APIリファレンス](/api/cem-plugin/#distpathsoptions)を参照してください。マニフェストを公開しない場合（例えば、自分自身のソースに対するローカルのStorybookやエディタのセットアップなど）は、これらは一切不要です。

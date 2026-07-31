@@ -1,0 +1,280 @@
+---
+title: CEM Analyzer Plugin
+slug: 'tl/cem-plugin'
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+Ang CEM (`custom-elements.json`) ay isang standard na paglalarawan ng mga element na
+tinutukoy ng isang package (ang kanilang mga tag, attribute, property, event, at slot) para
+mabasa ng tooling ang iyong mga component nang hindi ito pinapatakbo. Magbasa pa sa
+[custom-elements-manifest.open-wc.org](https://custom-elements-manifest.open-wc.org/)
+para sa analyzer at plugin API nito, o ang [schema at
+specification](https://github.com/webcomponents/custom-elements-manifest) para
+sa file format mismo.
+
+Ang CEM Analyzer (`@custom-elements-manifest/analyzer`), bilang default, ay babasahin ang
+`static props` bilang isang static field lamang at walang ilalabas na attribute para dito. Dahil dito, walang mababasa ang
+tooling tulad ng Storybook at ang autocomplete ng code editor.
+
+Sa paggamit ng aming `web-component-base/cem-plugin`, palalawakin ng CEM Analyzer ang bawat
+prop tungo sa isang typed manifest attribute at katugmang public field. Gagabayan ka ng mga hakbang sa ibaba
+sa pag-install ng CEM Analyzer at pag-configure nito para makapagtrabaho ang tooling
+kasama ng iyong `wcb` custom elements.
+
+<Aside type="tip" title="Nagsisimula ng bagong project?">
+  Ang `npm create wcb@latest` ay nagsa-scaffold ng project na kasama na ang install at
+  configuration sa ibaba: isang starter component, ang plugin na ito at
+  [`distPaths()`](#ship-the-manifest-with-a-package-distpaths) na naka-configure sa
+  `custom-elements-manifest.config.mjs`, isang `analyze` script, at ang
+  `customElements` field na naka-set sa `package.json`. Gamitin ang gabay na ito para idagdag ang
+  manifest sa isang umiiral nang project, para maunawaan kung ano ang na-configure ng scaffold,
+  o para ikonekta ang manifest sa [Storybook](#storybook) o sa [iyong
+  editor](#code-editors) — na iniiwan ng scaffold sa iyo.
+</Aside>
+
+## Pag-install
+
+```sh
+npm i -D @custom-elements-manifest/analyzer
+```
+
+## Pag-configure
+
+```js
+// custom-elements-manifest.config.mjs
+import { wcbStaticProps } from 'web-component-base/cem-plugin'
+
+export default {
+  globs: ['src/**/*.{js,ts}'],
+  outdir: '.',
+  plugins: [wcbStaticProps()],
+}
+```
+
+Pagkatapos, patakbuhin ang analyzer:
+
+```sh
+npx cem analyze
+```
+
+<Aside type="caution" title="Nabibigo ang `cem analyze` sa pamamagitan ng pag-hang, hindi ng error">
+  Patakbuhin ito **mula sa directory na naghahawak ng iyong config at isang `package.json`**. May
+  dalawang bagay na gumagawa nitong parang walang ginagawa, kung saan wala sa mga ito ang nagpri-print ng error:
+
+- **Walang config na natagpuan**: babalik ito sa default glob na
+  `**/*.{js,ts,tsx}`, na _hindi_ ibinubukod ang `node_modules`. Sa totoong
+  project, iyon ay sampu-sampung libong file sa TypeScript parser.
+- **Walang `package.json` sa directory**: tuluyan itong mag-hang.
+
+Kapag naka-scope ang mga glob sa iyong source, dapat matapos ito nang mas mabilis sa isang segundo.
+</Aside>
+
+## Ano ang nabubuo nito
+
+Kung bibigyan ng component:
+
+```ts
+// src/cozy-button.ts
+import { WebComponent, html } from 'web-component-base'
+
+type CozyButtonProps = {
+  variant: 'primary' | 'ghost'
+  disabled: boolean
+  maxCount: number
+}
+
+export class CozyButton extends WebComponent<CozyButtonProps> {
+  static props: CozyButtonProps = {
+    variant: 'primary',
+    disabled: false,
+    maxCount: 3,
+  }
+  static shadowRootInit = { mode: 'open' }
+  static styles = ':host { display: inline-block }'
+  get template() {
+    return html`<button>${this.props.variant}</button>`
+  }
+}
+customElements.define('cozy-button', CozyButton)
+```
+
+Nakakakuha ang `custom-elements.json` ng typed attribute at katugmang public field kada prop:
+
+| attribute   | type      | field      | default     |
+| ----------- | --------- | ---------- | ----------- |
+| `variant`   | `string`  | `variant`  | `'primary'` |
+| `disabled`  | `boolean` | `disabled` | `false`     |
+| `max-count` | `number`  | `maxCount` | `3`         |
+
+...at ang `props`, `shadowRootInit`, `styles`, `strictProps`, `observedAttributes` at `template` ay tinatanggal mula sa public surface.
+
+May dalawang detalye na dapat malaman:
+
+- **Ang mga type ay nagmumula sa default literal**: `true`/`false` → `boolean`, numeric → `number`, object/array → `object`, ang lahat ng iba pa → `string`. Hindi kinokonsulta ang TypeScript annotation, kaya ang union ni `variant` ay bumabagsak pa rin sa manifest bilang `string`.
+- **Ang mga attribute name ay nagmumula sa `getKebabCase` mismo ng wcb**, ang parehong function na ginagamit ng `observedAttributes`, kaya hindi maaaring mailihis ang mga manifest name mula sa aktwal na obserbado ng component.
+
+## Storybook
+
+Ang web-components renderer ng Storybook ay bumubuo ng **autodocs at controls** mula sa [Custom Elements Manifest](https://github.com/webcomponents/custom-elements-manifest).
+
+### Ikonekta ito sa Storybook
+
+```js
+// .storybook/preview.js
+import { setCustomElementsManifest } from '@storybook/web-components-vite'
+import manifest from '../custom-elements.json'
+
+setCustomElementsManifest(manifest)
+
+export default { tags: ['autodocs'] }
+```
+
+I-bind ang isang story sa tag name at ide-derive na ng Storybook ang natitira, na nagbibigay ng text field para sa `variant`, isang toggle para sa `disabled`, isang number input para sa `maxCount`:
+
+```js
+// cozy-button.stories.js
+import { html } from 'lit'
+import '../src/cozy-button.ts'
+
+export default {
+  title: 'Cozy/Button',
+  component: 'cozy-button', // ← no argTypes needed
+  render: ({ variant, disabled, maxCount }) => html`
+    <cozy-button
+      variant=${variant}
+      ?disabled=${disabled}
+      max-count=${maxCount}
+    ></cozy-button>
+  `,
+}
+
+export const Default = {
+  args: { variant: 'primary', disabled: false, maxCount: 3 },
+}
+```
+
+<Aside type="note" title="Ang `html` sa story files ay sa lit, hindi sa wcb">
+  Ang web-components renderer ng Storybook ay nagre-render ng mga story gamit ang
+  [lit-html](https://lit.dev/docs/templates/overview/), kaya ang story files ay nag-i-import ng
+  `html` mula sa `lit` at ang mga template sa mga ito ay gumagamit ng **binding syntax ng lit** — ang
+  `?disabled=${disabled}` prefix sa itaas ay lit para sa "idagdag o tanggalin ang boolean
+  attribute" (ang plain na `disabled=${false}` ay magsusulat ng `disabled="false"`,
+  na [pina-parse ng wcb bilang `true`](/prop-access/#boolean-props)). Wala sa mga ito ang
+  nag-a-apply sa iyong component: pinananatili nito ang sariling `html` tag ng wcb na walang espesyal na
+  binding prefixes, at ang lit ay isang devDependency ng Storybook setup, hindi kailanman naipadadala
+  kasama ng component.
+</Aside>
+
+<Aside type="tip">
+  I-regenerate ang manifest bago simulan ang Storybook (`cem analyze && storybook
+  dev`). Ang `custom-elements.json` ay isang build artifact, kaya karaniwang
+  gitignored ito at muling binubuo kapag kinakailangan.
+</Aside>
+
+Para sa kumpletong gumaganang setup, tingnan ang [`storybook/`](https://github.com/ayo-run/wcb/tree/main/storybook) sa wcb repo, na nagpapatakbo ng configuration na ito laban sa mga demo component.
+
+## Mga Code editor
+
+Kapag umiiral na ang `custom-elements.json`, maaaring mag-alok ang mga editor ng tag-name at attribute autocomplete para sa iyong mga component, na hinihimok ng parehong `static props` na binabasa ng plugin, kaya hindi maililihis ang mga hint mula sa code.
+
+<Aside type="caution">
+  Hindi **binabasa** ng VS Code ang `custom-elements.json` nang natively. Walang mangyayari
+  dahil lamang sa umiiral ang file. Kailangan mo ng isa sa dalawang ruta sa ibaba.
+</Aside>
+
+Una, i-declare ang manifest file sa iyong `package.json`. Natutuklasan ito ng language server ng Route 2
+sa pamamagitan ng field na ito, at ito ang ecosystem convention na hahanapin ng ibang manifest-driven
+na tooling:
+
+```json
+{
+  "customElements": "custom-elements.json"
+}
+```
+
+### Route 1: native na VS Code, walang extension
+
+Binabasa ng built-in na HTML language service ng VS Code ang sariling [custom data](https://github.com/microsoft/vscode-custom-data) format nito. Kino-convert ito ng ikalawang analyzer plugin, kaya lumalabas ang parehong file mula sa iisang `cem analyze` run:
+
+```sh
+npm i -D cem-plugin-vs-code-custom-data-generator
+```
+
+```js
+// custom-elements-manifest.config.mjs
+import { wcbStaticProps } from 'web-component-base/cem-plugin'
+import { generateCustomData } from 'cem-plugin-vs-code-custom-data-generator'
+
+export default {
+  globs: ['src/**/*.{js,ts}'],
+  outdir: '.',
+  plugins: [wcbStaticProps(), generateCustomData()],
+}
+```
+
+```json
+// .vscode/settings.json
+{
+  "html.customData": ["./vscode.html-custom-data.json"]
+}
+```
+
+<Aside type="caution">
+  Ang mga `html.customData` path ay nire-resolve mula sa **workspace root**, hindi mula sa
+  settings file. Kung pinapatakbo mo ang `cem analyze` sa isang subfolder, itumbok alinman sa
+  `./that-folder/vscode.html-custom-data.json` o bigyan ang generator ng sarili nitong
+  `outdir`, `generateCustomData({ outdir: '..' })`, para dumapo ang file kung saan
+  inaasahan ito ng setting.
+</Aside>
+
+I-restart ang VS Code at maku-complete ang `<cozy-` sa mga HTML file, na inaalok ang `variant` / `disabled` / `max-count` bilang attributes at ang kanilang mga type at defaults sa hover.
+
+**Ang bitag:** Ang `html.customData` ay nag-a-apply lamang sa mga `.html` file. Ang mga wcb component ay nag-a-author ng markup nila sa `html` tagged templates sa loob ng `.js` / `.ts`, at ang mga iyon ay hindi dumadaan sa HTML language service. Nakakatulong ang rutang ito sa sinumang nagsusulat ng plain HTML pages laban sa iyong mga component. Hindi ito magsisindi sa loob ng sarili mong mga template.
+
+### Route 2: isang language server extension, para sa tagged templates
+
+Para makuha ang parehong completions **sa loob** ng tagged templates, kailangan mo ng extension na nakakaunawa sa mga ito. Ang pinaka-kasalukuyang opsyon ay ang [Custom Elements Manifest Language Server](https://marketplace.visualstudio.com/items?itemName=pwrs.cem-language-server-vscode) (`pwrs.cem-language-server-vscode`). Ini-autocomplete nito ang mga tag name at attributes sa loob ng template literals kapwa sa JS at TS, nagdaragdag ng hover documentation para sa attributes at defaults, at natutuklasan ang manifest sa pamamagitan ng `customElements` field sa itaas, walang kailangang `.vscode/settings.json`.
+
+Dalawang alternatibo, parehong sulit malaman ang kalagayan:
+
+- [`wc-toolkit/wc-language-server`](https://wc-toolkit.com/integrations/web-components-language-server/): VS Code at JetBrains, manifest-driven din. Sinasabi sa sarili nitong **alpha at experimental**.
+- `Matsuuu.custom-elements-language-server-project`: ang isa na madalas mong matatagpuan sa mas lumang mga write-up. Alpha ito, at **na-archive ang repository nito noong Enero 2026**, kaya mas mainam ang isa sa dalawa sa itaas.
+
+<Aside type="note">
+  Ang sulok na ito ng ecosystem ay mabilis na gumagalaw at ang bawat opsyon ay pre-1.0. Ang Route
+  1 ang mas maingat na pagpipilian (plain VS Code configuration lang ito na walang
+  extension na mag-e-stale) sa kapalit ng hindi pagsaklaw sa tagged templates.
+  Huling na-check ang kalagayan ng ecosystem noong Hulyo 2026.
+</Aside>
+
+## Ipadala ang manifest kasama ng isang package: `distPaths()`
+
+Nagpu-publish ba ng iyong mga component sa npm? Nire-stamp ng analyzer ang `path` ng bawat module gamit ang eksaktong file na na-scan nito —
+kaya sa `globs: ['src/**/*.ts']`, ang bawat `path` sa `custom-elements.json` ay isang
+`.ts` na source file. Karamihan sa mga package ay nagpu-publish lamang ng kanilang naka-build na `dist/` output
+(at hindi rin naman puwedeng `import` ang `.ts` sa runtime), kaya ang isang consumer na bumabasa ng
+manifest na iyon ay nire-resolve ang mga path na wala sa tarball.
+
+Idagdag ang `distPaths()` pagkatapos ng `wcbStaticProps()` para muling isulat ang mga path na iyon papunta sa
+built output. Sa zero-config, mine-map nito ang `src/` → `dist/` at ang mga extension ng TypeScript
+tungo sa kanilang emitted JS form (`.ts` → `.js`, `.mts` → `.mjs`, `.cts` → `.cjs`).
+Dumadaan ang ibang extension, kaya ang isang `.js` na source ay ang directory lang nito ang
+napapalitan:
+
+```js
+// custom-elements-manifest.config.mjs
+import { wcbStaticProps, distPaths } from 'web-component-base/cem-plugin'
+
+export default {
+  globs: ['src/**/*.ts'],
+  outdir: '.',
+  plugins: [wcbStaticProps(), distPaths()],
+}
+```
+
+Para sa ibang layout, i-override ang `rootDir` / `outDir`: `distPaths({ rootDir: 'lib', outDir: 'dist/esm' })`. Patakbuhin ang
+`cem analyze` **pagkatapos** ng iyong build para umiral ang mga `dist/` file na itinuturo nito. Tingnan
+ang [API reference](/api/cem-plugin/#distpathsoptions) para sa `ext` extension
+remap. Ang hindi pagpu-publish ng manifest — hal., isang lokal na Storybook o editor setup
+sa ibabaw ng sarili mong source — ay hindi nangangailangan ng kahit ano rito.

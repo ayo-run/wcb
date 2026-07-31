@@ -1,0 +1,30 @@
+---
+title: 超ミニマルなカスタムHTML要素
+description: 必要な複雑さだけ。それはあなたが決めることです。
+template: splash
+hero:
+  tagline: オプトインの段階的なアップグレードにより、必要な複雑さだけを手に入れられます。それはあなたが決めることです。
+  # image:
+  #   file: ../../assets/houston.webp
+  actions:
+    - text: はじめる
+      link: /getting-started
+      icon: right-arrow
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+<CardGrid stagger>
+	<Card title="クリーン。" icon="star">
+		カスタム要素を書く際の定型作業を省略できます
+	</Card>
+	<Card title="小さい。" icon="add-document">
+		生産性を高めるための必要最小限のコードだけ
+	</Card>
+	<Card title="簡単。" icon="heart">
+		理解しやすく覚えやすい、理にかなったライフサイクルフック
+	</Card>
+	<Card title="馴染み深い。" icon="open-book">
+		DOM操作とイベントハンドラーのための宣言的なテンプレート
+	</Card>
+</CardGrid>

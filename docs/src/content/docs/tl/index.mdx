@@ -1,0 +1,30 @@
+---
+title: Ultra-Minimal na Custom HTML Elements
+description: Ang complexity lang na kailangan mo. Ikaw ang magdedesisyon.
+template: splash
+hero:
+  tagline: Sa opt-in na progressive upgrades, makukuha mo lang ang complexity na kailangan mo. Ikaw ang magdedesisyon.
+  # image:
+  #   file: ../../assets/houston.webp
+  actions:
+    - text: Magsimula
+      link: /getting-started
+      icon: right-arrow
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+<CardGrid stagger>
+	<Card title="Malinis." icon="star">
+		Laktawan ang mga paulit-ulit na bagay kapag nagsusulat ng custom elements
+	</Card>
+	<Card title="Maliit." icon="add-document">
+		Pinakamababang code lang para sa mas mataas na productivity
+	</Card>
+	<Card title="Madali." icon="heart">
+		Makatuwirang life-cycle hooks na madali mong maiintindihan at matatandaan
+	</Card>
+	<Card title="Pamilyar." icon="open-book">
+		Declarative templates para sa DOM manipulation at event handlers
+	</Card>
+</CardGrid>
