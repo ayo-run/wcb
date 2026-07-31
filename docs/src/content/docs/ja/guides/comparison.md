@@ -1,5 +1,5 @@
 ---
-title: 'WCBと類似ライブラリ'
+title: 'wcb vs Lit vs FAST: サイズと機能の比較'
 slug: 'ja/comparison'
 description: web-component-base、Lit、Elena、FASTの実測バンドルサイズと機能比較表、そして数値を再現する手順。
 ---

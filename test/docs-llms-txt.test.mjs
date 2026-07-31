@@ -7,8 +7,8 @@ import { join } from 'node:path'
  * they cannot go stale page-by-page — but they can lose pages wholesale if the
  * sidebar or the collection shape changes, and nothing on the site would look
  * wrong. These assertions are about the source the endpoints read from: every
- * English page has to be reachable through the sidebar, or it silently never
- * reaches the corpus.
+ * published English page has to be reachable through the sidebar, or it
+ * silently never reaches the corpus — and a draft has to stay out of it.
  */
 
 const DOCS = 'docs/src/content/docs'
@@ -51,20 +51,34 @@ const english = getPages(DOCS)
     const rest = page.slice(DOCS.length + 1)
     return !locales.some((locale) => rest.startsWith(`${locale}/`))
   })
-  .map((page) => ({
-    page,
-    slug: readFileSync(page, 'utf8').match(/^slug: '?([^'\n]+)'?/m)?.[1],
-  }))
+  .map((page) => {
+    const source = readFileSync(page, 'utf8')
+    return {
+      page,
+      slug: source.match(/^slug: '?([^'\n]+)'?/m)?.[1],
+      draft: /^draft: true$/m.test(source),
+    }
+  })
 
 describe('llms.txt corpus', () => {
   it('reads a sidebar with entries', () => {
     expect(sidebar.length).toBeGreaterThan(0)
   })
 
-  it.each(english.filter(({ slug }) => slug))(
+  it.each(english.filter(({ slug, draft }) => slug && !draft))(
     '$page is listed in the sidebar',
     ({ slug }) => {
       expect(sidebar).toContain(slug)
+    }
+  )
+
+  // A draft has no route in a production build, so a sidebar entry pointing at
+  // one fails `astro build` outright — and keeping it out of the sidebar is
+  // also what keeps it out of the corpus, since the endpoints read that order.
+  it.each(english.filter(({ draft }) => draft))(
+    '$page is a draft and stays out of the sidebar',
+    ({ slug }) => {
+      expect(sidebar).not.toContain(slug)
     }
   )
 

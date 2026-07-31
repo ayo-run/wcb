@@ -1,5 +1,5 @@
 ---
-title: 'WCB 与同类库'
+title: 'wcb 对比 Lit 与 FAST：体积与功能'
 slug: 'zh-cn/comparison'
 description: web-component-base、Lit、Elena 与 FAST 的实测打包体积和功能对照表，以及复现这些数字的方法。
 ---

@@ -57,7 +57,10 @@ export default defineConfig({
             tl: 'Mga Gabay',
           },
           items: [
-            // Each item here is one entry in the navigation menu.
+            // Each item here is one entry in the navigation menu. A page with
+            // `draft: true` must not be listed: it has no route in a
+            // production build, and Starlight fails the build on a sidebar
+            // entry whose slug does not resolve.
             'getting-started',
             'why',
             'comparison',

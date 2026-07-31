@@ -1,5 +1,5 @@
 ---
-title: 'WCB at Katulad na mga Library'
+title: 'wcb vs Lit vs FAST: paghahambing ng sukat at features'
 slug: 'tl/comparison'
 description: Sinukat na bundle sizes at talahanayan ng features para sa web-component-base, Lit, Elena at FAST, kasama ang paraan para ulitin ang sukat.
 ---

@@ -1,5 +1,5 @@
 ---
-title: 'WCB & Similar Libraries'
+title: 'wcb vs Lit vs FAST: size and feature comparison'
 slug: comparison
 description: Measured bundle sizes and a feature-by-feature table for web-component-base, Lit, Elena and FAST, with the method to reproduce the numbers.
 ---

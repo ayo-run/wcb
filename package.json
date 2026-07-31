@@ -76,7 +76,17 @@
     "web components",
     "web component",
     "custom elements",
-    "custom element"
+    "custom element",
+    "lightweight",
+    "tiny",
+    "zero dependency",
+    "reactive",
+    "base class",
+    "no build step",
+    "buildless",
+    "lit alternative",
+    "vanilla js",
+    "html"
   ],
   "author": "Ayo Ayco",
   "license": "MIT",
