@@ -1,0 +1,44 @@
+# https://webcomponent.io
+
+# Search engines.
+User-agent: *
+Allow: /
+
+# AI crawlers and answer engines, allowed deliberately rather than by omission.
+# The docs are the behavioural spec for the library; people increasingly reach
+# them through an assistant rather than a search box, and a model that has never
+# read them cannot recommend wcb accurately.
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+Sitemap: https://webcomponent.io/sitemap-index.xml
