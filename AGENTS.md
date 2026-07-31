@@ -80,4 +80,6 @@ The v6 state-correctness work has **landed** — the behaviors described above a
 
 The public documentation site is an Astro + Starlight app in `docs/` (published to webcomponent.io). Guide content is Markdown/MDX under `docs/src/content/docs/guides/`; it doubles as the behavioral spec for the library.
 
+Every page needs a `description` in its frontmatter. Starlight has no fallback for it, so a page without one builds with no `<meta name="description">` and no `og:description` at all — the strings search results and link previews are built from. Keep it to one line that says what the page covers. `test/docs-descriptions.test.mjs` fails the build for a page that omits it.
+
 Translations live in one folder per locale (`docs/src/content/docs/ja/`, `zh-cn/`, `tl/`), mirroring the English layout. Starlight does **not** rewrite links per locale, so a translated page must carry the locale in both its `slug` frontmatter (`slug: 'ja/getting-started'`) and every internal link it contains (`](/ja/prop-access/)`, `link: /ja/getting-started`) — a bare `/prop-access/` drops the reader back into English and loses their language for the rest of the visit. Cross-page anchors have to use the *translated* heading's slug. `test/docs-i18n-links.test.mjs` guards the slug and link prefixes; anchors are only caught by building the site.
