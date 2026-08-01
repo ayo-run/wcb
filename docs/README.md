@@ -45,4 +45,8 @@ A page's route comes from its `slug` frontmatter, not its path. Adding a page to
 
 ## Deploying
 
-`pnpm -F docs deploy` publishes `docs/dist/` to Netlify (needs `NETLIFY_SITE_ID`). There are no CI runners on this Forgejo instance, so nothing builds this site automatically.
+`pnpm release:docs` (from the repo root) force-syncs `main` onto the `docs-release` branch of the `gh` remote. Netlify builds the site from that branch, so production only redeploys when this is run — not on every push to `main`. The script warns if local `main` differs from `gh/main`, since that commit is what ships. It pushes a single ref and never checks anything out, so a dirty working tree or another checked-out branch is fine.
+
+`pnpm -F docs deploy` publishes an already-built `docs/dist/` straight to Netlify (needs `NETLIFY_SITE_ID`), bypassing the branch entirely — useful for a one-off, not the normal path.
+
+There are no CI runners on this Forgejo instance, so nothing builds this site automatically.

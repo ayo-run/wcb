@@ -55,6 +55,7 @@
     "clean": "rm -rf dist",
     "copy:source": "esbuild --minify --bundle ./src/*.js ./src/utils/* --outdir=\"./dist\" --format=\"esm\"",
     "release": "bumpp && node ./scripts/release.js",
+    "release:docs": "node ./scripts/release-docs.js",
     "format": "prettier . --write",
     "lint": "eslint . --config eslint.config.mjs",
     "prepare": "husky"
