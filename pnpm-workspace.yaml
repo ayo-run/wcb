@@ -4,6 +4,13 @@ packages:
   - 'demo/'
   - 'storybook/'
   - 'create/'
+overrides:
+  # CVE-2026-59892 / GHSA-45rx-2jwx-cxfr: JaegerPropagator.extract() throws an
+  # uncaught URIError on a malformed percent-encoded uber-trace-id header.
+  # Reaches us only as a build-time transitive of netlify-cli and astro, and we
+  # never register JaegerPropagator — pinned to the patched release anyway so
+  # scanners stop flagging pnpm-lock.yaml. Drop this once the parents ship 2.x.
+  '@opentelemetry/propagator-jaeger': 2.9.0
 allowBuilds:
   '@parcel/watcher': false
   esbuild: true # insurance for core build
