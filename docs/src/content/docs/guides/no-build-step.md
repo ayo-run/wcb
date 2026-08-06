@@ -62,8 +62,9 @@ import { WebComponent } from 'https://esm.sh/web-component-base@6'
 
 ## Importing only what you use
 
-The package's [exports](/exports/) are split, so a buildless page can take one
-piece instead of the whole base class:
+The package's exports are split across [`WebComponent`](/api/web-component/),
+[`html`](/api/html/) and the [utilities](/api/utils/), so a buildless page can
+take one piece instead of the whole base class:
 
 ```js
 import { html } from 'https://esm.sh/web-component-base/html.js'

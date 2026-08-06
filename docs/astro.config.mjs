@@ -8,6 +8,13 @@ export default defineConfig({
   redirects: {
     '/guides/': '/getting-started',
     '/api/': '/api/web-component',
+    // the Exports guide listed the import paths the API reference already
+    // documents on the page for each export; it was published, so its URL
+    // keeps working and lands where those paths now live
+    '/exports/': '/api/web-component',
+    '/ja/exports/': '/ja/api/web-component',
+    '/zh-cn/exports/': '/zh-cn/api/web-component',
+    '/tl/exports/': '/tl/api/web-component',
   },
   integrations: [
     starlight({
@@ -64,7 +71,6 @@ export default defineConfig({
             'getting-started',
             'why',
             'comparison',
-            'exports',
             'usage',
             'examples',
             'template-vs-render',
