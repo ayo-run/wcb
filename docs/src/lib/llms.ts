@@ -1,5 +1,6 @@
 import { getCollection, type CollectionEntry } from 'astro:content'
 import config from 'virtual:starlight/user-config'
+import { showcase } from '../showcase.mjs'
 
 /**
  * Shared plumbing for the `/llms.txt` and `/llms-full.txt` endpoints.
@@ -100,11 +101,32 @@ export function toMarkdown(
       continue
     }
 
-    // component imports — the JSX the page uses, not example code
+    // component imports — the JSX the page uses, not example code. Both the
+    // Starlight components and the site's own `.astro` ones.
     if (
-      /^import .* from '@astrojs\/starlight\/components';?$/.test(line.trim())
+      /^import .* from '@astrojs\/starlight\/components';?$/.test(
+        line.trim()
+      ) ||
+      /^import \w+ from '[^']*\.astro';?$/.test(line.trim())
     )
       continue
+
+    // the homepage showcase renders from `showcase.mjs`, not from the page, so
+    // the corpus expands the same data rather than parsing markup that is no
+    // longer there: one linked heading per demo, its title fenced in backticks
+    // so a Markdown reader does not take the tag name for HTML. The trailing
+    // "your own demo" card is navigation to a guide the corpus already carries
+    // in full, so it stays out.
+    if (/^\s*<ShowcaseGrid\s*\/>\s*$/.test(line)) {
+      for (const [tag, demo] of Object.entries(showcase))
+        output.push(
+          `#### [\`<${tag}>\`](${demo.href})`,
+          '',
+          demo.description,
+          ''
+        )
+      continue
+    }
 
     if (/^\s*<\/?CardGrid[^>]*>\s*$/.test(line)) {
       inCardGrid = !line.includes('</')

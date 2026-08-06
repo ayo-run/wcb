@@ -1,0 +1,102 @@
+---
+// A compact link card for the homepage showcase row: smaller than Starlight's
+// Card, and clickable as a whole. Starlight's LinkCard is the closest stock
+// component but carries no icon slot, and the icon is what distinguishes the
+// "your own demo" card from the demos themselves.
+import { Icon } from '@astrojs/starlight/components'
+import type { StarlightIcon } from '@astrojs/starlight/types'
+
+interface Props {
+  title: string
+  href: string
+  // 'plus' is not in Starlight's icon set — it is drawn inline below
+  icon?: StarlightIcon | 'plus'
+}
+
+const { title, href, icon } = Astro.props
+
+// an off-site demo gets the arrow that says so, without the author naming it
+const external = /^https?:\/\//.test(href)
+---
+
+<a class="showcase-card" {href} {...external ? { target: '_blank', rel: 'noopener' } : {}}>
+  <span class="head">
+    {
+      icon === 'plus' ? (
+        <svg
+          class="icon"
+          aria-hidden="true"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+        >
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+      ) : (
+        icon && <Icon name={icon} class="icon" />
+      )
+    }
+    <span class="title">{title}</span>
+    {external && <Icon name="external" class="external" />}
+  </span>
+  <span class="body"><slot /></span>
+</a>
+
+<style>
+  .showcase-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.5rem;
+    background-color: var(--sl-color-black);
+    padding: 1rem;
+    text-decoration: none;
+    line-height: var(--sl-line-height-headings);
+    box-shadow: var(--sl-shadow-sm);
+  }
+
+  .showcase-card:hover {
+    border-color: var(--sl-color-accent);
+    background-color: var(--sl-color-gray-7, var(--sl-color-gray-6));
+  }
+
+  .head {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .title {
+    font-family: var(--__sl-font-mono);
+    font-size: var(--sl-text-base);
+    font-weight: 600;
+    color: var(--sl-color-white);
+  }
+
+  .icon {
+    flex-shrink: 0;
+    font-size: 1.25em;
+    width: 1em;
+    height: 1em;
+    color: var(--sl-color-accent-high);
+  }
+
+  /* the external marker trails the title rather than sitting in the row's
+     end, so it reads as part of the label at any card width */
+  .external {
+    flex-shrink: 0;
+    font-size: 0.75em;
+    color: var(--sl-color-gray-3);
+  }
+
+  .body {
+    font-size: var(--sl-text-sm);
+    color: var(--sl-color-gray-3);
+    line-height: var(--sl-line-height);
+  }
+</style>

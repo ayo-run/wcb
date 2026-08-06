@@ -73,6 +73,7 @@ export default defineConfig({
             'comparison',
             'usage',
             'examples',
+            'showcase',
             'template-vs-render',
             'prop-access',
             'shadow-dom',

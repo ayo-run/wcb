@@ -11,6 +11,7 @@ hero:
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
+import ShowcaseGrid from '../../../components/ShowcaseGrid.astro';
 
 <CardGrid stagger>
 	<Card title="クリーン。" icon="star">
@@ -26,3 +27,9 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
 		DOM操作とイベントハンドラーのための宣言的なテンプレート
 	</Card>
 </CardGrid>
+
+## ショーケース
+
+wcbで作られたコンポーネント。それぞれに専用のライブデモページがあります。
+
+<ShowcaseGrid />

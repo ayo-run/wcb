@@ -1,0 +1,65 @@
+---
+// The homepage showcase row. Every card is looped from `src/showcase.mjs`, so
+// a new demo is one entry in that data file and no edit to this page or to any
+// of its three translations — see `guides/showcase.md`.
+//
+// Starlight's CardGrid locks to two columns at >=50rem, which orphans the
+// third of three cards; these are small enough to sit three-up on a wide
+// screen and reflow on their own below that.
+import ShowcaseCard from './ShowcaseCard.astro'
+import { showcase } from '../showcase.mjs'
+
+// The trailing card is chrome rather than content, so its strings live here
+// with the markup instead of in the data file — someone adding a demo never
+// touches them. Keyed by locale prefix; English serves the root locale.
+const ADD_YOURS: Record<string, { title: string; body: string }> = {
+  en: {
+    title: 'Your Own Demo',
+    body: 'Build a component, give it a demo page, and see it listed here',
+  },
+  ja: {
+    title: 'あなた自身のデモ',
+    body: 'コンポーネントを作り、デモページを用意すれば、ここに掲載されます',
+  },
+  'zh-cn': {
+    title: '你自己的演示',
+    body: '构建一个组件，为它做一个演示页面，它就会出现在这里',
+  },
+  tl: {
+    title: 'Sarili Mong Demo',
+    body: 'Gumawa ng component, bigyan ito ng demo page, at makikita mo itong nakalista rito',
+  },
+}
+
+// `locale` is undefined on the root (English) locale
+const locale = Astro.locals.starlightRoute.locale
+const addYours = (locale && ADD_YOURS[locale]) || ADD_YOURS.en!
+// Starlight does not rewrite links per locale, so the card's link carries the
+// prefix of the page it is rendered on
+const guide = locale ? `/${locale}/showcase/` : '/showcase/'
+---
+
+<div class="showcase-grid">
+  {
+    Object.entries(showcase).map(([tag, demo]) => (
+      <ShowcaseCard title={`<${tag}>`} href={demo.href}>
+        {(locale && demo.translations?.[locale]) || demo.description}
+      </ShowcaseCard>
+    ))
+  }
+  <ShowcaseCard title={addYours.title} href={guide} icon="plus">
+    {addYours.body}
+  </ShowcaseCard>
+</div>
+
+<style>
+  .showcase-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: 1rem;
+  }
+
+  .showcase-grid > :global(*) {
+    margin-top: 0 !important;
+  }
+</style>
