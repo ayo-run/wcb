@@ -67,10 +67,12 @@ function cloneDefaults(ctor) {
   return out
 }
 
+/* eslint-disable jsdoc/reject-any-type */
 /**
  * Blueprint for the Proxy props
  * @typedef {{[name: string]: any}} PropStringMap
  */
+/* eslint-enable jsdoc/reject-any-type */
 
 /**
  * A minimal base class to reduce the complexity of creating reactive custom elements
@@ -141,7 +143,7 @@ export class WebComponent extends HTMLElement {
   /**
    * Read-only property containing camelCase counterparts of observed attributes.
    * @see https://webcomponent.io/prop-access/
-   * @returns {Props}
+   * @returns {Props} the proxied props object
    */
   get props() {
     return this.#props
@@ -190,6 +192,7 @@ export class WebComponent extends HTMLElement {
       : serialize(value)
   }
 
+  /* eslint-disable jsdoc/reject-any-type */
   /**
    * Converts an attribute value into the prop value it represents — the
    * inverse of `toAttribute`. Override to customize parsing for a prop; call
@@ -201,6 +204,7 @@ export class WebComponent extends HTMLElement {
    * @param {string} value the attribute value, never `null`
    * @returns {any} the value to store on `this.props[name]`
    */
+  /* eslint-enable jsdoc/reject-any-type */
   fromAttribute(name, value) {
     const type = this.#typeMap[name]
     if (type === 'boolean') {
