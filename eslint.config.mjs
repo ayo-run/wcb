@@ -10,6 +10,12 @@ export default [
   {
     rules: {
       'no-unused-vars': 'warn',
+      'jsdoc/no-undefined-types': [
+        'warn',
+        {
+          definedTypes: ['ShadowRootInit'],
+        },
+      ],
     },
   },
   // Config, build, and script files run in Node — give them Node globals
