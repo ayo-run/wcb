@@ -1,21 +1,8 @@
 # Web Component Base
 
 > [!Note]
-> **HTML boolean attributes semantics shipped in v6** - A boolean
-> prop follows the HTML convention in both directions: **presence means `true`,
-> absence means `false`**. `true` reflects as a bare attribute and `false`
-> removes it, so `toggleAttribute()` and `[attr]` CSS selectors finally work as
-> expected.
->
-> **Any present value is `true`** — including the literal `flag="false"`, just
-> like native `disabled="false"` is still disabled. If you write boolean
-> attributes as `setAttribute(name, String(bool))`, that now always means
-> `true`; switch those call sites to `toggleAttribute(name, bool)`. wcb warns
-> in the console when it sees a boolean attribute written as `"true"`/`"false"`
-> so the change cannot fail silently. Attributes whose `"false"` is meaningful
-> (`aria-*`, `contenteditable`) should be declared as **string** props.
->
-> See [Prop Access](https://webcomponent.io/prop-access/#boolean-props) for details.
+> This is the `main` branch tracking v7 work. If you are looking for the published latest source check out v6 branch.
+> The next major version brings an even tinier default with opt-in reactivity, faster templates wit caching, and more.
 
 ![counter example code snippet](https://git.ayo.run/ayo/wcb/raw/branch/main/assets/IMG_0682.png)
 
