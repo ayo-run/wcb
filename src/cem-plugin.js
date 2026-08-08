@@ -1,6 +1,7 @@
 /**
- * @license MIT <https://opensource.org/licenses/MIT>
- * @author Ayo Ayco <https://ayo.ayco.io>
+ * @author Ayo Ayco <ayo@ayco.io>
+ * @license MIT
+ * https://opensource.org/licenses/MIT
  *
  * A Custom Elements Manifest analyzer plugin that teaches
  * `@custom-elements-manifest/analyzer` about wcb's `static props` convention.
