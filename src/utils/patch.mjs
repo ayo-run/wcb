@@ -1,12 +1,16 @@
 import { createElement, applyProp } from './create-element.mjs'
 
 /**
+ * @import { VNode, VNodeChild } from '../html.js'
+ */
+
+/**
  * Flattens a vnode or a (possibly nested) children array into the flat list of
  * nodes `createElement` would have produced — it nests arrays into document
  * fragments, which append flat. `null`/`undefined` entries are dropped so a
  * conditional branch removes its node instead of rendering "null".
- * @param {any} children a vnode, a children array, or nothing
- * @returns {any[]} the flat list of vnodes
+ * @param {VNodeChild} children a vnode, a children array, or nothing
+ * @returns {Array<VNode | string | number | boolean>} the flat list, with nested arrays inlined and `null`/`undefined` dropped
  */
 function flatten(children) {
   return children == null
@@ -19,7 +23,7 @@ function flatten(children) {
  * mirroring how `applyProp` set it.
  * @param {Element} el the element to patch
  * @param {string} prop the prop name as written in the vnode
- * @param {any} oldValue the value the prop had in the old vnode
+ * @param {unknown} oldValue the value the prop had in the old vnode
  */
 function removeProp(el, prop, oldValue) {
   const domProp = prop.toLowerCase()
@@ -54,8 +58,8 @@ function removeProp(el, prop, oldValue) {
  * that went falsy, the usual `{ fontStyle: condition && 'italic' }` shape —
  * has to be cleared explicitly. A full rebuild used to do this implicitly.
  * @param {Element} el the element to patch
- * @param {any} oldValue the previous `style` prop value
- * @param {any} newValue the new `style` prop value
+ * @param {unknown} oldValue the previous `style` prop value
+ * @param {unknown} newValue the new `style` prop value
  */
 function patchStyle(el, oldValue, newValue) {
   const previous = typeof oldValue === 'object' && !!oldValue ? oldValue : {}
@@ -112,8 +116,8 @@ function place(parent, dom, node) {
  * and running transitions survive the re-render.
  * @param {Node} parent the parent node being patched
  * @param {Node | null | undefined} dom the existing node at this index, if any
- * @param {any} oldVnode the vnode that produced `dom`, if known
- * @param {any} newVnode the vnode to render
+ * @param {VNodeChild} oldVnode the vnode that produced `dom`, if known
+ * @param {VNodeChild} newVnode the vnode to render
  */
 export function patchNode(parent, dom, oldVnode, newVnode) {
   if (newVnode == null) {
@@ -163,8 +167,8 @@ export function patchNode(parent, dom, oldVnode, newVnode) {
  * Reconciles a parent's child nodes against a new children list by index
  * (non-keyed), trimming any leftover trailing nodes.
  * @param {Node} parent the parent node to patch into
- * @param {any} oldChildren the previous vnode children (or previous tree)
- * @param {any} newChildren the new vnode children (or new tree)
+ * @param {VNodeChild} oldChildren the previous vnode children (or previous tree)
+ * @param {VNodeChild} newChildren the new vnode children (or new tree)
  */
 export function patchChildren(parent, oldChildren, newChildren) {
   const previous = flatten(oldChildren)
