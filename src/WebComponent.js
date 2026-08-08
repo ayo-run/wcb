@@ -22,6 +22,15 @@ const validated = new WeakSet()
  */
 
 /**
+ * One attribute change received in `onChanges`. The values are raw attribute strings the platform reported: a `number` prop is reported as `'5'`, and `null` means the attribute (previous) or removed (current).
+ * @typedef {object} Changes
+ * @property {string} property camelCase prop key
+ * @property {string} attribute kebab-case attribute name that changed
+ * @property {string | null} previousValue attribute value before the change
+ * @property {string | null} currentValue attribute value after the change
+ */
+
+/**
  * Returns a fresh defaults object for a component: plain data is deep-copied
  * per key so instances never share object/array defaults, while non-cloneable
  * values (functions, class instances) are kept by reference instead of
@@ -155,13 +164,9 @@ export class WebComponent extends HTMLElement {
 
   /**
    * Triggered when an attribute value changes
-   * @typedef {object} Changes
-   * @property {string} property camelCase prop key, matching `props` access
-   * @property {string} attribute kebab-case attribute name that changed
-   * @property {any} previousValue value before the change
-   * @property {any} currentValue value after the change
-   * @param {Changes} changes
+   * @param {Changes} changes what changed, as raw attribute values
    */
+  // eslint-disable-next-line no-unused-vars -- overrideable by subclass
   onChanges(changes) {}
 
   /**
