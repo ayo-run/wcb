@@ -13,7 +13,7 @@ import htm from 'htm/mini'
  * Anything that can be a vnode child:
  * - another vnode
  * - a primitive text
- * - a nested array
+ * - a nested array; or
  * - null or undefined from a falsy branch
  * @typedef {VNode | string | number | boolean | null | undefined | VNodeChild[]} VNodeChild
  */
