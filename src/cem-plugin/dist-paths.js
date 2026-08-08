@@ -1,7 +1,19 @@
 /**
- * @license MIT <https://opensource.org/licenses/MIT>
  * @author Ayo Ayco <https://ayo.ayco.io>
+ * @license MIT
+ * https://opensource.org/licenses/MIT
  * @see https://webcomponent.io/cem-plugin/
+ */
+
+/**
+ * A module entry in the manifest, whose `path` this plugin rewrites.
+ * @typedef {{ path?: string }} ManifestModule
+ */
+
+/**
+ * The `packageLinkPhase` params this plugin reads.
+ * @typedef {object} PackageLinkPhaseParams
+ * @property {{ modules?: ManifestModule[] }} customElementsManifest the completed manifest
  */
 
 /**
@@ -20,7 +32,7 @@
  * @param {string} [options.rootDir] source directory prefix to replace (default `'src'`)
  * @param {string} [options.outDir] built-output directory to point at (default `'dist'`)
  * @param {Record<string, string>} [options.ext] extension remap, merged over the defaults
- * @returns {{name: string, packageLinkPhase: (ctx: any) => void}} a CEM analyzer plugin
+ * @returns {{ name: string, packageLinkPhase: (params: PackageLinkPhaseParams) => void }} a CEM analyzer plugin
  * @example
  * // custom-elements-manifest.config.mjs
  * import { wcbStaticProps, distPaths } from 'web-component-base/cem-plugin'
@@ -51,15 +63,16 @@ export function distPaths(options = {}) {
   /**
    * Walks a manifest node and rewrites `module` on every reference to a module
    * in this package, so references keep resolving after the paths move.
-   * @param {any} node a manifest node, array, or leaf value
+   * @param {unknown} node a manifest node, array, or leaf value
    * @returns {void}
    */
   const rewriteRefs = (node) => {
     if (Array.isArray(node)) return node.forEach(rewriteRefs)
     if (!node || typeof node !== 'object') return
-    if (typeof node.module === 'string' && !node.package)
-      node.module = rewrite(node.module)
-    for (const value of Object.values(node)) rewriteRefs(value)
+    const record = /** @type {Record<string, unknown>} */ (node)
+    if (typeof record.module === 'string' && !record.package)
+      record.module = rewrite(record.module)
+    for (const value of Object.values(record)) rewriteRefs(value)
   }
 
   return {

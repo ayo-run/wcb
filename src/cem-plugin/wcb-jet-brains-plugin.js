@@ -1,6 +1,7 @@
 /**
- * @license MIT <https://opensource.org/licenses/MIT>
  * @author Ayo Ayco <https://ayo.ayco.io>
+ * @license MIT
+ * https://opensource.org/licenses/MIT
  *
  * `wcbJetBrainsPlugin`: generates a JetBrains `web-types.json` from the manifest.
  * Dev-time only — runs in Node during `cem analyze`.
@@ -11,6 +12,16 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { getKebabCase } from '../utils/index.js'
 import { customElementDecls, descriptionOf, writeJson } from './shared.js'
+
+/**
+ * @import { CustomElementDecl, ManifestAttribute, Manifest } from './shared.js'
+ */
+
+/**
+ * The `packageLinkPhase` params this plugin reads.
+ * @typedef {object} PackageLinkPhaseParams
+ * @property {Manifest} customElementsManifest the completed manifest
+ */
 
 /** Manifest type texts that map to a web-types HTML attribute value type. */
 const HTML_VALUE_TYPES = new Set(['string', 'boolean', 'number'])
@@ -76,7 +87,7 @@ function unquote(text) {
  * Builds a web-types HTML attribute contribution from a manifest attribute.
  * Boolean attributes are `no-value`; everything else is a `plain` value that
  * carries its default when one is known.
- * @param {any} attr a manifest attribute
+ * @param {ManifestAttribute} attr a manifest attribute
  * @returns {object} a web-types attribute contribution
  */
 function attributeContribution(attr) {
@@ -103,7 +114,7 @@ function attributeContribution(attr) {
  * Builds one web-types HTML element contribution from a manifest declaration:
  * its attributes, plus DOM properties and events under `js`. Empty groups are
  * omitted so the output stays compact.
- * @param {any} dec a custom-element declaration
+ * @param {CustomElementDecl} dec a custom-element declaration
  * @returns {object} a web-types element contribution
  */
 function elementContribution(dec) {
@@ -162,14 +173,14 @@ function elementContribution(dec) {
  * so you only need to include the file in your `files` array to ship it. Pass
  * `packageJson: false` to leave package.json untouched. The generated
  * `name` / `version` mirror your `package.json`; override them if needed.
- * @param {object} [options]
+ * @param {object} [options] overrides for the output location and package identity
  * @param {string} [options.outdir] directory to write into (default `'.wcb'`)
  * @param {string | null} [options.fileName] file name, or `null` to skip (default `'web-types.json'`)
  * @param {boolean} [options.packageJson] set the `web-types` field in package.json (default `true`)
  * @param {string} [options.name] package name for the `name` field (default: read from `package.json`)
  * @param {string} [options.version] package version for the `version` field (default: read from `package.json`)
  * @param {string[]} [options.exclude] declaration names to omit
- * @returns {{name: string, packageLinkPhase: (ctx: any) => void}} a CEM analyzer plugin
+ * @returns {{ name: string, packageLinkPhase: (params: PackageLinkPhaseParams) => void }} a CEM analyzer plugin
  * @example
  * // custom-elements-manifest.config.mjs
  * import { wcbStaticProps, wcbJetBrainsPlugin } from 'web-component-base/cem-plugin'

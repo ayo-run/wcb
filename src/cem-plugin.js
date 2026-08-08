@@ -1,6 +1,7 @@
 /**
- * @license MIT <https://opensource.org/licenses/MIT>
  * @author Ayo Ayco <https://ayo.ayco.io>
+ * @license MIT
+ * https://opensource.org/licenses/MIT
  *
  * Custom Elements Manifest analyzer plugins for wcb. The default export is
  * `wcbPluginSet()`, the whole set ready to spread into the analyzer's `plugins`;
@@ -29,7 +30,7 @@ import { wcbJetBrainsPlugin } from './cem-plugin/wcb-jet-brains-plugin.js'
  * `wcbVsCodePlugin()` and `wcbJetBrainsPlugin()` — ready to spread into the
  * analyzer's `plugins`. Forward options to individual plugins by key;
  * `wcbStaticProps` takes none.
- * @param {object} [options]
+ * @param {object} [options] per-plugin option overrides, keyed by plugin
  * @param {object} [options.distPaths] options for `distPaths()`
  * @param {object} [options.vsCode] options for `wcbVsCodePlugin()`
  * @param {object} [options.jetBrains] options for `wcbJetBrainsPlugin()`

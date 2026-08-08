@@ -1,6 +1,7 @@
 /**
- * @license MIT <https://opensource.org/licenses/MIT>
  * @author Ayo Ayco <https://ayo.ayco.io>
+ * @license MIT
+ * https://opensource.org/licenses/MIT
  *
  * `wcbVsCodePlugin`: generates VS Code HTML/CSS custom-data files from the
  * manifest. Dev-time only — runs in Node during `cem analyze`.
@@ -9,6 +10,25 @@
 
 import { getKebabCase } from '../utils/index.js'
 import { customElementDecls, descriptionOf, writeJson } from './shared.js'
+
+/**
+ * @typedef {typeof import('typescript')} TypeScript
+ * @import * as TypeScriptInstance from 'typescript'
+ * @import { CustomElementDecl, Manifest } from './shared.js'
+ */
+
+/**
+ * The `analyzePhase` params this plugin reads.
+ * @typedef {object} AnalyzePhaseParams
+ * @property {TypeScript} ts the TypeScript module handed to the hook
+ * @property {TypeScriptInstance.Node} node the current AST node
+ */
+
+/**
+ * The `packageLinkPhase` params this plugin reads.
+ * @typedef {object} PackageLinkPhaseParams
+ * @property {Manifest} customElementsManifest the completed manifest
+ */
 
 /** TypeScript primitive type names that are not useful as attribute value hints. */
 const PRIMITIVE_TYPES = new Set([
@@ -22,7 +42,7 @@ const PRIMITIVE_TYPES = new Set([
 /**
  * Reads a JSDoc tag's comment as a plain string across TypeScript versions
  * (older releases give a string, newer ones a `NodeArray` of comment parts).
- * @param {any} tag a JSDoc tag node
+ * @param {TypeScriptInstance.JSDocTag} tag a JSDoc tag node
  * @returns {string} the comment text, or `''`
  */
 function commentText(tag) {
@@ -37,8 +57,8 @@ function commentText(tag) {
  * dropped — never emitted as `null`, which the third-party generator does and
  * which VS Code rejects as invalid custom data, silently dropping the whole
  * tag with it.
- * @param {any} ts the TypeScript module handed to the hook
- * @param {any} node the class declaration node
+ * @param {TypeScript} ts the TypeScript module handed to the hook
+ * @param {TypeScriptInstance.ClassDeclaration & { jsDoc?: readonly TypeScriptInstance.JSDoc[] }} node the class declaration node
  * @returns {{name: string, url: string}[]} valid references, possibly empty
  */
 function readReferences(ts, node) {
@@ -86,7 +106,7 @@ function cssValues(text) {
  * Builds one VS Code HTML custom-data tag from a manifest declaration. Keys
  * that would be empty (`description`, `references`) are omitted rather than set
  * to a falsy value, so the output stays schema-valid.
- * @param {any} dec a custom-element declaration
+ * @param {CustomElementDecl} dec a custom-element declaration
  * @param {Record<string, {name: string, url: string}[]>} references references by class name
  * @returns {object} a VS Code custom-data tag
  */
@@ -127,12 +147,12 @@ function htmlTag(dec, references) {
  *   and (when present) `@reference Name - url` links.
  * - `css-custom-data.json` — `@cssproperty` entries as `properties` and
  *   `@csspart` entries as `::part(...)` `pseudoElements`.
- * @param {object} [options]
+ * @param {object} [options] overrides for the output location and contents
  * @param {string} [options.outdir] directory to write into (default `'.wcb'`). Note VS Code's `html.customData` resolves from the workspace root, not the settings file — point `outdir` (and the setting) where they meet.
  * @param {string | null} [options.htmlFileName] HTML custom-data file name, or `null` to skip (default `'html-custom-data.json'`)
  * @param {string | null} [options.cssFileName] CSS custom-data file name, or `null` to skip (default `'css-custom-data.json'`)
  * @param {string[]} [options.exclude] declaration names to omit
- * @returns {{name: string, analyzePhase: (ctx: any) => void, packageLinkPhase: (ctx: any) => void}} a CEM analyzer plugin
+ * @returns {{ name: string, analyzePhase: (params: AnalyzePhaseParams) => void, packageLinkPhase: (params: PackageLinkPhaseParams) => void }} a CEM analyzer plugin
  * @example
  * // custom-elements-manifest.config.mjs
  * import { wcbStaticProps, wcbVsCodePlugin } from 'web-component-base/cem-plugin'

@@ -1,6 +1,7 @@
 /**
- * @license MIT <https://opensource.org/licenses/MIT>
  * @author Ayo Ayco <https://ayo.ayco.io>
+ * @license MIT
+ * https://opensource.org/licenses/MIT
  *
  * `wcbStaticProps`: teaches `@custom-elements-manifest/analyzer` to read wcb's
  * `static props` convention. Dev-time only — runs in Node during `cem analyze`.
@@ -8,6 +9,11 @@
  */
 
 import { getKebabCase } from '../utils/index.js'
+
+/**
+ * @typedef {typeof import('typescript')} TypeScript
+ * @import * as TypeScriptInstance from 'typescript'
+ */
 
 /** wcb statics that are implementation detail, not public API. */
 const WCB_INTERNAL = new Set([
@@ -20,10 +26,10 @@ const WCB_INTERNAL = new Set([
 ])
 
 /**
- * Maps a `static props` default literal to a CEM type string.
- * @param {any} ts the TypeScript module handed to the hook
- * @param {any} init the property initializer node
- * @returns {string} `boolean` | `number` | `object` | `string`
+ * Classifies a `static props` default by the **syntactic form** of its initializer.
+ * @param {TypeScript} ts the TypeScript module handed to the hook
+ * @param {TypeScriptInstance.Expression} init the property initializer node
+ * @returns {'boolean' | 'number' | 'object' | 'string'} the manifest `type.text` value
  */
 function typeOfDefault(ts, init) {
   if (
@@ -39,11 +45,13 @@ function typeOfDefault(ts, init) {
 
 /**
  * Reads a node's modifiers across TypeScript versions.
- * @param {any} ts the TypeScript module handed to the hook
- * @param {any} node the node to read modifiers from
- * @returns {any[]} the modifiers, or an empty array
+ * @param {TypeScript} ts the TypeScript module handed to the hook
+ * @param {TypeScriptInstance.Node & {modifiers?: readonly TypeScriptInstance.ModifierLike[]} } node the node to read modifiers from
+ * @returns {TypeScriptInstance.ModifierLike[]} the modifiers, or an empty array
  */
 function modifiersOf(ts, node) {
+  // Older versions of TypeScript (i.e., before 4.8) does not have
+  // `canHaveModifiers` and `getModifiers`
   return (
     (ts.canHaveModifiers?.(node) ? ts.getModifiers(node) : node.modifiers) ?? []
   )
@@ -51,12 +59,13 @@ function modifiersOf(ts, node) {
 
 /**
  * Unwraps `x as const` / `x satisfies T` down to the underlying expression.
- * @param {any} ts the TypeScript module handed to the hook
- * @param {any} node the expression node
- * @returns {any} the unwrapped expression
+ * @param {TypeScript} ts the TypeScript module handed to the hook
+ * @param {TypeScriptInstance.Expression} node the expression node
+ * @returns {TypeScriptInstance.Expression} the unwrapped expression
  */
 function unwrap(ts, node) {
   let current = node
+
   while (
     current &&
     (ts.isAsExpression?.(current) ||
@@ -76,10 +85,10 @@ function unwrap(ts, node) {
  * const props = { variant: 'primary' }
  * class Foo extends WebComponent { static props = props }
  * ```
- * @param {any} ts the TypeScript module handed to the hook
- * @param {any} node any node in the source file
+ * @param {TypeScript} ts the TypeScript module handed to the hook
+ * @param {TypeScriptInstance.Node} node any node in the source file
  * @param {string} name the identifier to resolve
- * @returns {any} the object literal, or undefined
+ * @returns {TypeScriptInstance.ObjectLiteralExpression | undefined} the object literal, or undefined
  */
 function resolveObjectLiteral(ts, node, name) {
   for (const statement of node.getSourceFile()?.statements ?? []) {
@@ -97,11 +106,14 @@ function resolveObjectLiteral(ts, node, name) {
 /**
  * Finds the object literal behind a class's `static props`, whether it is
  * written inline or hoisted into a module-level const.
- * @param {any} ts the TypeScript module handed to the hook
- * @param {any} node the class declaration node
- * @returns {any} the object literal, or undefined
+ * @param {TypeScript} ts the TypeScript module handed to the hook
+ * @param {TypeScriptInstance.ClassDeclaration} node the class declaration node
+ * @returns {TypeScriptInstance.ObjectLiteralExpression | undefined} the object literal, or undefined
  */
 function findStaticProps(ts, node) {
+  /**
+   * @type {TypeScriptInstance.PropertyDeclaration & { initializer: TypeScriptInstance.Expression } | undefined }
+   */
   const declaration = node.members.find(
     (member) =>
       ts.isPropertyDeclaration(member) &&
@@ -123,8 +135,8 @@ function findStaticProps(ts, node) {
 /**
  * True when the class extends something named `WebComponent`. Used so wcb
  * components that declare no props still get their internals stripped.
- * @param {any} ts the TypeScript module handed to the hook
- * @param {any} node the class declaration node
+ * @param {TypeScript} ts the TypeScript module handed to the hook
+ * @param {TypeScriptInstance.ClassDeclaration} node the class declaration node
  * @returns {boolean} whether the class extends `WebComponent`
  */
 function extendsWebComponent(ts, node) {
@@ -136,6 +148,44 @@ function extendsWebComponent(ts, node) {
 }
 
 /**
+ * A CEM class member etnry
+ * @typedef {object} MemberDoc
+ * @property {string} name the member name
+ * @property {string} [kind] the member kind
+ * @property {string} [privacy] the member's visibility
+ * @property {{ text: string }} [type] the member's type
+ * @property {string} [default] the default value's source text
+ * @property {string} [attribute] the attribute this field reflects to
+ * @property {string} [description] the member's description
+ */
+
+/**
+ * A CEM attribute entry
+ * @typedef {object} AttributeDoc
+ * @property {string} name the kebab-cased attribute name
+ * @property {string} fieldName the camelCase prop it reflects
+ * @property {{ text: string }} type the attribute's type
+ * @property {string} [default] the default value's source text
+ */
+
+/**
+ * A CEM class declaration, narrowed to the fields this plugin mutates.
+ * @typedef {object} ClassDoc
+ * @property {string} kind the CEM declaration kind
+ * @property {string} name the class name, matched against the source class
+ * @property {MemberDoc[]} [members] the documented fields and methods
+ * @property {AttributeDoc[]} [attributes] the documented attributes
+ */
+
+/**
+ * The `analyzePhase` params
+ * @typedef {object} AnalyzePhaseParams
+ * @property {TypeScript} ts the TypeScript module handed to the hook
+ * @property {TypeScriptInstance.Node} node the current AST node
+ * @property {{ declarations?: ClassDoc[]}} moduleDoc the module's manifest so far
+ */
+
+/**
  * Teaches the CEM analyzer to read wcb's `static props`: every key becomes a
  * public field plus a reflected attribute, named with wcb's own
  * `getKebabCase` so manifest attribute names match `observedAttributes`
@@ -144,7 +194,7 @@ function extendsWebComponent(ts, node) {
  * // custom-elements-manifest.config.mjs
  * import { wcbStaticProps } from 'web-component-base/cem-plugin'
  * export default { globs: ['src/**\/*.js'], plugins: [wcbStaticProps()] }
- * @returns {{name: string, analyzePhase: (ctx: any) => void}} a CEM analyzer plugin
+ * @returns {{name: string, analyzePhase: (ctx: AnalyzePhaseParams) => void}} a CEM analyzer plugin
  */
 export function wcbStaticProps() {
   return {
