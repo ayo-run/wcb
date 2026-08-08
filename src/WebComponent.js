@@ -22,7 +22,7 @@ const validated = new WeakSet()
  */
 
 /**
- * One attribute change received in `onChanges`. The values are raw attribute strings the platform reported: a `number` prop is reported as `'5'`, and `null` means the attribute (previous) or removed (current).
+ * One attribute change received in `onChanges`. The values are raw attribute strings the platform reported: a `number` prop is reported as `'5'`, and `null` means the attribute was absent (previous) or removed (current).
  * @typedef {object} Changes
  * @property {string} property camelCase prop key
  * @property {string} attribute kebab-case attribute name that changed
@@ -177,7 +177,7 @@ export class WebComponent extends HTMLElement {
    * Returning **`null` removes the attribute** — that is how a `false` boolean
    * becomes an absent attribute, and it works for any prop.
    * @param {string} name camelCase prop key, matching `static props`
-   * @param {any} value the prop value being reflected
+   * @param {unknown} value the prop value being reflected
    * @returns {string | null} the attribute value, or `null` to remove it
    */
   toAttribute(name, value) {
@@ -331,7 +331,7 @@ export class WebComponent extends HTMLElement {
    * boolean an *absent* attribute, so host code can use `toggleAttribute()`
    * and `:host([flag])` matches only when the prop is actually true.
    * @param {string} camelCase the prop key
-   * @param {any} value the value to reflect
+   * @param {unknown} value the value to reflect
    */
   #reflect(camelCase, value) {
     const kebab = getKebabCase(camelCase)
