@@ -4,6 +4,8 @@ slug: getting-started
 description: Scaffold a component with npm create wcb, or install web-component-base and write your first reactive custom element by hand.
 ---
 
+import { Aside } from '@astrojs/starlight/components'
+
 **Web Component Base (WCB)** is a zero-dependency, tiny JS base class for creating reactive [custom elements](https://developer.mozilla.org/en-US/docs/Web/API/Web_Components/Using_custom_elements).
 
 When you extend the WebComponent class for your custom element, you only have to define the template and properties. Any change in an observed property's value will automatically cause the component UI to render.
@@ -21,10 +23,14 @@ npm create wcb@latest
 
 It sets up a publishable custom element, ready to develop:
 
-- **A starter component** in TypeScript using the [`static props`](/prop-access/) convention. The class, tag, and file names are derived from your project name (`my-button` → `MyButton` / `<my-button>`), so there are no rename-me TODOs
-- **A Vite setup**: a dev server with a demo page, plus a library build (`npm run build:lib`) that emits ESM + UMD bundles and `.d.ts` types, with `web-component-base` as a peerDependency
-- **`custom-elements.json` generation**: the CEM analyzer configured with wcb's plugin, an `npm run analyze` script, the `customElements` field in `package.json`, and a `prepack` hook so the manifest ships inside the published package
-
+- **A starter component** in TypeScript. The class, tag, and file names are generated from your project name (`my-button` → `MyButton` / `<my-button>`)
+- **A dev server setup**: a Vite project with a demo page, plus a library build (`npm run build:lib`) that emits ESM + UMD bundles and `.d.ts` types
+- **Automated manifest generation for tooling integrations**:
+    - the CEM analyzer configured with wcb's plugins
+    - an `npm run analyze` script,
+    - the `customElements` field in `package.json`,
+    - and a `prepack` hook so the manifest ships inside the published package.
+    
 Run the demo page to see the starter component render:
 
 ```bash
@@ -38,6 +44,10 @@ Vite prints a local URL. Open it to see `<my-button>` rendered on the demo page.
 See the [CEM Analyzer Plugin guide](/cem-plugin/) for more details on the manifest and how to use it with Storybook and code editors.
 
 Prefer starting on GitHub? The [`ayo-run/web-component`](https://github.com/ayo-run/web-component) template repository serves the same purpose via "Use this template".
+
+<Aside type="tip" title="You will find generated files collected inside a `.wcb` directory">
+    All generated output files, including the custom elements manifest and code editor autocomplete integrations (VS Code custom-data files and a JetBrains web-types file), lands in a gitignored `.wcb` directory.
+</Aside>
 
 ## Install via npm
 

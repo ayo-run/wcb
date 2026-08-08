@@ -53,7 +53,7 @@
     "build": "pnpm run clean && tsc && pnpm run copy:source",
     "size-limit": "pnpm run build && size-limit",
     "clean": "rm -rf dist",
-    "copy:source": "esbuild --minify --bundle ./src/*.js ./src/utils/* --outdir=\"./dist\" --format=\"esm\"",
+    "copy:source": "esbuild --minify --bundle --external:node:* ./src/*.js ./src/utils/* --outdir=\"./dist\" --format=\"esm\"",
     "release": "bumpp && node ./scripts/release.js",
     "release:docs": "node ./scripts/release-docs.js",
     "format": "prettier . --write",

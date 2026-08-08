@@ -15,10 +15,7 @@ npm create wcb@latest
 
 ## What you get
 
-- A custom element built on wcb's `static props` convention, written in
-  TypeScript — the class, tag, and file names are stamped from your project
-  name (`my-button` → `MyButton` / `<my-button>`), so there are no rename-me
-  TODOs
+- A custom element written in TypeScript — the class, tag, and file names generated from your project name (`my-button` → `MyButton` / `<my-button>`),
 - A Vite setup patterned on the
   [`ayo-run/web-component`](https://github.com/ayo-run/web-component)
   template: `npm run dev` serves the demo page, `npm run build:lib` produces
@@ -33,10 +30,12 @@ npm create wcb@latest
   - the `customElements` field set in `package.json`, which is how Storybook,
     editors, and other tooling discover the manifest
   - the manifest ships inside the published package: `prepack` rebuilds
-    `dist/` and regenerates `custom-elements.json`, and both are in `files`
+    `dist/` and regenerates `.wcb/custom-elements.json`, and both are in `files`
 
-The manifest is one shared `custom-elements.json` per package — the file every
-tool expects — regenerated on demand and gitignored in the repo.
+The manifest is one shared `.wcb/custom-elements.json` per package — the file
+every tool expects — regenerated on demand. All generated output (the manifest,
+VS Code custom-data files, and a JetBrains `web-types.json`) lives in a
+gitignored `.wcb/` folder; the manifest and web-types ship via `files`.
 
 ## Options
 

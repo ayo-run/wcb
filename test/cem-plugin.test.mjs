@@ -1,7 +1,17 @@
+import fs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
+import process from 'node:process'
 import { createRequire } from 'node:module'
 import { describe, expect, it } from 'vitest'
 import { create } from '@custom-elements-manifest/analyzer/src/create.js'
-import { distPaths, wcbStaticProps } from '../src/cem-plugin.js'
+import {
+  distPaths,
+  wcbStaticProps,
+  wcbVsCodePlugin,
+  wcbJetBrainsPlugin,
+  wcbPluginSet,
+} from '../src/cem-plugin.js'
 import { getKebabCase } from '../src/utils/index.js'
 
 // The analyzer resolves its own `typescript`, which may be a different version
@@ -338,5 +348,299 @@ describe('cem-plugin: distPaths', () => {
       expect(doc.mixins[0].module).toBe('dist/mix.js')
       expect(doc.mixins[1].module).toBe('src/v.ts')
     })
+  })
+})
+
+/**
+ * Runs the real analyzer over `source` with `wcbStaticProps` + `wcbVsCodePlugin`
+ * installed, writing custom-data into a fresh temp dir, and returns the parsed
+ * files — the same path `cem analyze` takes, including serialization.
+ * @param {string} source component source to analyze
+ * @param {object} [options] options forwarded to `wcbVsCodePlugin`
+ * @returns {{html: any, css: any, dir: string}} the parsed files and their dir
+ */
+function generateCustomData(source, options = {}) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'wcb-cd-'))
+  create({
+    modules: [
+      ts.createSourceFile(
+        'cozy-button.ts',
+        source,
+        ts.ScriptTarget.ES2015,
+        true
+      ),
+    ],
+    plugins: [wcbStaticProps(), wcbVsCodePlugin({ ...options, outdir: dir })],
+    context: { dev: false, thirdPartyCEMs: [] },
+  })
+  const read = (file) => {
+    const filePath = path.join(dir, file)
+    return fs.existsSync(filePath)
+      ? JSON.parse(fs.readFileSync(filePath, 'utf8'))
+      : undefined
+  }
+  return {
+    html: read('html-custom-data.json'),
+    css: read('css-custom-data.json'),
+    dir,
+  }
+}
+
+describe('cem-plugin: wcbVsCodePlugin', () => {
+  it('emits a tag with attributes from static props', () => {
+    const { html } = generateCustomData(COZY_BUTTON)
+    expect(html.version).toBe(1.1)
+    const tag = html.tags.find((t) => t.name === 'cozy-button')
+    expect(tag).toBeTruthy()
+    expect(tag.attributes.map((a) => a.name)).toEqual(
+      expect.arrayContaining(['variant', 'disabled', 'max-count'])
+    )
+  })
+
+  it('omits references entirely when a component has none (no [null])', () => {
+    const { html } = generateCustomData(COZY_BUTTON)
+    const tag = html.tags.find((t) => t.name === 'cozy-button')
+    expect('references' in tag).toBe(false)
+    // guard the exact regression: no null anywhere in the serialized output
+    expect(JSON.stringify(html)).not.toContain('null')
+  })
+
+  it('includes only well-formed @reference tags', () => {
+    const source = `
+      import { WebComponent, html } from 'web-component-base'
+      /**
+       * @reference MDN - https://developer.mozilla.org/
+       * @reference this one is malformed and has no url
+       */
+      export class CozyButton extends WebComponent {
+        static props = { variant: 'primary' }
+        get template() { return html\`<button></button>\` }
+      }
+      customElements.define('cozy-button', CozyButton)
+    `
+    const { html } = generateCustomData(source)
+    const tag = html.tags.find((t) => t.name === 'cozy-button')
+    expect(tag.references).toEqual([
+      { name: 'MDN', url: 'https://developer.mozilla.org/' },
+    ])
+  })
+
+  it('writes a css custom-data file with parts as pseudo-elements', () => {
+    const source = `
+      import { WebComponent, html } from 'web-component-base'
+      /**
+       * @cssproperty [--accent=blue] - the accent color
+       * @csspart label - the button label
+       */
+      export class CozyButton extends WebComponent {
+        static props = { variant: 'primary' }
+        get template() { return html\`<button></button>\` }
+      }
+      customElements.define('cozy-button', CozyButton)
+    `
+    const { css } = generateCustomData(source)
+    expect(css.version).toBe(1.1)
+    expect(css.properties.map((p) => p.name)).toContain('--accent')
+    expect(css.pseudoElements.map((p) => p.name)).toContain('::part(label)')
+  })
+
+  it('skips a file when its name is null', () => {
+    const { html, css } = generateCustomData(COZY_BUTTON, { cssFileName: null })
+    expect(html).toBeTruthy()
+    expect(css).toBeUndefined()
+  })
+})
+
+/**
+ * Runs the real analyzer over `source` with `wcbStaticProps` + `wcbJetBrainsPlugin`
+ * installed, writing into a fresh temp dir, and returns the parsed
+ * `web-types.json` — the same path `cem analyze` takes.
+ * @param {string} source component source to analyze
+ * @param {object} [options] options forwarded to `wcbJetBrainsPlugin`
+ * @returns {any} the parsed web-types file, or undefined
+ */
+function generateWebTypes(source, options = {}) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'wcb-wt-'))
+  create({
+    modules: [
+      ts.createSourceFile(
+        'cozy-button.ts',
+        source,
+        ts.ScriptTarget.ES2015,
+        true
+      ),
+    ],
+    plugins: [
+      wcbStaticProps(),
+      // packageJson: false so these unit runs don't rewrite the repo's own
+      // package.json (cwd here is the repo root); a dedicated test below
+      // covers the field writing in an isolated working directory.
+      wcbJetBrainsPlugin({ packageJson: false, ...options, outdir: dir }),
+    ],
+    context: { dev: false, thirdPartyCEMs: [] },
+  })
+  const filePath = path.join(dir, options.fileName ?? 'web-types.json')
+  return fs.existsSync(filePath)
+    ? JSON.parse(fs.readFileSync(filePath, 'utf8'))
+    : undefined
+}
+
+describe('cem-plugin: wcbJetBrainsPlugin', () => {
+  it('emits a schema-valid web-types shell', () => {
+    const wt = generateWebTypes(COZY_BUTTON, { name: 'cozy', version: '2.0.0' })
+    expect(wt.$schema).toBe('http://json.schemastore.org/web-types')
+    expect(wt.name).toBe('cozy')
+    expect(wt.version).toBe('2.0.0')
+    expect(wt['description-markup']).toBe('markdown')
+    expect(Array.isArray(wt.contributions.html.elements)).toBe(true)
+  })
+
+  it('contributes one element per custom element with its attributes', () => {
+    const wt = generateWebTypes(COZY_BUTTON)
+    const el = wt.contributions.html.elements.find(
+      (e) => e.name === 'cozy-button'
+    )
+    expect(el).toBeTruthy()
+    expect(el.attributes.map((a) => a.name)).toEqual(
+      expect.arrayContaining(['variant', 'disabled', 'max-count'])
+    )
+  })
+
+  it('maps boolean attributes to no-value and carries string defaults', () => {
+    const wt = generateWebTypes(COZY_BUTTON)
+    const el = wt.contributions.html.elements.find(
+      (e) => e.name === 'cozy-button'
+    )
+    const disabled = el.attributes.find((a) => a.name === 'disabled')
+    const variant = el.attributes.find((a) => a.name === 'variant')
+    expect(disabled.value).toEqual({ kind: 'no-value', type: 'boolean' })
+    expect(variant.value).toEqual({
+      kind: 'plain',
+      type: 'string',
+      default: 'primary',
+    })
+    expect(variant.default).toBe('primary') // unquoted from the manifest literal
+  })
+
+  it('mirrors props as js.properties (camelCase names)', () => {
+    const wt = generateWebTypes(COZY_BUTTON)
+    const el = wt.contributions.html.elements.find(
+      (e) => e.name === 'cozy-button'
+    )
+    expect(el.js.properties.map((p) => p.name)).toEqual(
+      expect.arrayContaining(['variant', 'disabled', 'maxCount'])
+    )
+  })
+
+  it('skips generation when fileName is null', () => {
+    expect(generateWebTypes(COZY_BUTTON, { fileName: null })).toBeUndefined()
+  })
+
+  // Runs from an isolated working directory: the plugin writes the `web-types`
+  // field into the package.json of `process.cwd()`, so the test chdirs into a
+  // temp package to avoid touching the repo's own package.json.
+  it('points the package.json web-types field at the generated file', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'wcb-pkg-'))
+    const cwd = process.cwd()
+    fs.writeFileSync(
+      path.join(dir, 'package.json'),
+      JSON.stringify({ name: 'iso', version: '1.0.0' }) + '\n'
+    )
+    try {
+      process.chdir(dir)
+      create({
+        modules: [
+          ts.createSourceFile(
+            'cozy-button.ts',
+            COZY_BUTTON,
+            ts.ScriptTarget.ES2015,
+            true
+          ),
+        ],
+        plugins: [wcbStaticProps(), wcbJetBrainsPlugin({ outdir: '.wcb' })],
+        context: { dev: false, thirdPartyCEMs: [] },
+      })
+      const pkg = JSON.parse(
+        fs.readFileSync(path.join(dir, 'package.json'), 'utf8')
+      )
+      expect(pkg['web-types']).toBe('.wcb/web-types.json')
+    } finally {
+      process.chdir(cwd)
+    }
+  })
+
+  it('leaves package.json untouched when packageJson is false', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'wcb-pkg-'))
+    const cwd = process.cwd()
+    fs.writeFileSync(
+      path.join(dir, 'package.json'),
+      JSON.stringify({ name: 'iso', version: '1.0.0' }) + '\n'
+    )
+    try {
+      process.chdir(dir)
+      create({
+        modules: [
+          ts.createSourceFile(
+            'c.ts',
+            COZY_BUTTON,
+            ts.ScriptTarget.ES2015,
+            true
+          ),
+        ],
+        plugins: [wcbJetBrainsPlugin({ outdir: '.wcb', packageJson: false })],
+        context: { dev: false, thirdPartyCEMs: [] },
+      })
+      const pkg = JSON.parse(
+        fs.readFileSync(path.join(dir, 'package.json'), 'utf8')
+      )
+      expect('web-types' in pkg).toBe(false)
+    } finally {
+      process.chdir(cwd)
+    }
+  })
+})
+
+describe('cem-plugin: wcbPluginSet', () => {
+  it('returns every plugin in analyzer order', () => {
+    expect(wcbPluginSet().map((p) => p.name)).toEqual([
+      'wcb-static-props',
+      'wcb-dist-paths',
+      'wcb-vs-code-plugin',
+      'wcb-jet-brains-plugin',
+    ])
+  })
+
+  it('spreads into a config and forwards per-plugin options', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'wcb-full-'))
+    create({
+      modules: [
+        ts.createSourceFile(
+          'cozy-button.ts',
+          COZY_BUTTON,
+          ts.ScriptTarget.ES2015,
+          true
+        ),
+      ],
+      plugins: [
+        ...wcbPluginSet({
+          vsCode: { outdir: dir, cssFileName: null },
+          jetBrains: {
+            outdir: dir,
+            name: 'cozy',
+            version: '9.0.0',
+            packageJson: false,
+          },
+          distPaths: { outDir: 'build' },
+        }),
+      ],
+      context: { dev: false, thirdPartyCEMs: [] },
+    })
+    const read = (f) => JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'))
+    // vsCode honored cssFileName: null
+    expect(fs.existsSync(path.join(dir, 'html-custom-data.json'))).toBe(true)
+    expect(fs.existsSync(path.join(dir, 'css-custom-data.json'))).toBe(false)
+    // jetBrains honored name/version overrides
+    expect(read('web-types.json').name).toBe('cozy')
+    expect(read('web-types.json').version).toBe('9.0.0')
   })
 })

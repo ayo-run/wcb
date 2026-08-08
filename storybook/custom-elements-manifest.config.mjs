@@ -12,8 +12,7 @@
 // names collide both in `customElements.define` and in the manifest lookup.
 // Keep this list to one definition per tag.
 
-import { wcbStaticProps } from 'web-component-base/cem-plugin'
-import { generateCustomData } from 'cem-plugin-vs-code-custom-data-generator'
+import { wcbStaticProps, wcbVsCodePlugin } from 'web-component-base/cem-plugin'
 
 export default {
   globs: [
@@ -25,17 +24,18 @@ export default {
     '../demo/examples/on-changes/index.js',
     '../demo/examples/demo/BooleanPropTest.mjs',
   ],
-  outdir: '.',
+  // The manifest lands in `storybook/.wcb/`, keeping generated output out of
+  // the storybook root (preview.js imports it from there).
+  outdir: '.wcb',
   plugins: [
     wcbStaticProps(),
-    // Emits vscode.html-custom-data.json, giving VS Code tag + attribute
-    // completion in .html files. `outdir` points at the repo root because
+    // Emits html-custom-data.json into the repo-root `.wcb/`, because
     // `html.customData` in .vscode/settings.json resolves from the workspace
     // root, not from the settings file.
     //
     // `cssFileName: null` turns off the companion CSS custom data file: it is
-    // built from `@cssprop` / `@csspart` JSDoc tags, which none of these
-    // components declare, so it only ever came out empty.
-    generateCustomData({ outdir: '..', cssFileName: null }),
+    // built from `@cssproperty` / `@csspart` JSDoc tags, which none of these
+    // components declare, so it only ever comes out empty.
+    wcbVsCodePlugin({ outdir: '../.wcb', cssFileName: null }),
   ],
 }
