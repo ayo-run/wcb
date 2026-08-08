@@ -99,8 +99,17 @@ export class WebComponent extends HTMLElement {
   static styles
 
   /**
-   * Read-only string property that represents how the component will be rendered
-   * @returns {string | any}
+   * The template to render
+   * @typedef {string | import('./html.js').VNode | import('./html.js').VNode[] | undefined} TemplateNode a template that can be rendered
+   */
+
+  /**
+   * Read-only string property that represents how the component will be rendered:
+   * - a string of HTML
+   * - a vnode tree from `html`
+   * - an array of vnodes; or
+   * - undefined for `` html`` `` to render nothing
+   * @returns {TemplateNode} the template to render
    * @see https://webcomponent.io/template-vs-render/
    */
   get template() {
