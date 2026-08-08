@@ -1,7 +1,15 @@
 import { serialize } from './serialize.mjs'
+
 /**
- *
- * @param tree
+ * @import { VNode, VNodeChild } from '../html.js'
+ */
+
+/**
+ * Builds real DOM from a vnode tree: an array becomes a `DocumentFragment`, a
+ * primitive becomes a text node, and anything with a `type` becomes an element
+ * with its props applied and its children built recursively.
+ * @param {Exclude<VNodeChild, null | undefined>} tree the vnode, children array, or primitive to build
+ * @returns {Element | DocumentFragment | Text} the built node
  */
 export function createElement(tree) {
   if (!tree.type) {
@@ -37,7 +45,7 @@ export function createElement(tree) {
  * props by exactly the same rule as a freshly created one.
  * @param {Element} el the element to apply the prop to
  * @param {string} prop the prop name as written in the vnode
- * @param {any} value the prop value
+ * @param {unknown} value the prop value
  */
 export function applyProp(el, prop, value) {
   const domProp = prop.toLowerCase()
@@ -58,9 +66,11 @@ export function applyProp(el, prop, value) {
 }
 
 /**
- *
- * @param el
- * @param styleObj
+ * Applies a vnode `style` object rule by rule, skipping rules the element does
+ * not own and falsy values — so `{ fontStyle: condition && 'italic' }` sets
+ * nothing when the condition is false.
+ * @param {Element} el the element to style
+ * @param {Record<string, unknown>} styleObj the vnode `style` prop value
  */
 function applyStyles(el, styleObj) {
   Object.entries(styleObj).forEach(([rule, value]) => {
