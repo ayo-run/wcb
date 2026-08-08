@@ -18,7 +18,7 @@ import { getKebabCase } from './utils/index.js'
 
 /**
  * @typedef {typeof import('typescript')} TypeScript
- * @typedef {import('typescript')} TypeScriptInstance
+ * @import * as TypeScriptInstance from 'typescript'
  */
 
 /** wcb statics that are implementation detail, not public API. */
