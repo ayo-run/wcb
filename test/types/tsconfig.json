@@ -6,7 +6,7 @@
     "lib": ["ES2022", "DOM"],
     "strict": true,
     "noEmit": true,
-    "skipLibCheck": true
+    "skipLibCheck": false
   },
   "include": ["./*.ts"]
 }
