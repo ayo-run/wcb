@@ -2,6 +2,7 @@
 **/*.html
 
 **/*.md
+**/*.mdx
 **/*.css
 **/*.yml
 **/*.yaml
