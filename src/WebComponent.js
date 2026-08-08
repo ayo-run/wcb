@@ -17,6 +17,11 @@ import {
 const validated = new WeakSet()
 
 /**
+ * The template to render
+ * @typedef {string | import('./html.js').VNode | import('./html.js').VNode[] | undefined} TemplateNode
+ */
+
+/**
  * Returns a fresh defaults object for a component: plain data is deep-copied
  * per key so instances never share object/array defaults, while non-cloneable
  * values (functions, class instances) are kept by reference instead of
@@ -97,11 +102,6 @@ export class WebComponent extends HTMLElement {
    * @type {string | CSSStyleSheet | Array<string | CSSStyleSheet>}
    */
   static styles
-
-  /**
-   * The template to render
-   * @typedef {string | import('./html.js').VNode | import('./html.js').VNode[] | undefined} TemplateNode a template that can be rendered
-   */
 
   /**
    * Read-only string property that represents how the component will be rendered:
