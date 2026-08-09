@@ -96,8 +96,8 @@ importers:
         version: link:..
     devDependencies:
       '@elenajs/core':
-        specifier: 1.0.0
-        version: 1.0.0
+        specifier: 1.0.1
+        version: 1.0.1
       '@microsoft/fast-element':
         specifier: 3.0.1
         version: 3.0.1
@@ -284,8 +284,8 @@ packages:
     resolution: {integrity: sha512-Y6+WUMsTFWE5jb20IFP4YGa5IrGY/+a/FbOSjDF/wz9gepU2hwCYSXRHP/vPwBvwcY3SVMASt4yXxbXNXigmZQ==}
     engines: {node: '>=18'}
 
-  '@elenajs/core@1.0.0':
-    resolution: {integrity: sha512-YOlSv7qpvVVrzlVYoyx7s1c8cBML0b5Q8WhxXaNeO3Awd2iNcf9HcJKDWuOi9KT53F7L8K9uQNLCzyb7EVxlpw==}
+  '@elenajs/core@1.0.1':
+    resolution: {integrity: sha512-GJhqGUg+yQ8BPVnZ8hx3icgwfS8yNp7Vd2atfE8WjaQVdeXGpm+SSTV9yBEcMdNgPF3Z9WeXNxES0KcEi15mIA==}
 
   '@emnapi/core@1.11.2':
     resolution: {integrity: sha512-TC8MkTuZUtcTSiFeuC0ksCh9QIJ5+F21MvZ4Wn4ORfYaFJ/0dsiudv5tVkejgwZlwQ39jL9WWDe2lz8x0WglOA==}
@@ -3328,6 +3328,7 @@ packages:
   cron-parser@4.9.0:
     resolution: {integrity: sha512-p0SaNjrHOnQeR8/VnfGbmg9te2kfyYSQ7Sc/j/6DtPL3JQvKxmjO9TSjNFpujqV3vEYYBvNNvXSxzyksBWAx1Q==}
     engines: {node: '>=12.0.0'}
+    deprecated: v4 is no longer maintained, upgrade to v5
 
   cross-spawn@5.1.0:
     resolution: {integrity: sha512-pTgQJ5KC0d2hcY8eyL1IzlBPYjTkyH72XRZPnLyKus2mBfNjQs3klqbJU2VILqZryAZUt9JOb3h/mWMy23/f5A==}
@@ -7920,7 +7921,7 @@ snapshots:
       gonzales-pe: 4.3.0
       node-source-walk: 7.0.1
 
-  '@elenajs/core@1.0.0': {}
+  '@elenajs/core@1.0.1': {}
 
   '@emnapi/core@1.11.2':
     dependencies:
