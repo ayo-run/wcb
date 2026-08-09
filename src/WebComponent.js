@@ -12,13 +12,16 @@ import { createElement, patchChildren } from './utils/index.js'
  */
 
 /**
- * A minimal base class to reduce the complexity of creating reactive custom elements
+ * A minimal custom element base class with declarative templating, rendering life cycle hooks, and composable styling
  * ```ts
- * class CozyButton extends WebComponent{
+ * class HelloWorld extends WebComponent{
  *    static shadowRootInit = { mode: 'open' }
  *    static styles = 'h1 { color: blue }'
+ *    onInit() {
+ *      this.name = 'World'
+ *    }
  *    get template() {
- *      return '<h1>Hello World!</h1>'
+ *      return html`<h1>Hello ${this.name}!</h1>`
  *    }
  * }
  * ```
@@ -90,55 +93,12 @@ export class WebComponent extends HTMLElement {
     if (this.constructor.shadowRootInit) {
       this.#host = this.attachShadow(this.constructor.shadowRootInit)
     }
-    // adoption appends, so it happens once per instance here rather than per
-    // render — otherwise every re-render (and every switch between template
-    // kinds) would stack another copy of each sheet
-    this.#applyStyles()
-  }
-
-  render() {
-    const template = this.template
-
-    if (template && typeof template === 'object') {
-      if (JSON.stringify(this.#prevDOM) !== JSON.stringify(template)) {
-        if (!this.#prevDOM) {
-          /**
-           * first render: create element
-           * - resolve prop values
-           * - attach event listeners
-           */
-          // a multi-root template comes back as a DocumentFragment, which
-          // replaceChildren splices in — so one call covers both shapes
-          this.#host.replaceChildren(createElement(template))
-        } else {
-          // re-render: reconcile in place so focus, caret/selection, an
-          // uncommitted <input> value, :hover and running transitions survive
-          patchChildren(this.#host, this.#prevDOM, template)
-        }
-        this.#prevDOM = template
-      }
-    } else {
-      // string templates render into #host like vnode ones do, so they
-      // respect the shadow root instead of writing over consumer-slotted
-      // light-DOM children. `html``` — the natural way to render nothing —
-      // yields undefined rather than a vnode, so it lands here too: both it
-      // and '' empty the rendered subtree. Dropping the vnode bookkeeping
-      // makes the next vnode render start fresh instead of patching against
-      // a tree that is no longer on screen.
-      this.#prevDOM = undefined
-      this.#host.innerHTML = template ?? ''
-    }
-  }
-
-  #applyStyles() {
-    const styles = this.constructor.styles
-    if (styles !== undefined)
+    // APPLY STYLES
+    if (this.constructor.styles !== undefined)
       try {
-        // one sheet or many, in declaration order — a design system can put a
-        // shared tokens sheet first and component styles after it
         this.#host.adoptedStyleSheets = [
           ...this.#host.adoptedStyleSheets,
-          ...[styles].flat().map((s) => {
+          ...[this.constructor.styles].flat().map((s) => {
             if (typeof s != 'string') return s
             const sheet = new CSSStyleSheet()
             sheet.replaceSync(s)
@@ -151,5 +111,37 @@ export class WebComponent extends HTMLElement {
           e
         )
       }
+  }
+
+  render() {
+    if (this.template && typeof template === 'object') {
+      if (JSON.stringify(this.#prevDOM) !== JSON.stringify(this.template)) {
+        if (!this.#prevDOM) {
+          /**
+           * first render: create element
+           * - resolve prop values
+           * - attach event listeners
+           */
+          // a multi-root template comes back as a DocumentFragment, which
+          // replaceChildren splices in — so one call covers both shapes
+          this.#host.replaceChildren(createElement(this.template))
+        } else {
+          // re-render: reconcile in place so focus, caret/selection, an
+          // uncommitted <input> value, :hover and running transitions survive
+          patchChildren(this.#host, this.#prevDOM, this.template)
+        }
+        this.#prevDOM = this.template
+      }
+    } else {
+      // string templates render into #host like vnode ones do, so they
+      // respect the shadow root instead of writing over consumer-slotted
+      // light-DOM children. `html``` — the natural way to render nothing —
+      // yields undefined rather than a vnode, so it lands here too: both it
+      // and '' empty the rendered subtree. Dropping the vnode bookkeeping
+      // makes the next vnode render start fresh instead of patching against
+      // a tree that is no longer on screen.
+      this.#prevDOM = undefined
+      this.#host.innerHTML = this.template ?? ''
+    }
   }
 }
