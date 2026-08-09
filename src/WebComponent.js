@@ -4,17 +4,7 @@
  * https://opensource.org/licenses/MIT
  */
 
-import {
-  createElement,
-  getKebabCase,
-  getCamelCase,
-  serialize,
-  deserialize,
-  patchChildren,
-} from './utils/index.js'
-
-/** Component classes whose defaults have been validated (once per class). */
-const validated = new WeakSet()
+import { createElement, patchChildren } from './utils/index.js'
 
 /**
  * The template to render
@@ -22,89 +12,21 @@ const validated = new WeakSet()
  */
 
 /**
- * One attribute change received in `onChanges`. The values are raw attribute strings the platform reported: a `number` prop is reported as `'5'`, and `null` means the attribute was absent (previous) or removed (current).
- * @typedef {object} Changes
- * @property {string} property camelCase prop key
- * @property {string} attribute kebab-case attribute name that changed
- * @property {string | null} previousValue attribute value before the change
- * @property {string | null} currentValue attribute value after the change
- */
-
-/**
- * Returns a fresh defaults object for a component: plain data is deep-copied
- * per key so instances never share object/array defaults, while non-cloneable
- * values (functions, class instances) are kept by reference instead of
- * throwing `DataCloneError`. On the first call per class it also warns (once)
- * about types that can't reflect to an attribute — those belong in
- * handlers/refs, not reflected props.
- * @param {typeof WebComponent} ctor the component constructor
- * @returns {object} a fresh defaults object
- */
-function cloneDefaults(ctor) {
-  const check = !validated.has(ctor)
-  if (check) validated.add(ctor)
-  const out = {}
-  for (const key in ctor.props) {
-    const value = ctor.props[key]
-    const type = typeof value
-    // a true boolean default is discouraged: HTML has no true-default boolean
-    // attribute, so absence has to mean both "false" and "default", which only
-    // holds when they coincide. A way to work with this is to invert the name (`disabled`, not `enabled`) when you need a default.
-    if (check) {
-      const bad =
-        type === 'function' || type === 'symbol'
-          ? `${type} default not reflectable; use handlers/refs.`
-          : value === true &&
-            'boolean default should be false; invert the name.'
-      if (bad) console.warn(`${ctor.name}.${key}: ${bad}`)
-    }
-    try {
-      out[key] = structuredClone(value)
-    } catch {
-      out[key] = value
-    }
-  }
-  return out
-}
-
-/* eslint-disable jsdoc/reject-any-type */
-/**
- * Blueprint for the Proxy props
- * @typedef {{[name: string]: any}} PropStringMap
- */
-/* eslint-enable jsdoc/reject-any-type */
-
-/**
  * A minimal base class to reduce the complexity of creating reactive custom elements
- *
- * Pass the shape of your `static props` as a type argument to get typed
- * `this.props` access in TypeScript:
  * ```ts
- * const props = { variant: 'primary', enabled: true }
- * class CozyButton extends WebComponent<typeof props> {
- *   static props = props
+ * class CozyButton extends WebComponent{
+ *    static shadowRootInit = { mode: 'open' }
+ *    static styles = 'h1 { color: blue }'
+ *    get template() {
+ *      return '<h1>Hello World!</h1>'
+ *    }
  * }
  * ```
- * @template {PropStringMap} [Props=PropStringMap]
  * @see https://webcomponent.io
- * @see https://webcomponent.io/prop-access/
  */
 export class WebComponent extends HTMLElement {
   #host
   #prevDOM
-  #props
-  #typeMap = {}
-  #reflected = false
-  #connected = false
-  #reflecting
-
-  /**
-   * Declared props and their defaults. The value types of this object drive
-   * both the runtime type guard and — when passed as the class type argument
-   * — the compile-time type of `this.props`.
-   * @type {PropStringMap}
-   */
-  static props
 
   /**
    * CSS adopted into the shadow root as constructable stylesheet(s). An array
@@ -134,22 +56,6 @@ export class WebComponent extends HTMLElement {
   static shadowRootInit
 
   /**
-   * When `true`, a declared-type violation on a prop write throws a
-   * `TypeError` instead of logging via `console.error` and skipping.
-   * @type {boolean}
-   */
-  static strictProps
-
-  /**
-   * Read-only property containing camelCase counterparts of observed attributes.
-   * @see https://webcomponent.io/prop-access/
-   * @returns {Props} the proxied props object
-   */
-  get props() {
-    return this.#props
-  }
-
-  /**
    * Triggered after view is initialized
    */
   afterViewInit() {}
@@ -164,94 +70,13 @@ export class WebComponent extends HTMLElement {
    */
   onDestroy() {}
 
-  /**
-   * Triggered when an attribute value changes
-   * @param {Changes} changes what changed, as raw attribute values
-   */
-  // eslint-disable-next-line no-unused-vars -- overrideable by subclass
-  onChanges(changes) {}
-
-  /**
-   * Converts a prop value into the attribute value that reflects it. Override
-   * to customize serialization for a prop; call `super.toAttribute(...)` for
-   * the ones you don't handle.
-   *
-   * Returning **`null` removes the attribute** — that is how a `false` boolean
-   * becomes an absent attribute, and it works for any prop.
-   * @param {string} name camelCase prop key, matching `static props`
-   * @param {unknown} value the prop value being reflected
-   * @returns {string | null} the attribute value, or `null` to remove it
-   */
-  toAttribute(name, value) {
-    // declared type wins, so a boolean prop set to null/undefined still
-    // removes its attribute; undeclared props fall back to the value's type
-    return (this.#typeMap[name] ?? typeof value) === 'boolean'
-      ? value
-        ? ''
-        : null
-      : serialize(value)
-  }
-
-  /* eslint-disable jsdoc/reject-any-type */
-  /**
-   * Converts an attribute value into the prop value it represents — the
-   * inverse of `toAttribute`. Override to customize parsing for a prop; call
-   * `super.fromAttribute(...)` for the ones you don't handle.
-   *
-   * Only called for attributes that are *present*: removal is handled by the
-   * declared-default reset (and, for boolean props, always yields `false`).
-   * @param {string} name camelCase prop key, matching `static props`
-   * @param {string} value the attribute value, never `null`
-   * @returns {any} the value to store on `this.props[name]`
-   */
-  /* eslint-enable jsdoc/reject-any-type */
-  fromAttribute(name, value) {
-    const type = this.#typeMap[name]
-    if (type === 'boolean') {
-      // a literal "true"/"false" written to a boolean attribute is almost
-      // always the pre-v6 `setAttribute(name, String(bool))` idiom — which now
-      // silently means true. Make the inversion loud instead of silent.
-      if (/^(true|false)$/.test(value)) {
-        const attr = getKebabCase(name)
-        console.warn(
-          `${attr}="${value}" is true; use toggleAttribute("${attr}", ${value}).`
-        )
-      }
-      return true
-    }
-    if (type && type !== 'string')
-      // typed props deserialize; a malformed value falls back to the raw
-      // string so render()/onChanges() are never skipped
-      try {
-        return deserialize(value, type)
-      } catch {
-        return value
-      }
-    // strings (and untyped props) stay as-is; '' stays ''
-    return value
-  }
-
   constructor() {
     super()
-    this.#initializeProps()
     this.#initializeHost()
   }
 
-  static get observedAttributes() {
-    const propKeys = this.props
-      ? Object.keys(this.props).map((camelCase) => getKebabCase(camelCase))
-      : []
-
-    return propKeys
-  }
-
   connectedCallback() {
-    this.#reflectDefaults()
     this.onInit()
-    // Attribute-driven render/onChanges are buffered until here, so onInit
-    // always runs before the first render — even when the platform fires
-    // attributeChangedCallback before connect for authored attributes.
-    this.#connected = true
     this.render()
     this.afterViewInit()
   }
@@ -260,112 +85,6 @@ export class WebComponent extends HTMLElement {
     this.onDestroy()
   }
 
-  attributeChangedCallback(attribute, previousValue, currentValue) {
-    if (previousValue === currentValue) return
-
-    const property = getCamelCase(attribute)
-    // when this change *is* our own reflection of a prop write, the prop is
-    // already the source of truth: parsing the attribute back would undo a
-    // `toAttribute` that removes the attribute (the default-reset below would
-    // clobber the value) and would round-trip lossy conversions through their
-    // string form. Still fall through to render/onChanges.
-    if (this.#reflecting !== attribute) {
-      const next =
-        currentValue === null
-          ? // boolean props follow HTML: absence *is* false, never the declared
-            // default. Other props reset to the declared default (or undefined).
-            this.#typeMap[property] === 'boolean'
-            ? false
-            : this.constructor.props?.[property]
-          : this.fromAttribute(property, currentValue)
-
-      // write through the proxy; item 25 makes this log-not-throw by default
-      // (prop value is always applied so `props` stays current)
-      this.props[property] = next
-    }
-
-    // defer the render/onChanges side effects until after onInit
-    if (!this.#connected) return
-    this.render()
-    this.onChanges({ property, attribute, previousValue, currentValue })
-  }
-
-  #handler(setter, meta) {
-    const typeMap = meta.#typeMap
-
-    return {
-      set(obj, prop, value) {
-        // Types come from `static props` defaults only; undeclared props are
-        // untyped. A declared-type violation is logged and skipped rather
-        // than thrown, so a stray write can't halt render()/onChanges().
-        // Opt into `static strictProps = true` to restore throwing.
-        const declared = typeMap[prop]
-
-        if (declared && declared !== typeof value && value != null) {
-          const msg = `${meta.constructor.name}: cannot assign ${typeof value} to ${declared} prop "${prop}"`
-          if (meta.constructor.strictProps) throw TypeError(msg)
-          console.error(msg)
-        } else if (obj[prop] !== value) {
-          obj[prop] = value
-          setter(prop, value)
-        }
-
-        return true
-      },
-      get(obj, prop) {
-        return obj[prop]
-      },
-    }
-  }
-
-  #initializeProps() {
-    let initialProps = cloneDefaults(this.constructor)
-    Object.keys(initialProps).forEach((camelCase) => {
-      this.#typeMap[camelCase] = typeof initialProps[camelCase]
-    })
-    this.#props = new Proxy(
-      initialProps,
-      this.#handler((key, value) => this.#reflect(key, value), this)
-    )
-  }
-
-  /**
-   * Reflects one prop value onto its attribute via `toAttribute`, where a
-   * `null` return means the attribute is removed. That is what makes a `false`
-   * boolean an *absent* attribute, so host code can use `toggleAttribute()`
-   * and `:host([flag])` matches only when the prop is actually true.
-   * @param {string} camelCase the prop key
-   * @param {unknown} value the value to reflect
-   */
-  #reflect(camelCase, value) {
-    const kebab = getKebabCase(camelCase)
-    const attr = this.toAttribute(camelCase, value)
-    // tracked per attribute name, not as a plain flag: the platform can run
-    // another attribute's callback inside this one's reaction window, and a
-    // shared flag would swallow that unrelated parse
-    const previous = this.#reflecting
-    this.#reflecting = kebab
-    try {
-      if (attr === null) this.removeAttribute(kebab)
-      else this.setAttribute(kebab, attr)
-    } finally {
-      this.#reflecting = previous
-    }
-  }
-
-  /**
-   * Reflects default prop values onto attributes on first connect.
-   * Runs outside the constructor (spec forbids attribute mutation there)
-   * and skips any attribute already set by markup/SSR/user so those win.
-   */
-  #reflectDefaults() {
-    if (this.#reflected) return
-    Object.keys(this.#props).forEach((camelCase) => {
-      if (!this.hasAttribute(getKebabCase(camelCase)))
-        this.#reflect(camelCase, this.#props[camelCase])
-    })
-    this.#reflected = true
-  }
   #initializeHost() {
     this.#host = this
     if (this.constructor.shadowRootInit) {
