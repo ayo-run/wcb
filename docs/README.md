@@ -48,7 +48,14 @@ A page's route comes from its `slug` frontmatter, not its path. Adding a page to
 
 ## Deploying
 
-`pnpm release:docs` (from the repo root) force-syncs `main` onto the `docs-release` branch of the `gh` remote. Netlify builds the site from that branch, so production only redeploys when this is run — not on every push to `main`. The script warns if local `main` differs from `gh/main`, since that commit is what ships. It pushes a single ref and never checks anything out, so a dirty working tree or another checked-out branch is fine.
+Netlify builds the site from **the maintenance branch of the current stable major** — `v6` today, and whatever branch is cut for the next major once it takes over `latest`. Merging documentation work to that branch and pushing it is the whole deploy: no script to run, no tag to cut, nothing to publish.
+
+Tracking the current major rather than `main` is deliberate. `main` tracks the _next_ major (currently a `7.0.0-beta`), so a site built from it would document behavior that no released version has. Two things follow, and neither is visible from inside this repo:
+
+- **The branch has to be switched when a new major takes over `latest`.** That setting lives in the Netlify UI, and there is no `netlify.toml`, so nothing here will remind you — the site will keep serving the old major's docs indefinitely and look perfectly healthy doing it.
+- **Documentation has to be merged forward into the next major's line before that switch**, or the site loses it. `main` and `v6` drift in both directions: guides land on whichever line needed them first, so neither branch is a superset of the other.
+
+Docs must not be tied to `release`. That branch only moves when a stable version publishes to npm's `latest`, so a documentation fix would need a library release to reach production.
 
 `pnpm -F docs deploy` publishes an already-built `docs/dist/` straight to Netlify (needs `NETLIFY_SITE_ID`), bypassing the branch entirely — useful for a one-off, not the normal path.
 

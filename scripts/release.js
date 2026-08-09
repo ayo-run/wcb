@@ -5,9 +5,10 @@
 // actually publishes to npm — and force-syncs the `release` branch to whatever
 // is now on npm's `latest`.
 //
-// `release` means "the commit behind the current `latest`". Netlify builds from
-// it, so it must never point at anything a consumer of `npm i
-// web-component-base` would not get.
+// `release` means "the commit behind the current `latest`": the marker for what
+// someone running `npm i web-component-base` actually has. It must never point
+// at anything they would not get. (The docs site builds from `v6`, not from
+// here — see docs/README.md.)
 //
 // Three rules follow from that, plus `main` tracking the next major while the
 // current major ships from its own maintenance line:

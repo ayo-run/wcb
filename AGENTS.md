@@ -59,6 +59,26 @@ Any change to observable behavior ships as one unit — code alone is an incompl
 
 Verify with `pnpm test:all` (unit + types + template + e2e across all engines) before calling the change done.
 
+## Branches
+
+`main` tracks the **next** major (currently a `7.0.0-beta`). The current stable major ships from its own maintenance line — `v6` today — and that branch is also what Netlify builds the documentation site from, so it is the branch a reader sees.
+
+Maintenance work flows in one direction:
+
+```
+feat/x ──cut from v6──▶ v6 ──merge──▶ main
+```
+
+Cut the branch from `v6`, merge it back to `v6`, then merge `v6` into `main` with `chore: sync latest 'v6'`. Merge rather than cherry-pick: git keeps the merge base, which is what stops later syncs from replaying the same conflicts. Sync promptly after each merge to `v6` — the gap is where conflicts come from.
+
+Three things this shape implies:
+
+- **Never merge `main` into `v6`.** The symmetry is tempting and it would drag next-major code into the line that ships as `latest`. Cherry-pick if `v6` genuinely needs one specific commit.
+- **Version-neutral documentation belongs on `v6`, not `main`.** Netlify serves `v6`, so a guide written on `main` is invisible to readers until the next major ships — it is merged, correct, and unpublished. Only write docs on `main` when they describe next-major behavior that would mislead a reader on the current release.
+- **Check `package.json` after every sync.** A `v6` release bumps `v6`'s version, and merging that into `main` overwrites `main`'s — `d1d3e0f` pulled `6.2.0` onto `main` and needed `6b1c7cc` to re-version it. Resolve in `main`'s favor. It only conflicts visibly when *both* sides moved since the last sync; if `main`'s version has sat still, git takes `v6`'s silently.
+
+When the next major becomes `latest`, it gets a maintenance branch of its own and Netlify moves to it — see `docs/README.md`, and merge documentation forward *before* the switch, since neither branch is a superset of the other.
+
 ## Testing notes
 
 - Environment is **happy-dom** (set in `vitest.config.mjs`), so real custom-element registration works. Any component under test must be registered with `customElements.define(...)` before instantiation, or the browser throws.
