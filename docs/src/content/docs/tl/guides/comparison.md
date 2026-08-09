@@ -16,33 +16,33 @@ Tingnan ito nang live: [Library comparison demo ↗](https://demo.webcomponent.i
 
 | Library                   | Version | Minified | Gzip    | Brotli     |
 | ------------------------- | ------- | -------- | ------- | ---------- |
-| **web-component-base**    | 6.1.4   | 6.6 kB   | 2.9 kB  | **2.6 kB** |
-| `@elenajs/core`           | 1.0.0   | 9.1 kB   | 3.7 kB  | 3.4 kB     |
+| **web-component-base**    | 6.2.0   | 6.6 kB   | 2.9 kB  | **2.6 kB** |
+| `@elenajs/core`           | 1.0.1   | 9.1 kB   | 3.7 kB  | 3.4 kB     |
 | `lit`                     | 3.3.3   | 15.3 kB  | 5.9 kB  | 5.3 kB     |
 | `@microsoft/fast-element` | 3.0.1   | 44.8 kB  | 13.6 kB | 12.2 kB    |
 | vanilla `HTMLElement`     | -       | 0.6 kB   | 0.3 kB  | 0.2 kB     |
 
-Para sa iskala: kahit pagkatapos ng lahat ng gawain mula v5.2–v6.1, ang WCB counter ay **humigit-kumulang 23% na mas maliit kaysa sa Elena, 52% na mas maliit kaysa sa Lit, at 79% na mas maliit kaysa sa FAST**.
+Para sa iskala: kahit pagkatapos ng lahat ng gawain mula v5.2–v6.2, ang WCB counter ay **humigit-kumulang 23% na mas maliit kaysa sa Elena, 52% na mas maliit kaysa sa Lit, at 79% na mas maliit kaysa sa FAST**.
 
 ## Paghahambing ng mga feature
 
 Ano ang ibinibigay sa iyo ng bawat library kaysa sa direktang pagpalawig mula sa `HTMLElement`, ang boilerplate na hindi mo na kailangang isulat nang manu-mano:
 
-| Kakayahan                        | WCB 6.1                                                            | Lit 3.3                                                  | Elena 1.0                               | FAST 3.0                                         |
+| Kakayahan                        | WCB 6.2                                                            | Lit 3.3                                                  | Elena 1.0                               | FAST 3.0                                         |
 | --------------------------------- | ------------------------------------------------------------------ | -------------------------------------------------------- | ---------------------------------------- | ------------------------------------------------ |
 | Declarative templates             | ✅ `html` tagged templates (htm) o plain strings                   | ✅ `lit-html` tagged templates                           | ✅ `html` tagged templates              | ✅ typed templates na may binding expressions    |
 | Reactive props ⇄ attributes       | ✅ `static props`, overrideable converters                         | ✅ `static properties` na may converters                 | ✅ `static props`, opt-in reflection    | ✅ `@attr` / observables                         |
 | Estratehiya sa pag-update         | In-place patch (index-based, non-keyed)                            | Part-based: ang naapektuhang bindings lang ang na-a-update, keyed `repeat` | Batched re-renders            | Fine-grained observable bindings, keyed `repeat` |
-| Nagpapanatili ng DOM state sa re-render | ✅ mula v5.2                                                  | ✅                                                       | ✅                                      | ✅                                               |
+| Nagpapanatili ng DOM state sa re-render | ✅                                                            | ✅                                                       | ✅                                      | ✅                                               |
 | Update batching / scheduling      | ⚠️ nagre-render sa bawat prop write                                 | ✅ async batched, `updateComplete`                       | ✅ batched, `updateComplete`            | ✅ queued/batched                                |
-| Keyed list reconciliation         | ⚠️ positional                                                       | ✅ `repeat` directive                                    | ❌                                      | ✅ `repeat` na may recycling controls            |
+| Keyed list reconciliation         | ⚠️ positional                                                       | ✅ `repeat` directive                                    | ⚠️ positional morph                     | ✅ `repeat` na may recycling controls            |
 | Light DOM bilang default          | ✅ (shadow DOM opt-in sa pamamagitan ng `static shadowRootInit`)    | ❌ shadow DOM bilang default                             | ✅ (shadow opt-in)                      | ❌ shadow DOM bilang default                     |
-| Scoped styles                     | ✅ `static styles` + constructable stylesheets (kailangan ng shadow root) | ✅ shadow-scoped CSS                               | ✅ scoped nang walang shadow DOM        | ✅ shadow-scoped + design tokens                 |
-| SSR / kwento ng hydration         | ✅ attribute-driven na state na nagre-render mula sa kahit anong server | ✅ `@lit-labs/ssr` + hydration                     | ✅ server-rendered markup + hydration utilities | ⚠️ experimental na SSR                    |
+| Scoped styles                     | ⚠️ kailangan ng `static styles` ang shadow opt-in sa pamamagitan ng `static shadowRootInit` | ✅ shadow-scoped CSS (shadow DOM ang default) | ✅ light DOM sa pamamagitan ng ginawang `@scope` CSS files (CLI); kailangan pa rin ng `static styles` ang shadow opt-in | ✅ shadow-scoped + design tokens (shadow ang default) |
+| SSR / kwento ng hydration         | ⚠️ typed na prop state mula sa attributes — kahit anong server, walang JS runtime sa server; nagre-re-render ang client | ⚠️ `@lit-labs/ssr` + hydration (labs = prerelease) | ⚠️ experimental na alpha; nagre-re-render ang client | ⚠️ experimental na SSR                    |
 | Gumagana nang walang build tooling | ✅ import mula sa CDN, walang compiler                             | ✅ (posible ang buildless, ang decorators ay kailangan ng tooling) | ✅                              | ⚠️ praktikal na may tooling                      |
 | Editor/IDE tooling                | ✅ typed props + [CEM analyzer plugin](/tl/cem-plugin/)                | ✅ malawak (analyzer, TS decorators, IDE plugins)        | ✅ CEM-focused                          | ✅ TS-first                                      |
 | Lifecycle hooks                   | `onInit`, `afterViewInit`, `onChanges`, `onDestroy`                 | kumpletong reactive update lifecycle                     | `willUpdate`, `firstUpdated`, `updated` | kumpletong lifecycle + behaviors                 |
-| Suporta / ecosystem               | iisang maintainer, maliit na surface                                | OpenJS Foundation (idinonate ng Google noong 2025), malaking ecosystem | bago (2026), iisang may-akda | Microsoft, pinapatakbo ang Fluent UI             |
+| Suporta / ecosystem               | iisang maintainer, sadyang maliit na surface sa iisang package      | OpenJS Foundation (idinonate ng Google noong 2025), malaking ecosystem | bago (2026), iisang may-akda | Microsoft, pinapatakbo ang Fluent UI             |
 
 :::note[Bakit wala rito ang 11ty WebC]
 Ang WebC ay isang compile-time tool: nire-resolve nito ang mga component habang naka-build ang Eleventy at naglalabas ng plain HTML na walang client runtime. Ang bawat row sa itaas ay tungkol sa ginagawa ng isang library _sa browser habang tumatakbo_, kaya ang isang side-by-side na paghahambing ay parang sinusukat ang dalawang magkaibang bagay. Kung static ang iyong mga component sa build time, ibang problema ang sinasagot ng WebC.
@@ -50,6 +50,12 @@ Ang WebC ay isang compile-time tool: nire-resolve nito ang mga component habang 
 
 Para sa kung ano ang kabuluhan ng mga numero at kakayahang ito (at kung kailan hindi), tingnan ang [Bakit gagamitin ninuman ang WCB?](/tl/why/).
 
+## Paghahambing ng SSR / hydration story
+
+Tatlo sa apat na SSR cell ay sinisipi ang **sariling deklarasyon ng stability** ng bawat package. Ang `@lit-labs/ssr` ang pinakamature: kahit na buhat pa noong 2021 ay dala nito ang pre-release notice ng Lit Labs ("maaaring magkaroon ng breaking changes o tumigil sa pagkakasuporta"), nasa major version 4 na ito, aktibong naglalabas ng release, at pinapatakbo ang isang minementenang Eleventy integration. Ang `@elenajs/ssr` ay alpha at malinaw na sinasabi ito. Tinatawag din ng FAST na experimental ang sarili nitong SSR.
+
+Walang SSR package ang WCB, kaya iba ang ibig sabihin ng ⚠️ nito kumpara sa tatlong iba. Gumagana na ang kalahating tungkol sa state: bawat na-declare na prop ay nag-i-initialize mula sa mga attribute na isinulat ng server, na-parse ayon sa na-declare nitong type, mula sa kahit anong server na kayang mag-print ng HTML. Hindi pa gumagana ang kalahating tungkol sa DOM — pinapalitan ng unang client render ang markup ng server sa halip na sakupin ito, kaya pang-unang-paint lang ang server HTML. Pareho ang ginagawa ng `@elenajs/core` at ng WCB dito: pinapalitan ng unang client render ng isang dynamic na component ang markup ng server sa halip na sakupin ito.
+
 ---
 
-_Muling sinukat ang WCB noong 2026-07-24 gamit ang v6.1.4; ang ibang mga library ay sinukat noong 2026-07-19, gamit ang esbuild, Node zlib (gzip −9, brotli q11), sa mga naka-pin na version sa itaas. Metodolohiya: parehong counter component sa bawat library, naka-bundle bawat library, naka-compress. Patakbuhin mo ulit ito sa sarili mo — ang mga counter at ang [`measure.mjs`](https://demo.webcomponent.io/examples/library-comparison/) script ay nasa demo workspace (`demo/examples/library-comparison/`). Ang benchmark na ito ay madaling ma-reproduce gamit ang mga version na naka-pin sa itaas._
+_Lahat ng library ay sinukat noong 2026-08-09 (ang WCB sa v6.2.0), gamit ang esbuild, Node zlib (gzip −9, brotli q11), sa mga naka-pin na version sa itaas. Metodolohiya: parehong counter component sa bawat library, naka-bundle bawat library, naka-compress. Patakbuhin mo ulit ito sa sarili mo — ang mga counter at ang [`measure.mjs`](https://demo.webcomponent.io/examples/library-comparison/) script ay nasa demo workspace (`demo/examples/library-comparison/`). Ang benchmark na ito ay madaling ma-reproduce gamit ang mga version na naka-pin sa itaas._

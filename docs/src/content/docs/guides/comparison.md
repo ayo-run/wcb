@@ -16,33 +16,33 @@ See it live: [Library comparison demo ↗](https://demo.webcomponent.io/examples
 
 | Library                   | Version | Minified | Gzip    | Brotli     |
 | ------------------------- | ------- | -------- | ------- | ---------- |
-| **web-component-base**    | 6.1.4   | 6.6 kB   | 2.9 kB  | **2.6 kB** |
-| `@elenajs/core`           | 1.0.0   | 9.1 kB   | 3.7 kB  | 3.4 kB     |
+| **web-component-base**    | 6.2.0   | 6.6 kB   | 2.9 kB  | **2.6 kB** |
+| `@elenajs/core`           | 1.0.1   | 9.1 kB   | 3.7 kB  | 3.4 kB     |
 | `lit`                     | 3.3.3   | 15.3 kB  | 5.9 kB  | 5.3 kB     |
 | `@microsoft/fast-element` | 3.0.1   | 44.8 kB  | 13.6 kB | 12.2 kB    |
 | vanilla `HTMLElement`     | -       | 0.6 kB   | 0.3 kB  | 0.2 kB     |
 
-For scale: even after all of the v5.2–v6.1 work, the WCB counter is **~23% smaller than Elena, ~52% smaller than Lit, and ~79% smaller than FAST**.
+For scale: even after all of the v5.2–v6.2 work, the WCB counter is **~23% smaller than Elena, ~52% smaller than Lit, and ~79% smaller than FAST**.
 
 ## Feature comparison
 
 What each library gives you beyond extending directly from `HTMLElement`, the boilerplate you no longer write by hand:
 
-| Capability                       | WCB 6.1                                                            | Lit 3.3                                                  | Elena 1.0                               | FAST 3.0                                         |
-| -------------------------------- | ------------------------------------------------------------------ | -------------------------------------------------------- | --------------------------------------- | ------------------------------------------------ |
-| Declarative templates            | ✅ `html` tagged templates (htm) or plain strings                  | ✅ `lit-html` tagged templates                           | ✅ `html` tagged templates              | ✅ typed templates with binding expressions      |
-| Reactive props ⇄ attributes      | ✅ `static props`, overrideable converters                         | ✅ `static properties` with converters                   | ✅ `static props`, opt-in reflection    | ✅ `@attr` / observables                         |
-| Update strategy                  | In-place patch (index-based, non-keyed)                            | Part-based: only touched bindings update, keyed `repeat` | Batched re-renders                      | Fine-grained observable bindings, keyed `repeat` |
-| Preserves DOM state on re-render | ✅ since v5.2                                                      | ✅                                                       | ✅                                      | ✅                                               |
-| Update batching / scheduling     | ⚠️ renders per prop write                                          | ✅ async batched, `updateComplete`                       | ✅ batched, `updateComplete`            | ✅ queued/batched                                |
-| Keyed list reconciliation        | ⚠️ positional                                                      | ✅ `repeat` directive                                    | ❌                                      | ✅ `repeat` with recycling controls              |
-| Light DOM by default             | ✅ (shadow DOM opt-in via `static shadowRootInit`)                 | ❌ shadow DOM by default                                 | ✅ (shadow opt-in)                      | ❌ shadow DOM by default                         |
-| Scoped styles                    | ✅ `static styles` + constructable stylesheets (needs shadow root) | ✅ shadow-scoped CSS                                     | ✅ scoped without shadow DOM            | ✅ shadow-scoped + design tokens                 |
-| SSR / hydration story            | ✅ attribute-driven state renders from any server                  | ✅ `@lit-labs/ssr` + hydration                           | ✅ server-rendered markup + hydration utilities | ⚠️ experimental SSR                              |
-| Works with zero build tooling    | ✅ import from CDN, no compiler                                    | ✅ (buildless possible, decorators need tooling)         | ✅                                      | ⚠️ practical with tooling                        |
-| Editor/IDE tooling               | ✅ typed props + [CEM analyzer plugin](/cem-plugin/)               | ✅ extensive (analyzer, TS decorators, IDE plugins)      | ✅ CEM-focused                          | ✅ TS-first                                      |
-| Lifecycle hooks                  | `onInit`, `afterViewInit`, `onChanges`, `onDestroy`                | full reactive update lifecycle                           | `willUpdate`, `firstUpdated`, `updated` | full lifecycle + behaviors                       |
-| Backing / ecosystem              | solo maintainer, small surface                                     | OpenJS Foundation (donated by Google 2025), large ecosystem | new (2026), solo-authored         | Microsoft, powers Fluent UI                      |
+| Capability                       | WCB 6.2                                                                            | Lit 3.3                                                     | Elena 1.0                                                                            | FAST 3.0                                           |
+| -------------------------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------ | -------------------------------------------------- |
+| Declarative templates            | ✅ `html` tagged templates (htm) or plain strings                                  | ✅ `lit-html` tagged templates                              | ✅ `html` tagged templates                                                           | ✅ typed templates with binding expressions        |
+| Reactive props ⇄ attributes      | ✅ `static props`, overrideable converters                                         | ✅ `static properties` with converters                      | ✅ `static props`, opt-in reflection                                                 | ✅ `@attr` / observables                           |
+| Update strategy                  | In-place patch (index-based, non-keyed)                                            | Part-based: only touched bindings update, keyed `repeat`    | Batched re-renders                                                                   | Fine-grained observable bindings, keyed `repeat`   |
+| Preserves DOM state on re-render | ✅                                                                                 | ✅                                                          | ✅                                                                                   | ✅                                                 |
+| Update batching / scheduling     | ⚠️ renders per prop write                                                          | ✅ async batched, `updateComplete`                          | ✅ batched, `updateComplete`                                                         | ✅ queued/batched                                  |
+| Keyed list reconciliation        | ⚠️ positional                                                                      | ✅ `repeat` directive                                       | ⚠️ positional morph                                                                  | ✅ `repeat` with recycling controls                |
+| Light DOM by default             | ✅ (shadow DOM opt-in via `static shadowRootInit`)                                 | ❌ shadow DOM by default                                    | ✅ (shadow opt-in)                                                                   | ❌ shadow DOM by default                           |
+| Scoped styles                    | ⚠️ `static styles` needs shadow opt-in via `static shadowRootInit`                 | ✅ shadow-scoped CSS (shadow DOM is the default)            | ✅ light DOM via generated `@scope` CSS files (CLI); `static styles` needs shadow opt-in | ✅ shadow-scoped + design tokens (shadow default)  |
+| SSR / hydration story            | ⚠️ typed prop state from attributes — any server, no server-side JS; client re-renders | ⚠️ `@lit-labs/ssr` + hydration (labs = prerelease)      | ⚠️ experimental alpha; client re-renders                                             | ⚠️ experimental SSR                                |
+| Works with zero build tooling    | ✅ import from CDN, no compiler                                                    | ✅ (buildless possible, decorators need tooling)            | ✅                                                                                   | ⚠️ practical with tooling                          |
+| Editor/IDE tooling               | ✅ typed props + [CEM analyzer plugin](/cem-plugin/)                               | ✅ extensive (analyzer, TS decorators, IDE plugins)         | ✅ CEM-focused                                                                       | ✅ TS-first                                        |
+| Lifecycle hooks                  | `onInit`, `afterViewInit`, `onChanges`, `onDestroy`                                | full reactive update lifecycle                              | `willUpdate`, `firstUpdated`, `updated`                                              | full lifecycle + behaviors                         |
+| Backing / ecosystem              | solo maintainer, intentionally small surface in one package                                                   | OpenJS Foundation (donated by Google 2025), large ecosystem | new (2026), solo-authored                                                            | Microsoft, powers Fluent UI                        |
 
 :::note[Why 11ty WebC isn't here]
 WebC is a compile-time tool: it resolves components during an Eleventy build and ships plain HTML with no client runtime. Every row above is about what a library does _in the browser at runtime_, so a side-by-side comparison would be measuring two different things. If your components are static at build time, WebC solves a different problem.
@@ -50,6 +50,21 @@ WebC is a compile-time tool: it resolves components during an Eleventy build and
 
 For what these numbers and capabilities add up to (and when they don't) see [Why would anyone use WCB?](/why/).
 
+## SSR / hydration story comparisons
+
+Three of the four SSR cells quote that package's **own stability designation**. `@lit-labs/ssr` is
+the most mature; though it has carried Lit Labs' pre-release notice ("may receive breaking changes or
+stop being supported") since 2021, it sits at major version 4, ships actively, and drives a
+maintained Eleventy integration. `@elenajs/ssr` is an alpha and says so, and FAST calls its own SSR
+experimental.
+
+WCB has no SSR package at all, so its ⚠️ means something different from the other three. The state
+half already works: every declared prop initializes from server-written attributes, parsed through
+its declared type, from any server that can print HTML. The DOM half does not — the first client
+render replaces the server markup rather than adopting it, so the server HTML is paint-only.
+`@elenajs/core` behaves the same way as WCB here: a dynamic component's first client render replaces
+the server markup rather than adopting it.
+
 ---
 
-_WCB re-measured 2026-07-24 at v6.1.4; the other libraries measured 2026-07-19, with esbuild, Node zlib (gzip −9, brotli q11), at the pinned versions above. Methodology: identical counter component per library, bundled per library, compressed. Re-run them yourself — the counters and the [`measure.mjs`](https://demo.webcomponent.io/examples/library-comparison/) script live in the demo workspace (`demo/examples/library-comparison/`). The benchmark is trivially reproducible with the versions pinned above._
+_All libraries measured 2026-08-09 — WCB at v6.2.0 — with esbuild, Node zlib (gzip −9, brotli q11), at the pinned versions above. Methodology: identical counter component per library, bundled per library, compressed. Re-run them yourself — the counters and the [`measure.mjs`](https://demo.webcomponent.io/examples/library-comparison/) script live in the demo workspace (`demo/examples/library-comparison/`). The benchmark is trivially reproducible with the versions pinned above._
