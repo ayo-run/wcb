@@ -1,7 +1,7 @@
 # Web Component Base
 
 > [!Note]
-> This is the `main` branch tracking v7 work. If you are looking for the published latest source check out v6 branch.
+> This is the branch tracking v7 work. If you are looking for the published `latest` on npm check out v6 branch.
 > The next major version brings an even tinier default with opt-in reactivity, faster templates wit caching, and more.
 
 ![counter example code snippet](https://git.ayo.run/ayo/wcb/raw/branch/main/assets/IMG_0682.png)
