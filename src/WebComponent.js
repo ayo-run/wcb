@@ -189,7 +189,9 @@ export class WebComponent extends HTMLElement {
       ? value
         ? ''
         : null
-      : serialize(value)
+      : value == null // nullish -> removes attribute
+        ? null
+        : serialize(value)
   }
 
   /* eslint-disable jsdoc/reject-any-type */
