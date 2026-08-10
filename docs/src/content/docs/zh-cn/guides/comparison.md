@@ -38,23 +38,22 @@ description: web-component-base、Lit、Elena 与 FAST 的实测打包体积和�
 | 带 key 的列表协调（reconciliation）| ⚠️ 基于位置                                                        | ✅ `repeat` 指令                                          | ⚠️ 基于位置的 morph                       | ✅ 带回收控制的 `repeat`                           |
 | 默认使用 Light DOM                | ✅（通过 `static shadowRootInit` 可选启用 Shadow DOM）              | ❌ 默认 Shadow DOM                                        | ✅（Shadow 可选启用）                    | ❌ 默认 Shadow DOM                                 |
 | 样式作用域                        | ⚠️ `static styles` 需通过 `static shadowRootInit` 选择启用 Shadow    | ✅ Shadow 作用域 CSS（默认即 Shadow DOM）                  | ✅ 通过生成的 `@scope` CSS 文件（CLI）支持 Light DOM；`static styles` 本身仍需选择启用 Shadow | ✅ Shadow 作用域 + 设计令牌（默认即 Shadow）        |
-| SSR / 水合方案                    | ⚠️ 从属性还原类型化的 prop 状态 — 服务端无需 JS 运行时；但客户端会重新渲染 | ⚠️ `@lit-labs/ssr` + 水合（labs = 预发布）                 | ⚠️ 实验性 alpha；客户端会重新渲染         | ⚠️ 实验性 SSR                                      |
+| 服务端渲染                        | ⚠️ 没有 SSR 包；类型化的 prop 状态从服务端写出的属性初始化（任意服务端，无需服务端 JS） | ✅ `@lit-labs/ssr`（带有 labs 预发布声明）                  | ⚠️ `@elenajs/ssr` 为实验性 alpha          | ⚠️ `fast-ssr` 已废弃；后继包均未到 1.0              |
+| 水合服务端 DOM                    | ❌ 首次客户端渲染会替换服务端标记                                    | ✅                                                         | ❌ 动态组件在首次渲染时替换服务端标记      | ⚠️ 有 `defer-hydration`，但绑定在已废弃/未到 1.0 的技术栈上 |
 | 支持零构建工具链                  | ✅ 从 CDN 导入，无需编译器                                          | ✅（可无构建使用，装饰器需要工具链）                        | ✅                                       | ⚠️ 实际使用需要工具链                              |
 | 编辑器/IDE 工具支持               | ✅ 类型化 props + [CEM 分析器插件](/zh-cn/cem-plugin/)                    | ✅ 广泛支持（分析器、TS 装饰器、IDE 插件）                  | ✅ 以 CEM 为核心                         | ✅ TS 优先                                         |
 | 生命周期钩子                      | `onInit`、`afterViewInit`、`onChanges`、`onDestroy`                 | 完整的响应式更新生命周期                                    | `willUpdate`、`firstUpdated`、`updated` | 完整生命周期 + 行为（behaviors）                    |
-| 支持方/生态                       | 个人维护，刻意精简的 API，只有一个包                                | OpenJS 基金会（2025 年由 Google 捐赠），大型生态             | 新项目（2026 年），个人作者              | 微软，为 Fluent UI 提供支持                         |
+| 支持方/生态                       | 个人维护；单个包，精简的 API                                        | OpenJS 基金会（2025 年由 Google 捐赠），大型生态             | 新项目（2026 年），个人作者              | 微软，为 Fluent UI 提供支持                         |
+
+:::note[SSR 与水合]
+每个 SSR 单元格都引用了对应包自己声明的稳定性状态。`@lit-labs/ssr` 尽管挂着 labs 预发布声明，却是其中最成熟的——主版本号已到 4，且仍在持续发布。`@microsoft/fast-ssr` 已废弃，由 `@microsoft/fast-build` 和 `@microsoft/webui` 接替，但两者目前都还未到 1.0。WCB 根本没有 SSR 包：状态可以从服务端写出的属性初始化，但服务端 DOM 仅用于首屏绘制。
+:::
 
 :::note[为什么这里没有 11ty WebC]
 WebC 是一个编译时工具：它在 Eleventy 构建过程中解析组件，最终产出没有客户端运行时的纯 HTML。上表中的每一行讨论的都是一个库*在浏览器运行时*所做的事情，因此并排对比会是在比较两种不同的东西。如果你的组件在构建时是静态的，WebC 解决的是另一个问题。
 :::
 
 关于这些数字和能力最终意味着什么（以及什么时候不适用），参见 [为什么会有人使用 WCB？](/zh-cn/why/)。
-
-## SSR / 水合方案对比
-
-SSR 一行的四个单元格中，有三个直接引用了对应包**自己声明的稳定性状态**。`@lit-labs/ssr` 是其中最成熟的：尽管自 2021 年起它一直挂着 Lit Labs 的预发布声明（"可能引入破坏性变更或停止维护"），但它的主版本号已经到 4，仍在持续发布，并且支撑着一个有人维护的 Eleventy 集成。`@elenajs/ssr` 是 alpha 版本，并且明确这样标注。FAST 也把自己的 SSR 定位为实验性。
-
-WCB 根本没有 SSR 包，因此它的 ⚠️ 含义与另外三个不同。状态这一半已经可用：每一个声明过的 prop 都会从服务端写出的属性中、按其声明的类型完成初始化，任何能输出 HTML 的服务端都可以。但 DOM 这一半并不可用——首次客户端渲染会替换掉服务端的标记，而不是接管它，因此服务端 HTML 仅用于首屏绘制。`@elenajs/core` 在这一点上与 WCB 表现相同：动态组件的首次客户端渲染会替换掉服务端标记，而不是接管它。
 
 ---
 
