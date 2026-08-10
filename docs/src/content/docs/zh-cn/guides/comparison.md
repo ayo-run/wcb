@@ -17,7 +17,7 @@ description: web-component-base、Lit、Elena 与 FAST 的实测打包体积和�
 | 库                         | 版本    | 压缩前   | Gzip    | Brotli     |
 | -------------------------- | ------- | -------- | ------- | ---------- |
 | **web-component-base**     | 6.2.0   | 6.6 kB   | 2.9 kB  | **2.6 kB** |
-| `@elenajs/core`            | 1.0.1   | 9.1 kB   | 3.7 kB  | 3.4 kB     |
+| `@elenajs/core`            | 1.0.1   | 9.2 kB   | 3.7 kB  | 3.4 kB     |
 | `lit`                      | 3.3.3   | 15.3 kB  | 5.9 kB  | 5.3 kB     |
 | `@microsoft/fast-element`  | 3.0.1   | 44.8 kB  | 13.6 kB | 12.2 kB    |
 | 原生 `HTMLElement`         | -       | 0.6 kB   | 0.3 kB  | 0.2 kB     |
