@@ -38,23 +38,22 @@ Ano ang ibinibigay sa iyo ng bawat library kaysa sa direktang pagpalawig mula sa
 | Keyed list reconciliation         | ⚠️ positional                                                       | ✅ `repeat` directive                                    | ⚠️ positional morph                     | ✅ `repeat` na may recycling controls            |
 | Light DOM bilang default          | ✅ (shadow DOM opt-in sa pamamagitan ng `static shadowRootInit`)    | ❌ shadow DOM bilang default                             | ✅ (shadow opt-in)                      | ❌ shadow DOM bilang default                     |
 | Scoped styles                     | ⚠️ kailangan ng `static styles` ang shadow opt-in sa pamamagitan ng `static shadowRootInit` | ✅ shadow-scoped CSS (shadow DOM ang default) | ✅ light DOM sa pamamagitan ng ginawang `@scope` CSS files (CLI); kailangan pa rin ng `static styles` ang shadow opt-in | ✅ shadow-scoped + design tokens (shadow ang default) |
-| SSR / kwento ng hydration         | ⚠️ typed na prop state mula sa attributes — kahit anong server, walang JS runtime sa server; nagre-re-render ang client | ⚠️ `@lit-labs/ssr` + hydration (labs = prerelease) | ⚠️ experimental na alpha; nagre-re-render ang client | ⚠️ experimental na SSR                    |
+| Pag-render sa server              | ⚠️ walang SSR package; nag-i-initialize ang typed na prop state mula sa mga attribute na isinulat ng server (kahit anong server, walang JS sa server) | ✅ `@lit-labs/ssr` (may dalang labs prerelease notice)   | ⚠️ experimental na alpha ang `@elenajs/ssr` | ⚠️ deprecated ang `fast-ssr`; pre-1.0 ang mga kahalili |
+| Hine-hydrate ang server DOM       | ❌ pinapalitan ng unang client render ang markup ng server           | ✅                                                       | ❌ pinapalitan ng dynamic na component ang markup ng server sa unang render | ⚠️ may `defer-hydration`, pero nakatali sa deprecated/pre-1.0 na stack |
 | Gumagana nang walang build tooling | ✅ import mula sa CDN, walang compiler                             | ✅ (posible ang buildless, ang decorators ay kailangan ng tooling) | ✅                              | ⚠️ praktikal na may tooling                      |
 | Editor/IDE tooling                | ✅ typed props + [CEM analyzer plugin](/tl/cem-plugin/)                | ✅ malawak (analyzer, TS decorators, IDE plugins)        | ✅ CEM-focused                          | ✅ TS-first                                      |
 | Lifecycle hooks                   | `onInit`, `afterViewInit`, `onChanges`, `onDestroy`                 | kumpletong reactive update lifecycle                     | `willUpdate`, `firstUpdated`, `updated` | kumpletong lifecycle + behaviors                 |
-| Suporta / ecosystem               | iisang maintainer, sadyang maliit na surface sa iisang package      | OpenJS Foundation (idinonate ng Google noong 2025), malaking ecosystem | bago (2026), iisang may-akda | Microsoft, pinapatakbo ang Fluent UI             |
+| Suporta / ecosystem               | iisang maintainer; iisang package, maliit na surface                | OpenJS Foundation (idinonate ng Google noong 2025), malaking ecosystem | bago (2026), iisang may-akda | Microsoft, pinapatakbo ang Fluent UI             |
+
+:::note[SSR at hydration]
+Sinisipi ng bawat SSR cell ang sariling deklarasyon ng stability ng package na iyon. Ang `@lit-labs/ssr` ang pinakamature sa kabila ng labs prerelease notice nito — nasa major version 4 na ito at aktibong naglalabas ng release. Ang `@microsoft/fast-ssr` ay deprecated na, kapalit ang `@microsoft/fast-build` at `@microsoft/webui`, na parehong pre-1.0 sa ngayon. Walang SSR package ang WCB: nag-i-initialize ang state mula sa mga attribute na isinulat ng server, ngunit pang-unang-paint lang ang server DOM.
+:::
 
 :::note[Bakit wala rito ang 11ty WebC]
 Ang WebC ay isang compile-time tool: nire-resolve nito ang mga component habang naka-build ang Eleventy at naglalabas ng plain HTML na walang client runtime. Ang bawat row sa itaas ay tungkol sa ginagawa ng isang library _sa browser habang tumatakbo_, kaya ang isang side-by-side na paghahambing ay parang sinusukat ang dalawang magkaibang bagay. Kung static ang iyong mga component sa build time, ibang problema ang sinasagot ng WebC.
 :::
 
 Para sa kung ano ang kabuluhan ng mga numero at kakayahang ito (at kung kailan hindi), tingnan ang [Bakit gagamitin ninuman ang WCB?](/tl/why/).
-
-## Paghahambing ng SSR / hydration story
-
-Tatlo sa apat na SSR cell ay sinisipi ang **sariling deklarasyon ng stability** ng bawat package. Ang `@lit-labs/ssr` ang pinakamature: kahit na buhat pa noong 2021 ay dala nito ang pre-release notice ng Lit Labs ("maaaring magkaroon ng breaking changes o tumigil sa pagkakasuporta"), nasa major version 4 na ito, aktibong naglalabas ng release, at pinapatakbo ang isang minementenang Eleventy integration. Ang `@elenajs/ssr` ay alpha at malinaw na sinasabi ito. Tinatawag din ng FAST na experimental ang sarili nitong SSR.
-
-Walang SSR package ang WCB, kaya iba ang ibig sabihin ng ⚠️ nito kumpara sa tatlong iba. Gumagana na ang kalahating tungkol sa state: bawat na-declare na prop ay nag-i-initialize mula sa mga attribute na isinulat ng server, na-parse ayon sa na-declare nitong type, mula sa kahit anong server na kayang mag-print ng HTML. Hindi pa gumagana ang kalahating tungkol sa DOM — pinapalitan ng unang client render ang markup ng server sa halip na sakupin ito, kaya pang-unang-paint lang ang server HTML. Pareho ang ginagawa ng `@elenajs/core` at ng WCB dito: pinapalitan ng unang client render ng isang dynamic na component ang markup ng server sa halip na sakupin ito.
 
 ---
 
