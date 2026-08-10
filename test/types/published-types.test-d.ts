@@ -17,12 +17,16 @@ import {
   patchChildren,
   getKebabCase,
 } from '../../dist/utils/index.js'
-// NB: these live on the subpaths, not the root — `index.js` re-exports only
-// the two values, so `import type { TemplateNode } from 'web-component-base'`
-// does not resolve today. Pinning that here so a future re-export is a
-// deliberate change rather than an accident.
-import type { VNode } from '../../dist/html.js'
-import type { TemplateNode, Changes } from '../../dist/WebComponent.js'
+// The root re-exports these as types, so `import type { TemplateNode } from
+// 'web-component-base'` resolves — that is the import a subclass author will
+// reach for. They stay reachable from their defining subpaths too; both
+// spellings are pinned here so neither surface can drop out unnoticed.
+import type { TemplateNode, Changes, VNode } from '../../dist/index.js'
+import type { VNode as VNodeFromSubpath } from '../../dist/html.js'
+import type {
+  TemplateNode as TemplateNodeFromSubpath,
+  Changes as ChangesFromSubpath,
+} from '../../dist/WebComponent.js'
 
 // cem-plugin: the subpath whose declaration referenced an unresolved namespace
 const plugins = [
@@ -51,4 +55,12 @@ class Sample extends WebComponent<{ label: string }> {
   }
 }
 
-export { tree, node, attr, Sample }
+// the root aliases are the subpath types, not lookalikes declared twice
+declare const rootTemplateNode: TemplateNode
+declare const rootChanges: Changes
+declare const rootVNode: VNode
+const templateNode: TemplateNodeFromSubpath = rootTemplateNode
+const changes: ChangesFromSubpath = rootChanges
+const vnode: VNodeFromSubpath = rootVNode
+
+export { tree, node, attr, Sample, templateNode, changes, vnode }
