@@ -22,7 +22,10 @@ const validated = new WeakSet()
  */
 
 /**
- * One attribute change received in `onChanges`. The values are raw attribute strings the platform reported: a `number` prop is reported as `'5'`, and `null` means the attribute was absent (previous) or removed (current).
+ * One attribute change received in `onChanges`. The values are raw
+ * attribute strings the platform reported: a `number` prop is reported as
+ * `'5'`, and `null` means the attribute was absent (previous) or removed
+ * (current).
  * @typedef {object} Changes
  * @property {string} property camelCase prop key
  * @property {string} attribute kebab-case attribute name that changed
