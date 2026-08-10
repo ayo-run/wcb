@@ -5,7 +5,9 @@ export class HelloWorld extends WebComponent {
     myName: 'World',
   }
   get template() {
-    return html`<p>Hello ${this.props.myName}</p>`
+    return html`<p onclick=${() => (this.props.myName = undefined)}>
+      Hello ${this.props.myName}
+    </p>`
   }
 }
 
