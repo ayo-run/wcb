@@ -192,6 +192,11 @@ toAttribute(name, value) {
 }
 ```
 
+对于 `null` 和 `undefined`，默认转换会移除该属性。也就是说，
+`this.props.selected = undefined` 会移除 `selected`，而不是写入
+`selected="undefined"`。`static props` 中 nullish 的默认值不会反射出任何属性。
+在底层，wcb 能识别自身的反射，因此 prop 保持 nullish。
+
 #### 转换只在属性变化时触发
 
   当为 prop 赋值时，wcb **不会**通过 `fromAttribute` 反向检查和解析属性。

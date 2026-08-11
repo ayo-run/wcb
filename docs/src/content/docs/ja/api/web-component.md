@@ -194,6 +194,13 @@ toAttribute(name, value) {
 }
 ```
 
+デフォルトの変換は `null` と `undefined` に対して `null` を返します。したがってpropにどちらかを代入すると、`"null"` / `"undefined"` という文字列を書き込むのではなくattributeが**削除され**、nullishな `static props` のデフォルト値はattributeをまったく反映しません。propには代入した値がそのまま残ります。この削除はwcb自身の反映であるため、外部からの削除で起こる宣言デフォルト値へのリセットは発生しません。
+
+```js
+this.props.selected = undefined // <my-el> — attributeは消え、propは undefined
+this.props.selected = 'a' // <my-el selected="a">
+```
+
 ### `fromAttribute(name, value)`
 
 attribute値を、それが表すprop値に変換します。`toAttribute()` の逆です。

@@ -196,6 +196,12 @@ toAttribute(name, value) {
 }
 ```
 
+For `null` and `undefined`, the default conversion removes the attribute.
+That is, `this.props.selected = undefined` removes
+`selected` rather than writing `selected="undefined"`. A nullish default in
+`static props` reflects as no attribute at all. Under the hood, the prop
+stays nullish as WCB recognises its own reflection.
+
 #### Conversion is only triggered on attribute changes
 
   When assigning a value to a prop, wcb does **not** check and parse the

@@ -176,6 +176,8 @@ toAttribute(name, value) {
 }
 ```
 
+`null` と `undefined` の場合、デフォルトの変換はattributeを削除します。つまり `this.props.selected = undefined` は、`selected="undefined"` と書き込むのではなく `selected` を削除します。`static props` のnullishなデフォルト値は、attributeをまったく反映しません。内部的には、wcbが自身による反映を認識するため、propはnullishのままです。
+
 #### 変換はattributeの変更時にのみトリガーされる
 
   propに値を代入するとき、wcbは`fromAttribute` を通してattributeを逆にチェック・パースすることは**しません**。代入したpropはすでに正となる値であり、テキスト形式のattributeはそれよりも精度の低い表現になり得るからです。上記の例では、`props.when` はattributeが日付のみを持つ場合でも、完全なタイムスタンプを保持し続けます。`render()` と
