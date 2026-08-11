@@ -232,6 +232,19 @@ toAttribute(name, value) {
 }
 ```
 
+Ang default na conversion ay nagbabalik ng `null` para sa `null` at
+`undefined`, kaya ang pag-assign ng alinman sa isang prop ay **nagtatanggal**
+ng attribute nito sa halip na isulat ang tekstong `"null"` / `"undefined"`, at
+ang isang nullish na default sa `static props` ay walang naire-reflect na
+attribute. Nananatili sa prop ang value na in-assign mo: ang pagtanggal na ito
+ay sariling reflection ng wcb, kaya hindi ito nagti-trigger ng pagbalik sa
+declared default na nangyayari kapag galing sa labas ang pagtanggal.
+
+```js
+this.props.selected = undefined // <my-el> — wala nang attribute, undefined ang prop
+this.props.selected = 'a' // <my-el selected="a">
+```
+
 ### `fromAttribute(name, value)`
 
 Kino-convert ang isang attribute value tungo sa prop value na kinakatawan nito, ang kabaligtaran ng

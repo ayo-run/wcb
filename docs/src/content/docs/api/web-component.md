@@ -233,6 +233,18 @@ toAttribute(name, value) {
 }
 ```
 
+The default conversion returns `null` for `null` and `undefined`, so assigning
+either to a prop **removes** its attribute instead of writing the text
+`"null"` / `"undefined"`, and a nullish `static props` default reflects as no
+attribute at all. The prop keeps the value you assigned: the removal is wcb's
+own reflection, so it does not trigger the declared-default reset that a
+removal from outside would.
+
+```js
+this.props.selected = undefined // <my-el> — attribute gone, prop is undefined
+this.props.selected = 'a' // <my-el selected="a">
+```
+
 ### `fromAttribute(name, value)`
 
 Converts an attribute value into the prop value it represents, the inverse of

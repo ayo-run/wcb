@@ -220,6 +220,16 @@ toAttribute(name, value) {
 }
 ```
 
+默认转换对 `null` 和 `undefined` 返回 `null`，因此把二者之一赋给 prop 会
+**移除**它的属性，而不是写入 `"null"` / `"undefined"` 这样的文本；`static props`
+中 nullish 的默认值也不会反射出任何属性。prop 保留你所赋的值：这次移除是 wcb
+自身的反射，因此不会触发外部移除属性时的声明默认值重置。
+
+```js
+this.props.selected = undefined // <my-el> — 属性消失，prop 为 undefined
+this.props.selected = 'a' // <my-el selected="a">
+```
+
 ### `fromAttribute(name, value)`
 
 将一个属性值转换为它所代表的 prop 值，是 `toAttribute()` 的逆操作。
