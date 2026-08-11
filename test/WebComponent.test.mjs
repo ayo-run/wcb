@@ -509,6 +509,30 @@ describe('reactive props (documented contract)', () => {
     expect(el.props.active).toBe(false)
   })
 
+  it('removes the attribute when a prop is set to undefined', () => {
+    const el = connected()
+    el.props.myName = undefined
+    expect(el.hasAttribute('my-name')).toBe(false)
+    // the write is the source of truth: removing the attribute is our own
+    // reflection, so the declared default must not be restored behind it
+    expect(el.props.myName).toBe(undefined)
+  })
+
+  it('removes the attribute when a prop is set to null', () => {
+    const el = connected()
+    el.props.count = null
+    expect(el.hasAttribute('count')).toBe(false)
+    expect(el.props.count).toBe(null)
+  })
+
+  it('re-reflects a prop assigned again after a nullish removal', () => {
+    const el = connected()
+    el.props.myName = null
+    el.props.myName = 'Ayo'
+    expect(el.getAttribute('my-name')).toBe('Ayo')
+    expect(el.querySelector('h1').textContent).toBe('Hello Ayo')
+  })
+
   it('round-trips a boolean prop through toggleAttribute()', () => {
     const el = connected()
     // the whole point of REQ-07: host code can use the platform API
@@ -574,6 +598,23 @@ describe('default reflection (no setAttribute in constructor)', () => {
     document.body.appendChild(el)
     expect(el.props.myName).toBe('Zoe')
     expect(el.getAttribute('my-name')).toBe('Zoe')
+  })
+
+  it('writes no attribute for a nullish default', () => {
+    class NullishDefault extends WebComponent {
+      static props = { maybe: null, missing: undefined }
+    }
+    const t = 'reflect-nullish-default'
+    window.customElements.define(t, NullishDefault)
+
+    const el = document.createElement(t)
+    document.body.appendChild(el)
+    // a nullish default means "no value yet", not the literal text
+    // `maybe="null"` / `missing="undefined"` in the DOM
+    expect(el.hasAttribute('maybe')).toBe(false)
+    expect(el.hasAttribute('missing')).toBe(false)
+    expect(el.props.maybe).toBe(null)
+    expect(el.props.missing).toBe(undefined)
   })
 
   it('reflects a false boolean default as no attribute at all', () => {
