@@ -1,3 +1,2 @@
 echo "post-commit..."
-git push gh 
-git push sh 
+git push sh
