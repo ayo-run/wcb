@@ -60,9 +60,18 @@ describe('translated docs pages', () => {
     })
 
     it.each(pages)('%s keeps internal links in-locale', (page) => {
+      // file name derived from `page`
+      const filename = page.substring(page.lastIndexOf('/') + 1)
+      // shared assets expected to be the same for locales
+      const expectedShared = {
+        'examples.md': ['/todo-app.gif'],
+      }
       const links = getInternalLinks(readFileSync(page, 'utf8'))
       const leaking = links.filter((href) => !href.startsWith(`/${locale}/`))
-      expect(leaking).toEqual([])
+
+      console.log('>>>', { page })
+
+      expect(leaking).toEqual(expectedShared[filename] ?? [])
     })
 
     // four pages sharing one slug collapse into a single collection entry,

@@ -8,25 +8,25 @@ description: boolean props、attributeコンバーター、テンプレート、
 
 以下の各サンプルは、[demo.webcomponent.io ↗](https://demo.webcomponent.io/)上で単体のページとして動作します。ここは各デモとそのソースを並べて見られるライブギャラリーです。
 
-| デモ | 内容 |
-| ---- | ----- |
-| [Boolean props ↗](https://demo.webcomponent.io/examples/boolean-props/) | 有無による反映、`toggleAttribute`、`[flag]` セレクター |
-| [カスタム属性コンバーター ↗](https://demo.webcomponent.io/examples/attribute-converters/) | `Date`と配列propのための`toAttribute`/`fromAttribute` |
-| [Propsブループリント ↗](https://demo.webcomponent.io/examples/props-blueprint/) | デフォルト値と型の単一の情報源としての`static props` |
-| [Prop型の強制 ↗](https://demo.webcomponent.io/examples/strict-props/) | `static strictProps`と、デフォルトのログ出力（例外を投げない）動作 |
-| [コンパイル時のprop型 ↗](https://demo.webcomponent.io/examples/typed-props/) | TypeScriptでの`this.props`の型付け |
-| [型付きprops ↗](https://demo.webcomponent.io/examples/type-restore/) | 宣言された型を復元する属性のラウンドトリップ |
-| [テンプレート化 ↗](https://demo.webcomponent.io/examples/templating/) | 文字列 vs `html` タグ付きテンプレートのレンダリング |
-| [レンダリング調整 ↗](https://demo.webcomponent.io/examples/render-reconciliation/) | フォーカス、キャレット、入力状態を保持するインプレースパッチ |
-| [スタイルオブジェクト ↗](https://demo.webcomponent.io/examples/style-objects/) | `style` propによる計算・条件付きスタイル |
-| [Shadow DOM ↗](https://demo.webcomponent.io/examples/use-shadow/) | `static shadowRootInit` |
-| [Constructableスタイル ↗](https://demo.webcomponent.io/examples/constructed-styles/) | `static styles`、複数シートの合成を含む |
-| [ライフサイクルの順序 ↗](https://demo.webcomponent.io/examples/lifecycle-order/) | 発火するたびにログされる各フック |
-| [属性のライフサイクル ↗](https://demo.webcomponent.io/examples/attribute-lifecycle/) | 属性の変更がどのようにフックを駆動するか |
-| [onChangesのペイロード ↗](https://demo.webcomponent.io/examples/on-changes/) | camelCaseの`property`とkebab-caseの`attribute` |
-| [部分だけを使う ↗](https://demo.webcomponent.io/examples/just-parts/) | ベースクラスを使わずに`html`/`createElement`を使う |
-| [Kitchen sink ↗](https://demo.webcomponent.io/examples/demo/) | 複数の機能を組み合わせたもの |
-| [単一ファイルのpen ↗](https://demo.webcomponent.io/examples/pens/counter-toggle.html) | 1つのHTMLファイルにカウンターとトグル |
+| デモ                                                                                      | 内容                                                               |
+| ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| [Boolean props ↗](https://demo.webcomponent.io/examples/boolean-props/)                   | 有無による反映、`toggleAttribute`、`[flag]` セレクター             |
+| [カスタム属性コンバーター ↗](https://demo.webcomponent.io/examples/attribute-converters/) | `Date`と配列propのための`toAttribute`/`fromAttribute`              |
+| [Propsブループリント ↗](https://demo.webcomponent.io/examples/props-blueprint/)           | デフォルト値と型の単一の情報源としての`static props`               |
+| [Prop型の強制 ↗](https://demo.webcomponent.io/examples/strict-props/)                     | `static strictProps`と、デフォルトのログ出力（例外を投げない）動作 |
+| [コンパイル時のprop型 ↗](https://demo.webcomponent.io/examples/typed-props/)              | TypeScriptでの`this.props`の型付け                                 |
+| [型付きprops ↗](https://demo.webcomponent.io/examples/type-restore/)                      | 宣言された型を復元する属性のラウンドトリップ                       |
+| [テンプレート化 ↗](https://demo.webcomponent.io/examples/templating/)                     | 文字列 vs `html` タグ付きテンプレートのレンダリング                |
+| [レンダリング調整 ↗](https://demo.webcomponent.io/examples/render-reconciliation/)        | フォーカス、キャレット、入力状態を保持するインプレースパッチ       |
+| [スタイルオブジェクト ↗](https://demo.webcomponent.io/examples/style-objects/)            | `style` propによる計算・条件付きスタイル                           |
+| [Shadow DOM ↗](https://demo.webcomponent.io/examples/use-shadow/)                         | `static shadowRootInit`                                            |
+| [Constructableスタイル ↗](https://demo.webcomponent.io/examples/constructed-styles/)      | `static styles`、複数シートの合成を含む                            |
+| [ライフサイクルの順序 ↗](https://demo.webcomponent.io/examples/lifecycle-order/)          | 発火するたびにログされる各フック                                   |
+| [属性のライフサイクル ↗](https://demo.webcomponent.io/examples/attribute-lifecycle/)      | 属性の変更がどのようにフックを駆動するか                           |
+| [onChangesのペイロード ↗](https://demo.webcomponent.io/examples/on-changes/)              | camelCaseの`property`とkebab-caseの`attribute`                     |
+| [部分だけを使う ↗](https://demo.webcomponent.io/examples/just-parts/)                     | ベースクラスを使わずに`html`/`createElement`を使う                 |
+| [Kitchen sink ↗](https://demo.webcomponent.io/examples/demo/)                             | 複数の機能を組み合わせたもの                                       |
+| [単一ファイルのpen ↗](https://demo.webcomponent.io/examples/pens/counter-toggle.html)     | 1つのHTMLファイルにカウンターとトグル                              |
 
 ## CodePenの例
 
@@ -35,7 +35,7 @@ description: boolean props、attributeコンバーター、テンプレート、
 タスクの追加・完了ができるシンプルなアプリです。
 [CodePenで見る ↗](https://codepen.io/ayoayco-the-styleful/pen/GRegyVe?editors=1010)
 
-![Todoアプリの画面録画](https://raw.githubusercontent.com/ayoayco/web-component-base/main/assets/todo-app.gif)
+![Todoアプリの画面録画](/todo-app.gif)
 
 ### 2. 単一HTMLファイルの例
 
