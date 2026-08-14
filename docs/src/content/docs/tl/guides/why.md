@@ -12,7 +12,7 @@ May limang dahilan kung bakit umiiral ang WCB:
 2. **Zero tooling, totohanan.** Walang compiler, walang decorators, walang build step: isang `import` mula sa CDN sa loob ng `<script type="module">` ay gumagana na sa mga kasalukuyang browser. Ang buong mental model ay `static props` + `template` + apat na hooks, at ang naipadalang source ay nababasa sa isang upuan lang. Ang runtime ay 2.6 kB brotli-compressed ([sinukat](/tl/comparison/)).
 3. **Ang attribute-first reactivity ay HTML-native.** Dahil ang props ay nagsi-serialize papunta sa attributes, ang initial state ay maaaring i-render ng _kahit anong_ server sa plain HTML (walang kailangang JS-framework SSR integration) at ang mga component ay nananatiling inspectable/debuggable sa devtools bilang ordinaryong attributes.
 4. **Light DOM bilang default.** Ang mga global stylesheet, forms, at third-party CSS ay gumagana lang; at ang shadow DOM ay isang static field na lang ang layo kapag gusto mo ng encapsulation.
-5. **Ang size gate ay isang pinamamahalaang value.** Bawat byte na idinagdag ay kailangang maging makatwiran sa [size change log](https://github.com/ayo-run/wcb/blob/main/size-change-log.md), na pinapatupad ng `size-limit` budgets sa CI. Ang smart diffing ang pinakamalaking solong dagdag sa kasaysayan ng project at nagkanta ito ng 0.43 kB.
+5. **Ang size gate ay isang pinamamahalaang value.** Bawat byte na idinagdag ay kailangang maging makatwiran sa [size change log](https://github.com/ayo-run/wcb/blob/v6/size-change-log.md), na pinapatupad ng `size-limit` budgets sa CI. Ang smart diffing ang pinakamalaking solong dagdag sa kasaysayan ng project at nagkanta ito ng 0.43 kB.
 
 ## Kailan mali ang pagpili sa WCB
 

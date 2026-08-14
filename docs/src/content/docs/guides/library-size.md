@@ -8,4 +8,4 @@ All the functions and the base class in the library are minimalist by design and
 
 The `WebComponent` base class is **1.98 kB** (min + brotli) according to [size-limit](http://github.com/ai/size-limit).
 
-Every change that moves this number is recorded in [`size-change-log.md`](https://github.com/ayo-run/wcb/blob/main/size-change-log.md), with the reason the bytes were spent and the benefit they bought.
+Every change that moves this number is recorded in [`size-change-log.md`](https://github.com/ayo-run/wcb/blob/v6/size-change-log.md), with the reason the bytes were spent and the benefit they bought.

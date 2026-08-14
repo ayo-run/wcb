@@ -12,7 +12,7 @@ WCB exists for five reasons:
 2. **Zero tooling, genuinely.** No compiler, no decorators, no build step: one `import` from a CDN in a `<script type="module">` works on current browsers. The whole mental model is `static props` + `template` + four hooks, and the shipped source is readable in one sitting. The runtime is 2.6 kB brotli-compressed ([measured](/comparison/)).
 3. **Attribute-first reactivity is HTML-native.** Because props serialize to attributes, initial state can be rendered by _any_ server in plain HTML (no JS-framework SSR integration needed) and components stay inspectable/debuggable in devtools as ordinary attributes.
 4. **Light DOM by default.** Global stylesheets, forms, and third-party CSS just work; and the shadow DOM is one static field away when you want encapsulation.
-5. **The size gate is a governed value.** Every byte added must justify itself in the [size change log](https://github.com/ayo-run/wcb/blob/main/size-change-log.md), enforced by `size-limit` budgets in CI. Smart diffing is the largest single addition in the project's history and it cost 0.43 kB.
+5. **The size gate is a governed value.** Every byte added must justify itself in the [size change log](https://github.com/ayo-run/wcb/blob/v6/size-change-log.md), enforced by `size-limit` budgets in CI. Smart diffing is the largest single addition in the project's history and it cost 0.43 kB.
 
 ## When WCB is the wrong choice
 

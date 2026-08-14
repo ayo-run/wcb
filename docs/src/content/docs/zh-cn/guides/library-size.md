@@ -8,4 +8,4 @@ description: WebComponent 基类的 min + brotli 体积、size-limit 的测量�
 
 根据 [size-limit](http://github.com/ai/size-limit) 的测量，`WebComponent` 基类的体积为 **1.98 kB**（min + brotli）。
 
-每一次改变这个数字的变更，都会被记录在 [`size-change-log.md`](https://github.com/ayo-run/wcb/blob/main/size-change-log.md) 中，包括花费这些字节的原因以及它们带来的收益。
+每一次改变这个数字的变更，都会被记录在 [`size-change-log.md`](https://github.com/ayo-run/wcb/blob/v6/size-change-log.md) 中，包括花费这些字节的原因以及它们带来的收益。

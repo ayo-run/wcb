@@ -12,7 +12,7 @@ WCB 的存在有五个理由：
 2. **真正的零工具链。** 无需编译器、无需装饰器、无需构建步骤：在 `<script type="module">` 中从 CDN 一次 `import` 即可在现代浏览器中运行。整个心智模型就是 `static props` + `template` + 四个钩子，发布的源码可以一口气读完。运行时经 brotli 压缩后为 2.6 kB（[已实测](/zh-cn/comparison/)）。
 3. **以属性（attribute）为先的响应式是 HTML 原生的。** 因为 props 会序列化为属性，初始状态可以由*任意*服务端以纯 HTML 渲染（无需集成任何 JS 框架的 SSR），并且组件在开发者工具中仍然可以像普通属性一样被检查和调试。
 4. **默认使用 Light DOM。** 全局样式表、表单和第三方 CSS 都能正常工作；而当你需要封装时，只需一个静态字段即可启用 Shadow DOM。
-5. **体积门槛是受治理的值。** 每新增一个字节都必须在 [体积变更记录](https://github.com/ayo-run/wcb/blob/main/size-change-log.md) 中说明理由，并由 CI 中的 `size-limit` 预算强制执行。智能差异对比（diffing）是项目历史上最大的一次单项新增，代价是 0.43 kB。
+5. **体积门槛是受治理的值。** 每新增一个字节都必须在 [体积变更记录](https://github.com/ayo-run/wcb/blob/v6/size-change-log.md) 中说明理由，并由 CI 中的 `size-limit` 预算强制执行。智能差异对比（diffing）是项目历史上最大的一次单项新增，代价是 0.43 kB。
 
 ## 什么时候 WCB 不是正确的选择
 
