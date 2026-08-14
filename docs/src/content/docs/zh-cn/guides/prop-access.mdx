@@ -74,7 +74,7 @@ class CozyButton extends WebComponent<CozyButtonProps> {
 
 这个类型标注会将类型检查应用到后续的赋值上，同时默认值本身也会依据该类型被检查，因此缺少某个键或默认值超出联合类型范围同样会产生编译错误。
 
-<Aside type="tip" title="如果需要运行时类型保护，使用 `static strictType`">
+<Aside type="tip" title="如果需要运行时类型保护，使用 `static strictProps`">
 在运行时，为 prop 赋予不同类型的值会静默失败。将 [`static strictProps`](/zh-cn/api/web-component/#static-strictprops) 设为 true，会在赋值类型错误时抛出 `TypeError`。
 </Aside>
 

@@ -74,7 +74,7 @@ class CozyButton extends WebComponent<CozyButtonProps> {
 
 Ang annotation na ito ay nag-a-apply ng type-check sa mga susunod na assignment habang ang mga default mismo ay sinusuri laban sa type, kaya ang isang missing key o isang default na wala sa union ay isa ring compile error.
 
-<Aside type="tip" title="Gamitin ang `static strictType` kung gusto mo ng runtime type guards">
+<Aside type="tip" title="Gamitin ang `static strictProps` kung gusto mo ng runtime type guards">
 Sa runtime, ang pag-assign ng ibang type sa isang prop ay tahimik na nabibigo. Ang pag-set ng [`static strictProps`](/tl/api/web-component/#static-strictprops) sa true ay magtatapon ng `TypeError` kapag may na-assign na maling type.
 </Aside>
 

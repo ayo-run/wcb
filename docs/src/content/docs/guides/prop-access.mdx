@@ -74,7 +74,7 @@ class CozyButton extends WebComponent<CozyButtonProps> {
 
 This annotation applies the type-check to succeeding assignments while the defaults themselves are checked against the type, so a missing key or a default outside the union is a compile error too.
 
-<Aside type="tip" title="Use `static strictType` if you want runtime type guards">
+<Aside type="tip" title="Use `static strictProps` if you want runtime type guards">
 At runtime, assigning a different type to a prop quietly fails. Setting [`static strictProps`](/api/web-component/#static-strictprops) to true will throw a `TypeError` when wrong types are assigned.
 </Aside>
 
