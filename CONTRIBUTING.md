@@ -1,10 +1,12 @@
-# AGENTS.md
+# Contributing Guide
 
-This file provides guidance to AI coding agents when working with code in this repository.
+Thanks for checking out Web Component Base (WCB). Any contribution is welcome. Feel free to look around to find something that interests you. :)
+
+I'm happy to help with guidance on Pull Requests and solving issues you find.
 
 ## What this is
 
-`web-component-base` (WCB) is a zero-dependency, ~1KB base class (`WebComponent extends HTMLElement`) for building reactive custom elements. Authors subclass it and define only a `template` and `static props`; any change to an observed attribute automatically re-renders the component.
+`web-component-base` (WCB) is a zero-dependency, tiny base class (`WebComponent extends HTMLElement`) for building reactive custom elements. Authors subclass it and define only a `template` and `static props`; any change to an observed attribute automatically re-renders the component.
 
 ## Commands
 
